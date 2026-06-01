@@ -34,12 +34,16 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
       }
 
       case "assemble_video": {
-        const filePath = await assembleVideo(
+        const result = await assembleVideo(
           input.scenes as Array<{ imagePath: string; voicePath: string }>,
           input.outputFilename as string,
-          input.subtitles as string[] | undefined
+          input.subtitles as string[] | undefined,
+          (input.formats as string[] | undefined) as import("@/lib/tools/video").VideoFormat[] | undefined ?? ["youtube"]
         );
-        return { success: true, data: { filePath, message: `Video hoàn chỉnh: ${filePath}` } };
+        const lines = Object.entries(result)
+          .map(([fmt, p]) => `${fmt}: ${p}`)
+          .join("\n");
+        return { success: true, data: { files: result, message: `Video hoàn chỉnh:\n${lines}` } };
       }
 
       default:

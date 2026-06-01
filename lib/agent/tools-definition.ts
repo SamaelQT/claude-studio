@@ -44,7 +44,7 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
   },
   {
     name: "assemble_video",
-    description: "Ghép nhiều scene (ảnh + voice) thành video hoàn chỉnh dùng FFmpeg. Mỗi scene gồm ảnh và audio.",
+    description: "Ghép nhiều scene (ảnh + voice) thành video hoàn chỉnh. Có thể xuất nhiều format cùng lúc từ 1 bộ assets — không tốn thêm API call nào. youtube=16:9, shorts=9:16 full, tiktok=9:16 tối đa 3 scene/60s.",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -65,6 +65,11 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
           type: "array",
           items: { type: "string" },
           description: "Subtitle text cho từng scene (optional, cùng số lượng với scenes)",
+        },
+        formats: {
+          type: "array",
+          items: { type: "string", enum: ["youtube", "shorts", "tiktok"] },
+          description: "Danh sách format cần xuất. Mặc định ['youtube']. Có thể xuất nhiều cùng lúc VD: ['youtube','shorts','tiktok']",
         },
       },
       required: ["scenes", "outputFilename"],

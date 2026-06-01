@@ -57,15 +57,23 @@ export default function ChatMessage({ msg }: { msg: Message }) {
     }
     const data = msg.data as Record<string, unknown> | undefined;
     const message = data?.message as string | undefined;
-    const filePath = data?.filePath as string | undefined;
+    const files = data?.files as Record<string, string> | undefined;
+
+    const formatLabels: Record<string, string> = {
+      youtube: "▶️ YouTube (16:9)",
+      shorts: "📱 Shorts (9:16)",
+      tiktok: "🎵 TikTok (9:16)",
+    };
 
     return (
       <div className="flex justify-start mb-2">
         <div className="bg-green-950 border border-green-800 rounded-xl px-4 py-2 max-w-[85%] text-sm text-green-300">
-          ✅ {message || `${msg.tool} hoàn thành`}
-          {filePath && msg.tool === "assemble_video" && (
-            <div className="mt-1 text-green-400 font-medium">📁 {filePath}</div>
-          )}
+          ✅ {msg.tool === "assemble_video" ? "Video hoàn chỉnh!" : (message || `${msg.tool} hoàn thành`)}
+          {files && Object.entries(files).map(([fmt, p]) => (
+            <div key={fmt} className="mt-1 text-green-400 font-medium">
+              {formatLabels[fmt] ?? fmt}: <span className="text-green-500 text-xs">{p}</span>
+            </div>
+          ))}
         </div>
       </div>
     );

@@ -21,6 +21,12 @@ Với ảnh: prompt phải bằng tiếng Anh, mô tả chi tiết style (photor
 Với voice: viết text tự nhiên, phù hợp giọng đọc YouTube
 Với subtitle: tóm tắt ý chính của scene đó, ngắn gọn
 
+Về format video khi gọi assemble_video:
+- Mặc định luôn xuất ["youtube"] (16:9)
+- Nếu người dùng đề cập TikTok → thêm "tiktok" vào formats
+- Nếu người dùng đề cập Shorts → thêm "shorts" vào formats
+- Có thể xuất nhiều format cùng lúc ["youtube","shorts","tiktok"] — không tốn thêm API call nào, chỉ FFmpeg reformat
+
 Luôn tự động làm hết các bước, không hỏi lại trừ khi thực sự cần thêm thông tin quan trọng.`;
 
 type ContentBlock =
