@@ -31,12 +31,12 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
     input_schema: {
       type: "object" as const,
       properties: {
-        text: { type: "string", description: "Nội dung cần đọc" },
+        text: { type: "string", description: "Nội dung cần đọc (tiếng Việt)" },
         filename: { type: "string", description: "Tên file (không có đuôi), VD: voice_01" },
-        provider: {
+        style: {
           type: "string",
-          enum: ["elevenlabs", "kokoro"],
-          description: "Provider TTS, mặc định elevenlabs, tự động fallback kokoro khi hết quota",
+          enum: ["horror", "history", "news", "finance", "facts", "lifestyle", "kids", "gaming", "travel", "default"],
+          description: "Phong cách giọng đọc theo loại kênh. horror=trầm huyền bí, history=ấm nghiêm túc, facts=rõ nhanh, gaming=trẻ năng động, default=nữ Bắc rõ ràng",
         },
       },
       required: ["text", "filename"],

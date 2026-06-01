@@ -28,7 +28,7 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
         const filePath = await generateVoice(
           input.text as string,
           input.filename as string,
-          (input.provider as "elevenlabs" | "kokoro") ?? "elevenlabs"
+          (input.style as string) ?? "default"
         );
         return { success: true, data: { filePath, message: `Voice đã tạo: ${filePath}` } };
       }

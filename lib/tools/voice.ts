@@ -1,55 +1,80 @@
-import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import fs from "fs";
 import path from "path";
 
-// ElevenLabs: dùng trước, nếu hết quota thì fallback Kokoro
+// FPT.AI voices — tiếng Việt tự nhiên
+export const VOICE_STYLES: Record<string, { voice: string; description: string }> = {
+  // Giọng Nam
+  horror:    { voice: "minhquang", description: "Nam Bắc, trầm, huyền bí — kênh kinh dị" },
+  history:   { voice: "leminh",    description: "Nam Nam, ấm, nghiêm túc — kênh lịch sử" },
+  news:      { voice: "minhquang", description: "Nam Bắc, rõ ràng — kênh tin tức" },
+  finance:   { voice: "leminh",    description: "Nam Nam, chuyên nghiệp — kênh tài chính" },
+  // Giọng Nữ
+  facts:     { voice: "lannhi",    description: "Nữ Bắc, rõ, nhanh — kênh facts/edu" },
+  lifestyle: { voice: "banmai",    description: "Nữ Nam, nhẹ nhàng — kênh lifestyle" },
+  kids:      { voice: "banmai",    description: "Nữ Nam, dễ thương — kênh thiếu nhi" },
+  // Giọng trẻ
+  gaming:    { voice: "giahuy",    description: "Nam Nam, trẻ, năng động — kênh gaming" },
+  travel:    { voice: "ngoclam",   description: "Nữ Nam, tươi sáng — kênh du lịch" },
+  default:   { voice: "lannhi",    description: "Nữ Bắc, rõ ràng — mặc định" },
+};
+
 export async function generateVoice(
   text: string,
   filename: string,
-  provider: "elevenlabs" | "kokoro" = "elevenlabs"
+  style: string = "default"
 ): Promise<string> {
   const outputPath = path.join(process.cwd(), "output", "voices", `${filename}.mp3`);
+  const voice = VOICE_STYLES[style]?.voice ?? VOICE_STYLES.default.voice;
 
-  if (provider === "elevenlabs") {
-    try {
-      return await generateElevenLabs(text, outputPath);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("quota") || msg.includes("limit") || msg.includes("401")) {
-        console.warn("ElevenLabs quota hit, fallback to Kokoro");
-        return await generateKokoro(text, outputPath);
-      }
-      throw e;
-    }
+  try {
+    return await generateFPT(text, outputPath, voice);
+  } catch (e) {
+    console.warn("FPT.AI failed, fallback ElevenLabs:", e);
+    return await generateElevenLabs(text, outputPath);
   }
-
-  return await generateKokoro(text, outputPath);
 }
 
-async function generateElevenLabs(text: string, outputPath: string): Promise<string> {
-  const client = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY! });
-  const audioStream = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
-    text,
-    modelId: "eleven_multilingual_v2",
-    voiceSettings: { stability: 0.5, similarityBoost: 0.75 },
+async function generateFPT(text: string, outputPath: string, voice: string): Promise<string> {
+  const response = await fetch(`https://api.fpt.ai/hmi/tts/v5?voice=${voice}&speed=&quality=premium`, {
+    method: "POST",
+    headers: {
+      "api-key": process.env.FPT_API_KEY!,
+      "Content-Type": "application/json",
+    },
+    body: text,
   });
 
-  const chunks: Buffer[] = [];
-  for await (const chunk of audioStream as unknown as AsyncIterable<Buffer>) {
-    chunks.push(chunk);
-  }
-  fs.writeFileSync(outputPath, Buffer.concat(chunks));
+  if (!response.ok) throw new Error(`FPT.AI error: ${response.status} ${await response.text()}`);
+
+  const data = await response.json();
+  if (!data.async) throw new Error("FPT.AI: no audio URL returned");
+
+  // FPT trả về URL audio, download về
+  const audioRes = await fetch(data.async);
+  if (!audioRes.ok) throw new Error("FPT.AI: failed to download audio");
+
+  const buffer = Buffer.from(await audioRes.arrayBuffer());
+  fs.writeFileSync(outputPath, buffer);
   return outputPath;
 }
 
-async function generateKokoro(text: string, outputPath: string): Promise<string> {
-  const kokoroUrl = process.env.KOKORO_URL || "http://localhost:8880";
-  const response = await fetch(`${kokoroUrl}/v1/audio/speech`, {
+async function generateElevenLabs(text: string, outputPath: string): Promise<string> {
+  if (!process.env.ELEVENLABS_API_KEY) throw new Error("No ElevenLabs key");
+
+  const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "kokoro", input: text, voice: "af_heart", response_format: "mp3" }),
+    headers: {
+      "xi-api-key": process.env.ELEVENLABS_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text,
+      model_id: "eleven_multilingual_v2",
+      voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+    }),
   });
-  if (!response.ok) throw new Error(`Kokoro error: ${response.statusText}`);
+
+  if (!response.ok) throw new Error(`ElevenLabs error: ${response.status}`);
   const buffer = Buffer.from(await response.arrayBuffer());
   fs.writeFileSync(outputPath, buffer);
   return outputPath;
