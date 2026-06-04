@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage, { Message } from "@/components/ChatMessage";
 import { runAgent } from "@/lib/agent/browser-agent";
-import { WANSEE_CATALOG } from "@/lib/wansee-catalog";
+import { WANSEE_VIDEOS } from "@/lib/wansee-videos";
 
 const ANTHROPIC_API_KEY = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!;
 
