@@ -83,24 +83,25 @@ export default function Home() {
 
       <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl w-full mx-auto">
         {messages.length === 0 && (
-          <div className="mt-10 max-w-2xl mx-auto">
-            <div className="text-center mb-6">
+          <div className="mt-6 max-w-3xl mx-auto">
+            <div className="text-center mb-4">
               <div className="text-3xl mb-2">🎬</div>
               <h2 className="text-lg font-semibold text-zinc-300">Chào Quang!</h2>
-              <p className="text-zinc-500 text-sm">Chọn story để clone hoặc nhập yêu cầu tự do</p>
+              <p className="text-zinc-500 text-sm">Chọn video Wansee để clone thành tiếng Việt</p>
             </div>
-            <div className="grid grid-cols-1 gap-2 max-h-[60vh] overflow-y-auto pr-1">
-              {WANSEE_CATALOG.map((s) => (
+            <div className="flex flex-col gap-1 max-h-[65vh] overflow-y-auto pr-1">
+              {WANSEE_VIDEOS.map((v, i) => (
                 <button
-                  key={s.id}
-                  onClick={() => sendMessage(`tạo clone ${s.id}`)}
-                  className="text-left bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 transition-colors group"
+                  key={v.id}
+                  onClick={() => sendMessage(`Clone video Wansee này thành tiếng Việt, bối cảnh Việt Nam, tối thiểu 7 phút: "${v.title}" (${v.url})`)}
+                  className="text-left bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-600 rounded-lg px-4 py-2.5 transition-colors group"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-zinc-200">{s.titleVi}</span>
-                    <span className="text-xs text-zinc-600 group-hover:text-zinc-400 shrink-0 ml-3">tạo ngay →</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-zinc-600 w-8 shrink-0">#{i + 1}</span>
+                    <span className="text-sm text-zinc-200 flex-1 truncate">{v.title}</span>
+                    <span className="text-xs text-zinc-500 shrink-0">{(v.views / 1_000_000).toFixed(1)}M</span>
+                    <span className="text-xs text-zinc-700 group-hover:text-zinc-400 shrink-0">clone →</span>
                   </div>
-                  <div className="text-xs text-zinc-500 mt-1 truncate">{s.setting}</div>
                 </button>
               ))}
             </div>

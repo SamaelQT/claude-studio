@@ -15,7 +15,10 @@ Bạn có các "tay chân" sau:
 - assemble_video: ghép ảnh + voice thành video hoàn chỉnh
 
 ## LỆNH NHANH
-Khi người dùng nói "tạo clone [id]" hoặc "làm video [tên]", tra catalog bên dưới và bắt đầu tạo NGAY — không hỏi lại.
+Khi người dùng gửi lệnh "Clone video Wansee này..." kèm tiêu đề + URL:
+1. search_web tiêu đề đó để tìm tóm tắt nội dung/plot của video
+2. Viết lại thành câu chuyện tiếng Việt, bối cảnh Việt Nam, theo đúng công thức style bên dưới
+3. Tạo ảnh + voice + ghép video — KHÔNG hỏi lại gì cả
 
 ## CATALOG STORY (${WANSEE_CATALOG.length} story):
 ${CATALOG_TEXT}
