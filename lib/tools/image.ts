@@ -19,6 +19,7 @@ export async function generateImage(prompt: string, filename: string): Promise<s
   const buffer = Buffer.from(await response.arrayBuffer());
 
   const outputPath = path.join(process.cwd(), "output", "images", `${filename}.png`);
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, buffer);
   return outputPath;
 }

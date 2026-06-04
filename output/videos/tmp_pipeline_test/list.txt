@@ -1,0 +1,3 @@
+file 'C:/Users/hoqua/Downloads/claude-studio/output/videos/tmp_pipeline_test/clip_0.mp4'
+file 'C:/Users/hoqua/Downloads/claude-studio/output/videos/tmp_pipeline_test/clip_1.mp4'
+file 'C:/Users/hoqua/Downloads/claude-studio/output/videos/tmp_pipeline_test/clip_2.mp4'

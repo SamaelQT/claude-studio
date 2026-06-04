@@ -1,6 +1,11 @@
 import ffmpeg from "fluent-ffmpeg";
+import ffmpegStatic from "ffmpeg-static";
 import path from "path";
 import fs from "fs";
+
+ffmpeg.setFfmpegPath((ffmpegStatic as string).replace(/\\/g, "/"));
+
+const fwd = (p: string) => p.replace(/\\/g, "/");
 
 export interface Scene {
   imagePath: string;
@@ -16,13 +21,18 @@ export interface AssembleResult {
 }
 
 // Tạo video theo nhiều format từ cùng 1 bộ assets — không tốn thêm API call
+function sanitize(name: string): string {
+  return name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60);
+}
+
 export async function assembleVideo(
   scenes: Scene[],
   outputFilename: string,
   subtitles?: string[],
   formats: VideoFormat[] = ["youtube"]
 ): Promise<AssembleResult> {
-  const tempDir = path.join(process.cwd(), "output", "videos", `temp_${outputFilename}`);
+  const safeName = sanitize(outputFilename);
+  const tempDir = path.join(process.cwd(), "output", "videos", `tmp_${safeName}`);
   fs.mkdirSync(tempDir, { recursive: true });
 
   // Tạo clips 16:9 gốc — dùng chung cho mọi format
@@ -38,7 +48,7 @@ export async function assembleVideo(
   await Promise.all(
     formats.map(async (fmt) => {
       if (fmt === "youtube") {
-        const out = path.join(process.cwd(), "output", "videos", `${outputFilename}_youtube.mp4`);
+        const out = path.join(process.cwd(), "output", "videos", `${safeName}_youtube.mp4`);
         await concatClips(clipPaths, out);
         result.youtube = out;
       }
@@ -58,7 +68,7 @@ export async function assembleVideo(
           verticalClips.push(clip);
         }
 
-        const out = path.join(process.cwd(), "output", "videos", `${outputFilename}_${fmt}.mp4`);
+        const out = path.join(process.cwd(), "output", "videos", `${safeName}_${fmt}.mp4`);
         await concatClips(verticalClips, out);
 
         if (fmt === "shorts") result.shorts = out;
@@ -80,21 +90,26 @@ function createSceneClip(
   return new Promise((resolve, reject) => {
     const [w, h] = aspect === "16:9" ? [1920, 1080] : [1080, 1920];
 
-    // 9:16: blur background + ảnh gốc fit giữa (giữ nguyên nội dung, không crop)
-    const videoFilter =
-      aspect === "9:16"
-        ? buildVerticalFilter(w, h, subtitle)
-        : subtitle
+    const is916 = aspect === "9:16";
+    // 9:16 dùng complexFilter (blur bg + overlay) với output label [v]
+    // 16:9 dùng vf đơn giản, map trực tiếp từ stream 0:v
+    const complexFilter = is916 ? buildVerticalComplexFilter(w, h, subtitle) : null;
+    const simpleFilter = !is916
+      ? subtitle
         ? `scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h},` + buildSubtitleFilter(w, h, subtitle)
-        : `scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h}`;
+        : `scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h}`
+      : null;
 
-    ffmpeg()
-      .input(scene.imagePath)
+    let cmd = ffmpeg()
+      .input(fwd(scene.imagePath))
       .inputOptions(["-loop 1"])
-      .input(scene.voicePath)
-      .complexFilter(aspect === "9:16" ? buildVerticalComplexFilter(w, h, subtitle) : videoFilter)
-      .outputOptions([
-        "-map [v]",
+      .input(fwd(scene.voicePath));
+
+    if (complexFilter) cmd = cmd.complexFilter(complexFilter);
+    if (simpleFilter) cmd = (cmd as any).videoFilter(simpleFilter);
+
+    cmd = cmd.outputOptions([
+        ...(complexFilter ? ["-map [v]"] : ["-map 0:v"]),
         "-map 1:a",
         "-c:v libx264",
         "-tune stillimage",
@@ -103,7 +118,7 @@ function createSceneClip(
         "-pix_fmt yuv420p",
         "-shortest",
       ])
-      .output(outputClip)
+      .output(fwd(outputClip))
       .on("end", () => resolve(outputClip))
       .on("error", reject)
       .run();
@@ -131,14 +146,14 @@ function buildSubtitleFilter(w: number, h: number, subtitle: string): string {
 function concatClips(clipPaths: string[], outputPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const listFile = outputPath.replace(".mp4", "_list.txt");
-    const content = clipPaths.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n");
+    const content = clipPaths.map((p) => `file '${fwd(p)}'`).join("\n");
     fs.writeFileSync(listFile, content);
 
     ffmpeg()
-      .input(listFile)
+      .input(fwd(listFile))
       .inputOptions(["-f concat", "-safe 0"])
       .outputOptions(["-c copy"])
-      .output(outputPath)
+      .output(fwd(outputPath))
       .on("end", () => {
         fs.unlinkSync(listFile);
         resolve();

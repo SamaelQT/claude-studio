@@ -24,6 +24,7 @@ export async function generateVoice(
   style: string = "default"
 ): Promise<string> {
   const outputPath = path.join(process.cwd(), "output", "voices", `${filename}.mp3`);
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   const voice = VOICE_STYLES[style]?.voice ?? VOICE_STYLES.default.voice;
 
   try {
@@ -49,11 +50,16 @@ async function generateFPT(text: string, outputPath: string, voice: string): Pro
   const data = await response.json();
   if (!data.async) throw new Error("FPT.AI: no audio URL returned");
 
-  // FPT trả về URL audio, download về
-  const audioRes = await fetch(data.async);
-  if (!audioRes.ok) throw new Error("FPT.AI: failed to download audio");
+  // FPT.AI v5 là async — poll tối đa 10 lần, mỗi lần cách 2s
+  let audioRes: Response | null = null;
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const res = await fetch(data.async);
+    if (res.ok) { audioRes = res; break; }
+  }
+  if (!audioRes) throw new Error("FPT.AI: audio not ready after polling");
 
-  const buffer = Buffer.from(await audioRes.arrayBuffer());
+  const buffer = Buffer.from(await audioRes!.arrayBuffer());
   fs.writeFileSync(outputPath, buffer);
   return outputPath;
 }
