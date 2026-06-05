@@ -6,6 +6,7 @@ import { runAgent } from "@/lib/agent/browser-agent";
 import { WANSEE_VIDEOS } from "@/lib/wansee-videos";
 
 const ANTHROPIC_API_KEY = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!;
+const TEST_MODE = process.env.NEXT_PUBLIC_TEST_MODE === "true"; // test = 3 scene, production = full
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -93,7 +94,9 @@ export default function Home() {
               {WANSEE_VIDEOS.map((v, i) => (
                 <button
                   key={v.id}
-                  onClick={() => sendMessage(`Clone video Wansee này thành tiếng Việt, bối cảnh Việt Nam, tối thiểu 7 phút: "${v.title}" (${v.url})`)}
+                  onClick={() => sendMessage(TEST_MODE
+                    ? `Clone video Wansee này thành tiếng Việt, bối cảnh Việt Nam, CHỈ 3 SCENE để test pipeline: "${v.title}" (${v.url})`
+                    : `Clone video Wansee này thành tiếng Việt, bối cảnh Việt Nam, tối thiểu 7 phút: "${v.title}" (${v.url})`)}
                   className="text-left bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-600 rounded-lg px-4 py-2.5 transition-colors group"
                 >
                   <div className="flex items-center gap-3">

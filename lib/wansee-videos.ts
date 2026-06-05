@@ -5,6 +5,7 @@ export interface WanseeVideo {
   publishedAt: string;
   views: number;
   likes: number;
+  duration?: string;
   url: string;
 }
 

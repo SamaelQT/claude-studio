@@ -106,9 +106,10 @@ function createSceneClip(
       .input(fwd(scene.voicePath));
 
     if (complexFilter) cmd = cmd.complexFilter(complexFilter);
-    if (simpleFilter) cmd = (cmd as any).videoFilter(simpleFilter);
+    if (simpleFilter) cmd = cmd.videoFilters(simpleFilter);
 
-    cmd = cmd.outputOptions([
+    cmd
+      .outputOptions([
         ...(complexFilter ? ["-map [v]"] : ["-map 0:v"]),
         "-map 1:a",
         "-c:v libx264",
