@@ -134,7 +134,7 @@ export const WANSEE_CATALOG: WanseeStory[] = [
 
 // Style ảnh chuẩn Wansee — dùng làm prefix cho mọi image prompt
 export const WANSEE_IMAGE_STYLE =
-  "2D animated horror style, dark muted color palette, heavy shadows, cinematic lighting, Wansee Entertainment aesthetic, Korean horror animation influence, expressive fearful character faces, dark atmospheric background, deep blacks and desaturated blues/greens, subtle grain texture, unsettling and eerie mood";
+  "Wansee Entertainment flat 2D cel animation style, American horror cartoon meets Korean webtoon, thick bold black ink outlines on everything, flat solid color fills with NO gradients NO photorealism NO 3D rendering, muted earth tone palette: tan and brown skin tones, dark navy or charcoal grey backgrounds, mustard yellow or olive green as accent color, horror character expressions: large round white eyes wide open in shock, heavy dark eyebrows, teeth slightly showing, simple elongated face proportions, flat colored architectural backgrounds (simple block shapes for buildings walls roads), dark oppressive atmosphere through dark flat background colors NOT through lighting effects, clean vector-like appearance, NO film grain, NO photographic textures, NO complex lighting, NO shadows gradients, NO anime style, NO realistic rendering, flat horror illustration like a dark animated TV show, 16:9 widescreen, NO text NO watermark";
 
 // Style voice/script chuẩn Wansee
 export const WANSEE_SCRIPT_STYLE = `

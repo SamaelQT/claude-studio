@@ -17,10 +17,12 @@ export const VOICE_STYLES: Record<string, string> = {
 export async function generateVoice(
   text: string,
   filename: string,
-  style: string = "default"
+  style: string = "default",
+  outDir?: string
 ): Promise<string> {
-  const outputPath = path.join(process.cwd(), "output", "voices", `${filename}.mp3`);
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  const dir = outDir ?? path.join(process.cwd(), "output", "voices");
+  fs.mkdirSync(dir, { recursive: true });
+  const outputPath = path.join(dir, `${filename}.mp3`);
   const voice = VOICE_STYLES[style] ?? VOICE_STYLES.default;
 
   try {

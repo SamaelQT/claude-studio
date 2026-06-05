@@ -2,7 +2,7 @@ import { fal } from "@fal-ai/client";
 import fs from "fs";
 import path from "path";
 
-export async function generateImage(prompt: string, filename: string): Promise<string> {
+export async function generateImage(prompt: string, filename: string, outDir?: string): Promise<string> {
   fal.config({ credentials: process.env.FAL_KEY });
 
   const result = await fal.subscribe("fal-ai/flux/schnell", {
@@ -18,8 +18,9 @@ export async function generateImage(prompt: string, filename: string): Promise<s
   const response = await fetch(imageUrl);
   const buffer = Buffer.from(await response.arrayBuffer());
 
-  const outputPath = path.join(process.cwd(), "output", "images", `${filename}.png`);
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  const dir = outDir ?? path.join(process.cwd(), "output", "images");
+  fs.mkdirSync(dir, { recursive: true });
+  const outputPath = path.join(dir, `${filename}.png`);
   fs.writeFileSync(outputPath, buffer);
   return outputPath;
 }

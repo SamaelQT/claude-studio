@@ -2,6 +2,17 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
   {
+    name: "get_youtube_transcript",
+    description: "Lấy transcript (phụ đề/lời thoại) của một video YouTube theo video ID. Dùng để clone nội dung video gốc sang tiếng Việt.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        video_id: { type: "string", description: "YouTube video ID, VD: dQw4w9WgXcQ" },
+      },
+      required: ["video_id"],
+    },
+  },
+  {
     name: "search_web",
     description: "Tìm kiếm thông tin trên internet về một chủ đề. Dùng để research nội dung, số liệu, sự kiện cho video.",
     input_schema: {
@@ -11,6 +22,19 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
         max_results: { type: "number", description: "Số kết quả tối đa (mặc định 5)" },
       },
       required: ["query"],
+    },
+  },
+  {
+    name: "generate_video_clip",
+    description: "Animate một ảnh tĩnh thành video clip 5 giây có chuyển động (camera pan, fog, breathing effect). Dùng sau generate_image khi muốn video có chuyển động thật thay vì ảnh tĩnh. Đắt hơn ảnh (~$0.08/clip).",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        image_path: { type: "string", description: "Đường dẫn file ảnh từ generate_image" },
+        motion_prompt: { type: "string", description: "Mô tả chuyển động bằng tiếng Anh, VD: 'slow camera push in, fog drifting, horror atmosphere, subtle breathing'" },
+        filename: { type: "string", description: "Tên file output (không có đuôi), dùng cùng prefix PROJECT_NAME__clip_N" },
+      },
+      required: ["image_path", "motion_prompt", "filename"],
     },
   },
   {

@@ -8,8 +8,9 @@ ffmpeg.setFfmpegPath((ffmpegStatic as string).replace(/\\/g, "/"));
 const fwd = (p: string) => p.replace(/\\/g, "/");
 
 export interface Scene {
-  imagePath: string;
+  imagePath: string;  // ảnh .png hoặc video clip .mp4
   voicePath: string;
+  isVideoClip?: boolean;
 }
 
 export type VideoFormat = "youtube" | "shorts" | "tiktok";
@@ -29,16 +30,21 @@ export async function assembleVideo(
   scenes: Scene[],
   outputFilename: string,
   subtitles?: string[],
-  formats: VideoFormat[] = ["youtube"]
+  formats: VideoFormat[] = ["youtube"],
+  outDir?: string
 ): Promise<AssembleResult> {
   const safeName = sanitize(outputFilename);
-  const tempDir = path.join(process.cwd(), "output", "videos", `tmp_${safeName}`);
+  const baseDir = outDir ?? path.join(process.cwd(), "output", "videos");
+  fs.mkdirSync(baseDir, { recursive: true });
+  const tempDir = path.join(baseDir, `tmp_${safeName}`);
   fs.mkdirSync(tempDir, { recursive: true });
 
   // Tạo clips 16:9 gốc — dùng chung cho mọi format
   const clipPaths: string[] = [];
   for (let i = 0; i < scenes.length; i++) {
-    const clip = await createSceneClip(scenes[i], path.join(tempDir, `clip_${i}.mp4`), subtitles?.[i], "16:9");
+    const clip = scenes[i].isVideoClip
+      ? await createClipFromVideo(scenes[i], path.join(tempDir, `clip_${i}.mp4`), subtitles?.[i])
+      : await createSceneClip(scenes[i], path.join(tempDir, `clip_${i}.mp4`), subtitles?.[i], "16:9");
     clipPaths.push(clip);
   }
 
@@ -48,13 +54,12 @@ export async function assembleVideo(
   await Promise.all(
     formats.map(async (fmt) => {
       if (fmt === "youtube") {
-        const out = path.join(process.cwd(), "output", "videos", `${safeName}_youtube.mp4`);
+        const out = path.join(baseDir, `${safeName}_youtube.mp4`);
         await concatClips(clipPaths, out);
         result.youtube = out;
       }
 
       if (fmt === "shorts" || fmt === "tiktok") {
-        // Tạo clips 9:16 từ ảnh gốc (blur+fit — không crop mất nội dung)
         const verticalClips: string[] = [];
         const maxScenes = fmt === "tiktok" ? Math.min(scenes.length, 3) : scenes.length;
 
@@ -68,7 +73,7 @@ export async function assembleVideo(
           verticalClips.push(clip);
         }
 
-        const out = path.join(process.cwd(), "output", "videos", `${safeName}_${fmt}.mp4`);
+        const out = path.join(baseDir, `${safeName}_${fmt}.mp4`);
         await concatClips(verticalClips, out);
 
         if (fmt === "shorts") result.shorts = out;
@@ -139,9 +144,38 @@ function buildVerticalFilter(w: number, h: number, subtitle?: string): string {
 }
 
 function buildSubtitleFilter(w: number, h: number, subtitle: string): string {
-  const safe = subtitle.replace(/'/g, "’").replace(/:/g, "\\:").replace(/\\/g, "/");
+  const safe = subtitle.replace(/\\/g, "/").replace(/’/g, "’").replace(/:/g, "\\:");
   const fs = w >= 1080 ? 42 : 36;
-  return `drawtext=text='${safe}':fontcolor=white:fontsize=${fs}:box=1:boxcolor=black@0.6:boxborderw=8:x=(w-text_w)/2:y=h-th-60`;
+  const font = "C\\:/Windows/Fonts/arial.ttf";
+  return `drawtext=fontfile=’${font}’:text=’${safe}’:fontcolor=white:fontsize=${fs}:box=1:boxcolor=black@0.6:boxborderw=8:x=(w-text_w)/2:y=h-th-60`;
+}
+
+// Dùng video clip (từ Kling) — loop clip để khớp độ dài voice
+function createClipFromVideo(scene: Scene, outputClip: string, subtitle?: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let cmd = ffmpeg()
+      .input(fwd(scene.imagePath))
+      .inputOptions(["-stream_loop -1"])  // loop vô hạn, -shortest sẽ cắt đúng độ dài voice
+      .input(fwd(scene.voicePath));
+
+    const filters = subtitle ? buildSubtitleFilter(1920, 1080, subtitle) : null;
+    if (filters) cmd = cmd.videoFilters(filters);
+
+    cmd
+      .outputOptions([
+        "-map 0:v",
+        "-map 1:a",
+        "-c:v libx264",
+        "-c:a aac",
+        "-b:a 192k",
+        "-pix_fmt yuv420p",
+        "-shortest",  // cắt khi audio hết
+      ])
+      .output(fwd(outputClip))
+      .on("end", () => resolve(outputClip))
+      .on("error", reject)
+      .run();
+  });
 }
 
 function concatClips(clipPaths: string[], outputPath: string): Promise<void> {
