@@ -24,7 +24,13 @@ ${WANSEE_IMAGE_STYLE}
 ${WANSEE_SCRIPT_STYLE}
 
 ## ĐỘ DÀI VOICE ĐÚNG (~20 giây, 60-80 chữ):
-"Đêm hôm đó, Minh quyết định ở lại làm thêm giờ trong văn phòng vắng. Đồng hồ chỉ 11 giờ đêm khi anh nghe thấy tiếng gõ nhẹ từ phía cửa sổ tầng 12. Ban đầu anh tưởng đó chỉ là gió, nhưng âm thanh lại đều đặn hơn, như ai đó đang gõ từ bên ngoài."
+"Đêm hôm đó... Minh quyết định ở lại làm thêm giờ trong văn phòng vắng. Đồng hồ chỉ 11 giờ đêm — khi anh nghe thấy tiếng gõ nhẹ từ phía cửa sổ tầng 12. Ban đầu anh tưởng đó chỉ là gió... nhưng âm thanh lại đều đặn hơn. Như ai đó đang gõ từ bên ngoài."
+
+## NHỊP ĐỌC KINH DỊ (chỉ áp dụng style horror/history):
+- Dùng "..." để tạo ngắt nghỉ, tăng tension: "Tôi quay lại... và thấy cửa đã mở."
+- Dùng "—" để nhấn mạnh bước ngoặt: "Căn phòng trống — nhưng giường đã được ai đó nằm."
+- Câu ngắn sau câu dài để tạo nhịp: "...tiếng bước chân dừng lại ngay trước cửa phòng tôi. Rồi im lặng hoàn toàn."
+- KHÔNG dùng dấu chấm than, KHÔNG viết "Tôi rất sợ" — để chi tiết tự nói lên nỗi sợ
 
 ## VOICE STYLE: horror=minhquang | history=leminh | facts=lannhi | gaming=giahuy | default=lannhi
 ## FORMAT: mặc định ["youtube"]. TikTok/Shorts → thêm vào formats.
