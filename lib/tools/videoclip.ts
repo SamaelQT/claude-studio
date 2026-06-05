@@ -2,14 +2,14 @@ import { fal } from "@fal-ai/client";
 import fs from "fs";
 import path from "path";
 
+fal.config({ credentials: process.env.FAL_KEY });
+
 export async function generateVideoClip(
   imagePath: string,
   motionPrompt: string,
   filename: string,
   outDir?: string
 ): Promise<string> {
-  fal.config({ credentials: process.env.FAL_KEY });
-
   const dir = outDir ?? path.join(process.cwd(), "output", "clips");
   fs.mkdirSync(dir, { recursive: true });
   const outputPath = path.join(dir, `${filename}.mp4`);

@@ -43,6 +43,12 @@ export default function Home() {
   const [confirmFormats, setConfirmFormats] = useState<string[]>(["youtube"]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const debouncedSave = (sessions: Session[]) => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => saveSessions(sessions), 500);
+  };
 
   // Load từ localStorage khi mount
   useEffect(() => {
@@ -51,9 +57,10 @@ export default function Home() {
     if (saved.length > 0) setActiveId(saved[0].id);
   }, []);
 
+  const msgCount = sessions.find(s => s.id === activeId)?.messages.length ?? 0;
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [sessions, activeId]);
+  }, [activeId, msgCount]);
 
   const activeSession = sessions.find((s) => s.id === activeId) ?? null;
 
@@ -84,12 +91,11 @@ export default function Home() {
     setSessions((prev) => {
       const updated = prev.filter((s) => s.id !== id);
       saveSessions(updated);
+      if (activeId === id) {
+        setActiveId(updated.length > 0 ? updated[0].id : null);
+      }
       return updated;
     });
-    if (activeId === id) {
-      const remaining = sessions.filter((s) => s.id !== id);
-      setActiveId(remaining.length > 0 ? remaining[0].id : null);
-    }
   };
 
   const sendMessage = async (text: string, sessionOverride?: Session) => {
@@ -114,7 +120,6 @@ export default function Home() {
 
     try {
       let assistantText = "";
-      let currentMessages = [...newMessages];
 
       await runAgent(ANTHROPIC_API_KEY, [...newHistory], (event) => {
         if (abort.signal.aborted) return;
@@ -141,16 +146,15 @@ export default function Home() {
                 : [...s.messages, { role: "assistant" as const, content: assistantText }];
               return { ...s, messages: msgs };
             });
-            saveSessions(updated);
+            debouncedSave(updated);
             return updated;
           });
         } else {
-          currentMessages = [...currentMessages, msg];
           setSessions((prev) => {
             const updated = prev.map((s) =>
               s.id === sid ? { ...s, messages: [...s.messages, msg] } : s
             );
-            saveSessions(updated);
+            debouncedSave(updated);
             return updated;
           });
         }
@@ -396,7 +400,7 @@ export default function Home() {
                       <button
                         onClick={() => {
                           const v = confirmVideo; const fmt = [...confirmFormats];
-                          setConfirmVideo(null);
+                          setConfirmVideo(null); setConfirmFormats(["youtube"]);
                           const s = createSession(v.title);
                           sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, CHỈ 3 SCENE để test pipeline, style ${v.style}, formats: [${fmt.map(f=>`"${f}"`).join(",")}]`, s);
                         }}
@@ -409,7 +413,7 @@ export default function Home() {
                         <button
                           onClick={() => {
                             const v = confirmVideo; const fmt = [...confirmFormats];
-                            setConfirmVideo(null);
+                            setConfirmVideo(null); setConfirmFormats(["youtube"]);
                             const s = createSession(v.title);
                             sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, tối thiểu 7 phút (15-20 scene), style ${v.style}, formats: [${fmt.map(f=>`"${f}"`).join(",")}]`, s);
                           }}
@@ -422,7 +426,7 @@ export default function Home() {
                       <button
                         onClick={() => {
                           const v = confirmVideo; const fmt = [...confirmFormats];
-                          setConfirmVideo(null);
+                          setConfirmVideo(null); setConfirmFormats(["youtube"]);
                           const s = createSession(v.title + " [animated]");
                           sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, CHỈ 3 SCENE để test, dùng animated mode (generate_image rồi generate_video_clip cho mỗi scene), style ${v.style}, formats: [${fmt.map(f=>`"${f}"`).join(",")}]`, s);
                         }}
@@ -435,7 +439,7 @@ export default function Home() {
                         <button
                           onClick={() => {
                             const v = confirmVideo; const fmt = [...confirmFormats];
-                            setConfirmVideo(null);
+                            setConfirmVideo(null); setConfirmFormats(["youtube"]);
                             const s = createSession(v.title + " [animated full]");
                             sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, tối thiểu 7 phút (15-20 scene), dùng animated mode (generate_image rồi generate_video_clip cho mỗi scene), style ${v.style}, formats: [${fmt.map(f=>`"${f}"`).join(",")}]`, s);
                           }}
@@ -453,7 +457,7 @@ export default function Home() {
                 })()}
               </div>
               <button
-                onClick={() => setConfirmVideo(null)}
+                onClick={() => { setConfirmVideo(null); setConfirmFormats(["youtube"]); setConfirmFormats(["youtube"]); }}
                 className="mt-4 w-full text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
               >
                 Huỷ

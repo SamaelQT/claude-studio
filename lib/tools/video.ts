@@ -138,10 +138,6 @@ function buildVerticalComplexFilter(w: number, h: number, subtitle?: string): st
   return withSub;
 }
 
-function buildVerticalFilter(w: number, h: number, subtitle?: string): string {
-  const base = `scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h}`;
-  return subtitle ? `${base},${buildSubtitleFilter(w, h, subtitle)}` : base;
-}
 
 function buildSubtitleFilter(w: number, h: number, subtitle: string): string {
   const safe = subtitle.replace(/\\/g, "/").replace(/’/g, "’").replace(/:/g, "\\:");

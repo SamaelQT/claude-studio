@@ -2,8 +2,9 @@ import { fal } from "@fal-ai/client";
 import fs from "fs";
 import path from "path";
 
+fal.config({ credentials: process.env.FAL_KEY });
+
 export async function generateImage(prompt: string, filename: string, outDir?: string): Promise<string> {
-  fal.config({ credentials: process.env.FAL_KEY });
 
   const result = await fal.subscribe("fal-ai/flux/schnell", {
     input: {

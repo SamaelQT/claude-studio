@@ -65,9 +65,8 @@ export async function runAgent(
   signal?: AbortSignal
 ) {
   const messages = [...history] as Array<{ role: string; content: unknown }>;
-  let continueLoop = true;
 
-  while (continueLoop) {
+  while (true) {
     if (signal?.aborted) break;
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -135,7 +134,7 @@ export async function runAgent(
 
       messages.push({ role: "user", content: toolResults });
     } else {
-      continueLoop = false;
+      break;
     }
   }
 
