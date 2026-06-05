@@ -1,21 +1,17 @@
 import fs from "fs";
 import path from "path";
 
-// FPT.AI voices — tiếng Việt tự nhiên
-export const VOICE_STYLES: Record<string, { voice: string; description: string }> = {
-  // Giọng Nam
-  horror:    { voice: "minhquang", description: "Nam Bắc, trầm, huyền bí — kênh kinh dị" },
-  history:   { voice: "leminh",    description: "Nam Nam, ấm, nghiêm túc — kênh lịch sử" },
-  news:      { voice: "minhquang", description: "Nam Bắc, rõ ràng — kênh tin tức" },
-  finance:   { voice: "leminh",    description: "Nam Nam, chuyên nghiệp — kênh tài chính" },
-  // Giọng Nữ
-  facts:     { voice: "lannhi",    description: "Nữ Bắc, rõ, nhanh — kênh facts/edu" },
-  lifestyle: { voice: "banmai",    description: "Nữ Nam, nhẹ nhàng — kênh lifestyle" },
-  kids:      { voice: "banmai",    description: "Nữ Nam, dễ thương — kênh thiếu nhi" },
-  // Giọng trẻ
-  gaming:    { voice: "giahuy",    description: "Nam Nam, trẻ, năng động — kênh gaming" },
-  travel:    { voice: "ngoclam",   description: "Nữ Nam, tươi sáng — kênh du lịch" },
-  default:   { voice: "lannhi",    description: "Nữ Bắc, rõ ràng — mặc định" },
+export const VOICE_STYLES: Record<string, string> = {
+  horror:    "minhquang",
+  history:   "leminh",
+  news:      "minhquang",
+  finance:   "leminh",
+  facts:     "lannhi",
+  lifestyle: "banmai",
+  kids:      "banmai",
+  gaming:    "giahuy",
+  travel:    "ngoclam",
+  default:   "lannhi",
 };
 
 export async function generateVoice(
@@ -25,7 +21,7 @@ export async function generateVoice(
 ): Promise<string> {
   const outputPath = path.join(process.cwd(), "output", "voices", `${filename}.mp3`);
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  const voice = VOICE_STYLES[style]?.voice ?? VOICE_STYLES.default.voice;
+  const voice = VOICE_STYLES[style] ?? VOICE_STYLES.default;
 
   try {
     return await generateFPT(text, outputPath, voice);
@@ -50,18 +46,18 @@ async function generateFPT(text: string, outputPath: string, voice: string): Pro
   const data = await response.json();
   if (!data.async) throw new Error("FPT.AI: no audio URL returned");
 
-  // FPT.AI v5 là async — poll tối đa 10 lần, mỗi lần cách 2s
-  let audioRes: Response | null = null;
-  for (let i = 0; i < 10; i++) {
-    await new Promise((r) => setTimeout(r, 2000));
-    const res = await fetch(data.async);
-    if (res.ok) { audioRes = res; break; }
+  // Thử download ngay — FPT.AI short clips thường sẵn sàng ngay lập tức
+  // Nếu chưa sẵn thì retry tối đa 5 lần, cách 1.5s
+  for (let i = 0; i < 5; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, 1500));
+    const audioRes = await fetch(data.async);
+    if (audioRes.ok) {
+      const buffer = Buffer.from(await audioRes.arrayBuffer());
+      fs.writeFileSync(outputPath, buffer);
+      return outputPath;
+    }
   }
-  if (!audioRes) throw new Error("FPT.AI: audio not ready after polling");
-
-  const buffer = Buffer.from(await audioRes!.arrayBuffer());
-  fs.writeFileSync(outputPath, buffer);
-  return outputPath;
+  throw new Error("FPT.AI: audio not ready after retries");
 }
 
 async function generateElevenLabs(text: string, outputPath: string): Promise<string> {
