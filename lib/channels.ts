@@ -28,12 +28,5 @@ export const CHANNELS: Channel[] = [
       url: v.url,
     })),
   },
-  // Thêm kênh mới ở đây, ví dụ:
-  // {
-  //   id: "top5_unknowns",
-  //   name: "Top 5 Unknowns",
-  //   description: "Bí ẩn & sự thật kỳ lạ • Tiếng Anh → Tiếng Việt",
-  //   style: "facts",
-  //   videos: [],
-  // },
+  // Thêm kênh mới ở đây
 ];

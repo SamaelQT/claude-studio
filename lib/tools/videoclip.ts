@@ -16,17 +16,16 @@ export async function generateVideoClip(
 
   if (fs.existsSync(outputPath)) return outputPath;
 
-  // Upload ảnh lên fal storage để lấy URL
   const imageBuffer = fs.readFileSync(imagePath);
   const imageFile = new File([imageBuffer], path.basename(imagePath), { type: "image/png" });
   const imageUrl = await fal.storage.upload(imageFile);
 
-  // Kling image-to-video
-  const result = await fal.subscribe("fal-ai/kling-video/v1.6/standard/image-to-video", {
+  const result = await fal.subscribe("fal-ai/wan/v2.1/image-to-video", {
     input: {
       image_url: imageUrl,
       prompt: motionPrompt,
-      duration: "5",
+      num_frames: 81,   // ~5 giây ở 16fps
+      resolution: "480p",
       aspect_ratio: "16:9",
     },
   }) as { data: { video: { url: string } } };

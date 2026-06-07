@@ -1,17 +1,18 @@
 import fs from "fs";
 import path from "path";
 
-export const VOICE_STYLES: Record<string, string> = {
-  horror:    "minhquang",
-  history:   "leminh",
-  news:      "minhquang",
-  finance:   "leminh",
-  facts:     "lannhi",
-  lifestyle: "banmai",
-  kids:      "banmai",
-  gaming:    "giahuy",
-  travel:    "ngoclam",
-  default:   "lannhi",
+// [voice, speed] — speed âm = đọc chậm rãi, tạo tension; horror/history đọc chậm để lôi cuốn
+export const VOICE_STYLES: Record<string, { voice: string; speed: number }> = {
+  horror:    { voice: "minhquang", speed: -1 },
+  history:   { voice: "leminh",    speed: -1 },
+  news:      { voice: "minhquang", speed: 0 },
+  finance:   { voice: "leminh",    speed: 0 },
+  facts:     { voice: "lannhi",    speed: 0 },
+  lifestyle: { voice: "banmai",    speed: 0 },
+  kids:      { voice: "banmai",    speed: 0 },
+  gaming:    { voice: "giahuy",    speed: 0 },
+  travel:    { voice: "ngoclam",   speed: 0 },
+  default:   { voice: "lannhi",    speed: 0 },
 };
 
 export async function generateVoice(
@@ -23,22 +24,27 @@ export async function generateVoice(
   const dir = outDir ?? path.join(process.cwd(), "output", "voices");
   fs.mkdirSync(dir, { recursive: true });
   const outputPath = path.join(dir, `${filename}.mp3`);
-  const voice = VOICE_STYLES[style] ?? VOICE_STYLES.default;
+  const { voice, speed } = VOICE_STYLES[style] ?? VOICE_STYLES.default;
 
-  try {
-    return await generateFPT(text, outputPath, voice);
-  } catch (e) {
-    console.warn("FPT.AI failed, fallback ElevenLabs:", e);
-    return await generateElevenLabs(text, outputPath);
+  // Thử tối đa 3 lần — mỗi lần gửi request MỚI (URL cũ đôi khi treo vĩnh viễn)
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      return await generateFPT(text, outputPath, voice, speed);
+    } catch (e) {
+      lastErr = e;
+      console.warn(`FPT.AI attempt ${attempt}/3 failed:`, e instanceof Error ? e.message : e);
+    }
   }
+  throw new Error(`FPT.AI thất bại sau 3 lần thử: ${lastErr instanceof Error ? lastErr.message : lastErr}`);
 }
 
-async function generateFPT(text: string, outputPath: string, voice: string): Promise<string> {
-  const response = await fetch(`https://api.fpt.ai/hmi/tts/v5?voice=${voice}&speed=&quality=premium`, {
+async function generateFPT(text: string, outputPath: string, voice: string, speed: number): Promise<string> {
+  const response = await fetch(`https://api.fpt.ai/hmi/tts/v5?voice=${voice}&speed=${speed}&quality=premium`, {
     method: "POST",
     headers: {
       "api-key": process.env.FPT_API_KEY!,
-      "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: text,
   });
@@ -48,38 +54,21 @@ async function generateFPT(text: string, outputPath: string, voice: string): Pro
   const data = await response.json();
   if (!data.async) throw new Error("FPT.AI: no audio URL returned");
 
-  // Thử download ngay — FPT.AI short clips thường sẵn sàng ngay lập tức
-  // Nếu chưa sẵn thì retry tối đa 5 lần, cách 1.5s
-  for (let i = 0; i < 5; i++) {
-    if (i > 0) await new Promise((r) => setTimeout(r, 1500));
-    const audioRes = await fetch(data.async);
+  // Poll tối đa 15 lần, cách nhau 2s (tổng 30s)
+  for (let i = 0; i < 15; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    let audioRes: Response;
+    try {
+      audioRes = await fetch(data.async);
+    } catch {
+      continue;
+    }
     if (audioRes.ok) {
       const buffer = Buffer.from(await audioRes.arrayBuffer());
       fs.writeFileSync(outputPath, buffer);
       return outputPath;
     }
   }
-  throw new Error("FPT.AI: audio not ready after retries");
+  throw new Error(`audio not ready after 30s (URL: ${data.async})`);
 }
 
-async function generateElevenLabs(text: string, outputPath: string): Promise<string> {
-  if (!process.env.ELEVENLABS_API_KEY) throw new Error("No ElevenLabs key");
-
-  const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb", {
-    method: "POST",
-    headers: {
-      "xi-api-key": process.env.ELEVENLABS_API_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      text,
-      model_id: "eleven_multilingual_v2",
-      voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-    }),
-  });
-
-  if (!response.ok) throw new Error(`ElevenLabs error: ${response.status}`);
-  const buffer = Buffer.from(await response.arrayBuffer());
-  fs.writeFileSync(outputPath, buffer);
-  return outputPath;
-}

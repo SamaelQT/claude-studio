@@ -1,0 +1,121 @@
+{
+  "_note": "Shared context file — đọc file này trước khi bắt đầu bất kỳ task nào liên quan đến kênh YouTube.",
+  "_updated": "2026-06-07",
+
+  "main_channel": {
+    "handle": "@MidnightHorrorVN",
+    "internal_names": ["CauChuyen30Dem", "MidnightHorrorVN"],
+    "style_clone": "Wansee Entertainment",
+    "language": "Tiếng Việt",
+    "upload_schedule": "2-3 video/tuần",
+    "target_audience": "18-35 tuổi, thích nghe chuyện ma/kinh dị trước khi ngủ",
+    "tone": "bình thản, ám ảnh — KHÔNG giật gân rẻ tiền",
+    "format": "Kinh dị hoạt hình 2D, lồng tiếng Việt"
+  },
+
+  "active_channels": [
+    {
+      "id": "horror",
+      "handle": "@MidnightHorrorVN",
+      "internal_name": "CauChuyen30Dem",
+      "theme": "Kinh dị hoạt hình 2D, clone Wansee",
+      "status": "active",
+      "idea_status": "ổn — clone Wansee, có hướng rõ",
+      "production": {
+        "visual": "animation 2D — tạo bằng fal",
+        "audio_narration": "FPT Voice — giọng narrator trầm/ám ảnh",
+        "audio_music": "dark ambient + horror SFX",
+        "format_note": "voiceover đầy đủ, không dùng text overlay thay narration"
+      }
+    },
+    {
+      "id": "introvert",
+      "handle": "Người Hướng Nội (tên kênh cần xác nhận)",
+      "theme": "Tâm sự / Câu chuyện người hướng nội — relatable content",
+      "status": "dormant — bị treo, chưa đăng lâu",
+      "original_intent": "Kể câu chuyện cá nhân của bản thân",
+      "current_direction": "Mở rộng sang relatable content cho người hướng nội nói chung",
+      "idea_status": "cần hỗ trợ",
+      "production": {
+        "visual": "ảnh hoặc video animation — tạo bằng fal",
+        "text": "chữ overlay trực tiếp trong ảnh/video (không dùng voiceover)",
+        "audio": "nhạc nền lo-fi/ambient — KHÔNG có voiceover, không dùng FPT Voice",
+        "fpt_voice": "không áp dụng cho kênh này",
+        "format_note": "khác hoàn toàn kênh kinh dị — text thay cho narration"
+      }
+    }
+  ],
+
+  "planned_channels": [
+    { "id": "history_vn", "theme": "Lịch sử Việt Nam", "status": "planned" },
+    { "id": "facts", "theme": "Facts thú vị", "status": "planned" }
+  ],
+
+  "script_json_format": {
+    "_desc": "Format chuẩn dùng trong task Claude script json",
+    "required_fields": [
+      "video_id",
+      "channel",
+      "title",
+      "style",
+      "character_sheet",
+      "scenes (array)",
+      "thumbnail_prompt",
+      "youtube_title",
+      "youtube_description"
+    ],
+    "scene_fields": ["scene_id", "duration_s", "visual", "narration", "sfx"],
+    "thumbnail_rules": {
+      "source": "Lấy đúng scene cao trào (thường scene 15-18)",
+      "must_include": ["character_sheet chi tiết", "chi tiết sai/kỳ lạ đúng với JSON", "góc camera", "ánh sáng cụ thể"],
+      "style": "dark cinematic horror illustration, 16:9 1280x720, NO text, NO watermark",
+      "prompt_language": "English (cho DALL-E / ChatGPT image gen)"
+    }
+  },
+
+  "content_manager_tasks": {
+    "_desc": "Những gì task Claude Content Creator Manager xử lý",
+    "responsibilities": [
+      "5 tiêu đề A/B test cho mỗi video",
+      "YouTube description 150-200 chữ chuẩn SEO",
+      "15-20 tags (Việt + Anh)",
+      "Thumbnail concept (1 câu mô tả + màu chủ đạo)",
+      "Content calendar theo tháng",
+      "Shorts 60s từ script dài",
+      "Community post + caption gợi ý",
+      "Phân tích performance (views/likes)"
+    ]
+  },
+
+  "workflow": {
+    "_desc": "Luồng làm việc chuẩn từ ý tưởng → upload",
+    "steps": [
+      "1. [Script task] Nhận yêu cầu: 'Clone [style], video: [mô tả]'",
+      "2. [Script task] Xuất JSON đầy đủ (character_sheet + scenes)",
+      "3. [Script task] Xuất THUMBNAIL_PROMPT (tiếng Anh, từ scene cao trào)",
+      "4. [Script task] Xuất YOUTUBE_TITLE + YOUTUBE_DESCRIPTION",
+      "5. [Content Manager task] A/B test thêm 4 tiêu đề thay thế nếu cần",
+      "6. [Content Manager task] Lên lịch đăng trong content calendar",
+      "7. [Content Manager task] Tạo community post + caption preview"
+    ]
+  },
+
+  "existing_videos": [
+    {
+      "id": "CauChuyen30Dem_ep01",
+      "title": "Tôi Làm Thêm Giờ Ở Tầng 11 Và Phát Hiện Tên Mình Đã Có Trong Danh Sách Người Chết",
+      "setting": "Văn phòng tầng 11, Hà Nội",
+      "protagonist": "Khoa, nam 28t, áo xanh nhạt tay xắn, quần tây đen",
+      "key_horror_element": "Thực thể mặc áo giống hệt Khoa nhưng có 7 ngón tay",
+      "climax_scene": 16,
+      "status": "script_done",
+      "output_folder": "output/CauChuyen30Dem"
+    }
+  ],
+
+  "seo_keywords": {
+    "primary_vi": ["chuyện ma", "kinh dị việt nam", "câu chuyện kinh dị", "ma việt nam", "kinh dị hoạt hình"],
+    "primary_en": ["horror story vietnam", "animated horror", "vietnamese horror", "scary story"],
+    "hashtags": ["#CauChuyen30Dem", "#KinhDiVietNam", "#HorrorStory", "#WanseeVietNam", "#KinhDiHoatHinh", "#MaVietNam"]
+  }
+}

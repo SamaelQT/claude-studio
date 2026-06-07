@@ -1,470 +1,822 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import ChatMessage, { Message } from "@/components/ChatMessage";
-import { runAgent } from "@/lib/agent/browser-agent";
-import { CHANNELS } from "@/lib/channels";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { WANSEE_CATALOG, WanseeStory } from "@/lib/wansee-catalog";
+import { runFromJSON, ScriptJSON, RunEvent, MusicConfig, generatePreviewImage, PREVIEW_SCENES } from "@/lib/agent/json-runner";
 
-const ANTHROPIC_API_KEY = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!;
+// ── Types ─────────────────────────────────────────────────────────────────────
+type Tab = "horror" | "introvert" | "idea";
+type SceneState = { n: number; image: "idle" | "ok" | "err"; voice: "idle" | "ok" | "err" | "skip"; voice_text?: string };
+type OutputProject = { name: string; file: string; path: string; sizeMB: number; date: string };
+type MusicFile = { name: string; path: string };
 
-// Cost per tool call (USD)
-const TOOL_COST: Record<string, number> = {
-  generate_image: 0.003,
-  generate_video_clip: 0.08,
-  generate_voice: 0,
-  search_web: 0,
-  get_youtube_transcript: 0,
-  assemble_video: 0,
+interface RunState {
+  running: boolean;
+  log: string[];
+  scenes: SceneState[];
+  done: boolean;
+  outputFiles: Record<string, string>;
+}
+
+// ── Prompt builders ───────────────────────────────────────────────────────────
+function horrorPrompt(title: string) {
+  return `Bạn là AI viết kịch bản horror YouTube tiếng Việt theo style Wansee Entertainment.
+
+Tạo JSON kịch bản cho video: "${title}"
+
+JSON FORMAT — trả về JSON thuần, KHÔNG markdown:
+{
+  "project_name": "ten_du_an_a_z_0_9",
+  "style": "horror",
+  "character_sheet": "mô tả nhân vật chính để giữ consistency",
+  "scenes": [
+    {
+      "n": 1,
+      "image_prompt": "mô tả cảnh, PHẢI có 1 chi tiết SAI (shadow wrong, reflection different, extra fingers...)",
+      "voice_text": "60-80 chữ, ngôi thứ nhất, dùng ... ngắt nhịp, KHÔNG dùng !"
+    }
+  ],
+  "formats": ["youtube"]
+}
+
+QUY TẮC:
+- 20-22 scenes
+- Cấu trúc: Scene 1-3 bình thường → 4-7 dấu hiệu lạ → 8-13 leo thang → 14-18 cao trào → 19-22 kết ám ảnh
+- image_prompt: PHẢI có chi tiết SAI cụ thể
+- voice_text: 60-80 chữ, ... ngắt nhịp, không "!"
+- project_name: chỉ a-z 0-9 gạch dưới`;
+}
+
+function introvertPrompt(topic: string) {
+  return `Bạn là AI viết kịch bản video "Chuyện Người Hướng Nội" — kiểu meme/relatable content.
+
+Tạo JSON kịch bản cho chủ đề: "${topic}"
+
+JSON FORMAT — trả về JSON thuần, KHÔNG markdown:
+{
+  "project_name": "ten_du_an_a_z_0_9",
+  "style": "introvert",
+  "scenes": [
+    {
+      "n": 1,
+      "image_prompt": "cozy aesthetic scene — bedroom, cafe, rainy window, desk lamp. Muted pastel tones",
+      "main_text": "câu chính — ngắn, relatable, đúng cảm xúc",
+      "punchline": "câu reaction/punchline bên dưới (optional)",
+      "duration": 5
+    }
+  ],
+  "formats": ["youtube", "shorts"]
+}
+
+QUY TẮC:
+- 10-15 scenes
+- Mỗi scene = 1 ý/cảm xúc, không cần voice
+- main_text: ngắn gọn, đúng tâm trạng, tiếng Việt tự nhiên
+- punchline: reaction hài/buồn, optional
+- image_prompt: aesthetic, cozy, không có người`;
+}
+
+function buildGenericPrompt(style: string, topic: string) {
+  const styleMap: Record<string, string> = {
+    history: "kênh lịch sử Việt Nam, ngôi thứ ba, nghiêm túc, có tư liệu",
+    facts: "kênh kiến thức/facts, ngắn gọn, thú vị, có số liệu",
+    gaming: "kênh gaming Việt Nam, hào hứng, nhanh, slang gaming",
+    story: "kênh tâm sự chuyện người thật, ngôi thứ nhất, cảm xúc",
+  };
+  return `Bạn là AI viết kịch bản YouTube tiếng Việt theo style: ${styleMap[style] ?? style}.
+
+Tạo JSON kịch bản cho: "${topic}"
+
+Trả về JSON với project_name, style="${style}", scenes (n, image_prompt, voice_text), formats.
+Số scene: 15-20. voice_text: 50-80 chữ/scene.`;
+}
+
+// ── Shared styles ──────────────────────────────────────────────────────────────
+function btnStyle(bg: string): React.CSSProperties {
+  return {
+    padding: "7px 14px", background: bg, color: "#fff", border: "none",
+    borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 500,
+    marginTop: 8, display: "inline-flex", alignItems: "center", gap: 4,
+  };
+}
+
+const inputStyle: React.CSSProperties = {
+  background: "#111", color: "#e0e0e0", border: "1px solid #333",
+  borderRadius: 6, padding: "6px 10px", fontSize: 12, outline: "none",
 };
 
-interface RunStats {
-  images: number;
-  voices: number;
-  clips: number;
-  cost: number;
-  currentTool: string | null;
-  videoFiles: Record<string, string> | null; // format → path
+const selectStyle: React.CSSProperties = {
+  background: "#111", color: "#e0e0e0", border: "1px solid #333",
+  borderRadius: 6, padding: "6px 10px", fontSize: 12,
+};
+
+// ── Small components ───────────────────────────────────────────────────────────
+function Chip({ label, value, color = "#e0e0e0" }: { label: string; value: string; color?: string }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <span style={{ fontSize: 9, color: "#666", textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</span>
+      <span style={{ fontSize: 12, color, fontWeight: 500 }}>{value}</span>
+    </div>
+  );
 }
 
-interface Session {
-  id: string;
-  title: string;
-  createdAt: number;
-  messages: Message[];
-  history: Array<{ role: "user" | "assistant"; content: unknown }>;
+// ── Music Duration Calculator ──────────────────────────────────────────────────
+function MusicDurationCalc({ scenes, offset, onCalc }: { scenes: number; offset: number; onCalc: (s: number) => void }) {
+  const [totalSec, setTotalSec] = useState("");
+  const avail = Math.max(0, (parseInt(totalSec) || 0) - offset);
+  const perScene = scenes > 0 && avail > 0 ? Math.round(avail / scenes) : 0;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ fontSize: 11, color: "#666" }}>Nhạc dài (s):</span>
+      <input type="number" min={0} value={totalSec} onChange={e => setTotalSec(e.target.value)}
+        placeholder="240"
+        style={{ ...inputStyle, width: 58, textAlign: "center", fontSize: 11 }} />
+      {perScene > 0 && (
+        <button onClick={() => onCalc(perScene)}
+          style={{ padding: "3px 8px", background: "#1f2937", color: "#60a5fa", border: "1px solid #374151", borderRadius: 4, cursor: "pointer", fontSize: 11 }}>
+          → {perScene}s/scene
+        </button>
+      )}
+    </div>
+  );
 }
 
-function newSessionId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-}
-
-function loadSessions(): Session[] {
-  try {
-    const raw = localStorage.getItem("ccs_sessions");
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveSessions(sessions: Session[]) {
-  const slim = sessions.map((s) => ({
-    ...s,
-    messages: s.messages.filter((m) => m.role === "user" || m.role === "assistant"),
-  }));
-  localStorage.setItem("ccs_sessions", JSON.stringify(slim));
-}
-
-const EMPTY_STATS: RunStats = { images: 0, voices: 0, clips: 0, cost: 0, currentTool: null, videoFiles: null };
-
-export default function Home() {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [input, setInput] = useState("");
+// ── Style Preview component ────────────────────────────────────────────────────
+function StylePreview({ styleKey, onConfirm }: { styleKey: string; onConfirm: (extra: string) => void }) {
+  const [sceneDesc, setSceneDesc] = useState(PREVIEW_SCENES[styleKey] ?? "");
+  const [extraNotes, setExtraNotes] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeChannel, setActiveChannel] = useState(CHANNELS[0].id);
-  const [confirmVideo, setConfirmVideo] = useState<{ title: string; url: string; style: string } | null>(null);
-  const [confirmFormats, setConfirmFormats] = useState<string[]>(["youtube"]);
-  const [stats, setStats] = useState<RunStats>(EMPTY_STATS);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const abortRef = useRef<AbortController | null>(null);
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [imgPath, setImgPath] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState("");
 
-  const debouncedSave = (s: Session[]) => {
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => saveSessions(s), 500);
-  };
+  async function generate() {
+    setLoading(true); setError(""); setImgPath("");
+    const res = await generatePreviewImage(styleKey, sceneDesc, extraNotes);
+    setLoading(false);
+    if ("error" in res) { setError(res.error); return; }
+    setImgPath(res.filePath);
+  }
 
-  useEffect(() => {
-    const saved = loadSessions();
-    setSessions(saved);
-    if (saved.length > 0) setActiveId(saved[0].id);
-  }, []);
-
-  const msgCount = sessions.find(s => s.id === activeId)?.messages.length ?? 0;
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeId, msgCount]);
-
-  const activeSession = sessions.find((s) => s.id === activeId) ?? null;
-
-  const createSession = (title: string): Session => {
-    const s: Session = { id: newSessionId(), title, createdAt: Date.now(), messages: [], history: [] };
-    setSessions((prev) => {
-      const updated = [s, ...prev];
-      saveSessions(updated);
-      return updated;
-    });
-    setActiveId(s.id);
-    return s;
-  };
-
-  const updateSession = (id: string, patch: Partial<Session>) => {
-    setSessions((prev) => {
-      const updated = prev.map((s) => (s.id === id ? { ...s, ...patch } : s));
-      saveSessions(updated);
-      return updated;
-    });
-  };
-
-  const deleteSession = (id: string) => {
-    setSessions((prev) => {
-      const updated = prev.filter((s) => s.id !== id);
-      saveSessions(updated);
-      if (activeId === id) setActiveId(updated.length > 0 ? updated[0].id : null);
-      return updated;
-    });
-  };
-
-  const closeConfirm = () => { setConfirmVideo(null); setConfirmFormats(["youtube"]); };
-
-  const sendMessage = async (text: string, sessionOverride?: Session) => {
-    if (!text.trim() || loading) return;
-    setLoading(true);
-    setStats(EMPTY_STATS);
-
-    let session = sessionOverride ?? activeSession;
-    if (!session) session = createSession(text.slice(0, 50));
-    const sid = session.id;
-
-    const abort = new AbortController();
-    abortRef.current = abort;
-
-    const newHistory = [...session.history, { role: "user" as const, content: text }];
-    updateSession(sid, {
-      messages: [...session.messages, { role: "user", content: text }],
-      history: newHistory,
-    });
-    setInput("");
-
-    try {
-      let assistantText = "";
-
-      await runAgent(ANTHROPIC_API_KEY, [...newHistory], (event) => {
-        if (abort.signal.aborted) return;
-
-        if ("type" in event && event.type === "done") {
-          abortRef.current = null;
-          setStats((prev) => ({ ...prev, currentTool: null }));
-          if (assistantText) {
-            updateSession(sid, { history: [...newHistory, { role: "assistant" as const, content: assistantText }] });
-          }
-          return;
-        }
-
-        const msg = event as Message;
-
-        // Track stats
-        if (msg.role === "tool_start") {
-          setStats((prev) => ({ ...prev, currentTool: msg.tool }));
-        }
-        if (msg.role === "tool_result" && msg.success) {
-          setStats((prev) => {
-            const cost = prev.cost + (TOOL_COST[msg.tool] ?? 0);
-            const images = msg.tool === "generate_image" ? prev.images + 1 : prev.images;
-            const voices = msg.tool === "generate_voice" ? prev.voices + 1 : prev.voices;
-            const clips = msg.tool === "generate_video_clip" ? prev.clips + 1 : prev.clips;
-            const data = msg.data as Record<string, unknown> | undefined;
-            const videoFiles = msg.tool === "assemble_video"
-              ? (data?.files as Record<string, string>)
-              : prev.videoFiles;
-            return { ...prev, cost, images, voices, clips, currentTool: null, videoFiles };
-          });
-        }
-
-        if (msg.role === "assistant") {
-          assistantText += msg.content as string;
-          setSessions((prev) => {
-            const updated = prev.map((s) => {
-              if (s.id !== sid) return s;
-              const last = s.messages[s.messages.length - 1];
-              const msgs = last?.role === "assistant"
-                ? [...s.messages.slice(0, -1), { role: "assistant" as const, content: assistantText }]
-                : [...s.messages, { role: "assistant" as const, content: assistantText }];
-              return { ...s, messages: msgs };
-            });
-            debouncedSave(updated);
-            return updated;
-          });
-        } else {
-          setSessions((prev) => {
-            const updated = prev.map((s) =>
-              s.id === sid ? { ...s, messages: [...s.messages, msg] } : s
-            );
-            debouncedSave(updated);
-            return updated;
-          });
-        }
-      }, abort.signal);
-    } catch (err) {
-      if (!abort.signal.aborted) {
-        const errMsg: Message = { role: "assistant", content: `❌ Lỗi: ${err instanceof Error ? err.message : String(err)}` };
-        setSessions((prev) => {
-          const updated = prev.map((s) => s.id === sid ? { ...s, messages: [...s.messages, errMsg] } : s);
-          saveSessions(updated);
-          return updated;
-        });
-      }
-    } finally {
-      abortRef.current = null;
-      setLoading(false);
-    }
-  };
-
-  const isTest = (() => {
-    const firstUser = activeSession?.history.find((m) => m.role === "user");
-    return typeof firstUser?.content === "string" && firstUser.content.includes("3 SCENE");
-  })();
-
-  const hasVideo = !!stats.videoFiles && Object.keys(stats.videoFiles).length > 0;
+  function confirm() {
+    setConfirmed(true);
+    onConfirm(extraNotes);
+  }
 
   return (
-    <div className="flex h-screen bg-zinc-950 text-white">
-      {/* Sidebar */}
-      {sidebarOpen && (
-        <div className="w-60 shrink-0 border-r border-zinc-800 flex flex-col">
-          <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
-            <span className="text-sm font-semibold text-zinc-300">Sessions</span>
-            <button onClick={() => createSession("Session mới")}
-              className="text-xs bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-400 hover:text-white transition-colors">
-              + Mới
+    <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 14 }}>
+      <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+        Xem thử style ảnh
+      </div>
+
+      {confirmed ? (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#4ade80" }}>✓ Style đã xác nhận{extraNotes ? ` — "${extraNotes}"` : ""}</span>
+          <button onClick={() => { setConfirmed(false); setImgPath(""); }} style={{ ...btnStyle("#374151"), marginTop: 0, fontSize: 11, padding: "4px 10px" }}>Đổi style</button>
+        </div>
+      ) : (
+        <>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 11, color: "#666", marginBottom: 4 }}>Cảnh test</div>
+            <textarea value={sceneDesc} onChange={e => setSceneDesc(e.target.value)}
+              style={{ ...inputStyle, width: "100%", height: 56, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit", fontSize: 11 }} />
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 11, color: "#666", marginBottom: 4 }}>Yêu cầu thêm (optional)</div>
+            <input value={extraNotes} onChange={e => setExtraNotes(e.target.value)}
+              placeholder="VD: tối hơn, nhiều bóng tối, màu lạnh hơn..."
+              style={{ ...inputStyle, width: "100%", boxSizing: "border-box" as const }} />
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: imgPath ? 12 : 0 }}>
+            <button onClick={generate} disabled={loading} style={btnStyle(loading ? "#374151" : "#4b5563")}>
+              {loading ? "Đang tạo ảnh..." : imgPath ? "↻ Tạo lại" : "👁 Xem thử"}
+            </button>
+            {imgPath && <button onClick={confirm} style={{ ...btnStyle("#16a34a"), marginTop: 0 }}>✓ Xác nhận style này</button>}
+          </div>
+          {error && <div style={{ color: "#f87171", fontSize: 11, marginTop: 6 }}>{error}</div>}
+          {imgPath && (
+            <img
+              src={`/api/file?path=${encodeURIComponent(imgPath)}`}
+              alt="style preview"
+              style={{ width: "100%", borderRadius: 6, border: "1px solid #333", marginTop: 4, display: "block" }}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Run Panel (shared by Horror and Introvert) ─────────────────────────────────
+function RunPanel({
+  style, styleVariant, styleExtra, music, musicFiles, onMusicChange,
+}: {
+  style: string;
+  styleVariant?: string;
+  styleExtra?: string;
+  music: MusicConfig | null;
+  musicFiles: MusicFile[];
+  onMusicChange: (m: MusicConfig | null) => void;
+}) {
+  const [jsonText, setJsonText] = useState("");
+  const [script, setScript] = useState<ScriptJSON | null>(null);
+  const [parseError, setParseError] = useState("");
+  const [run, setRun] = useState<RunState>({ running: false, log: [], scenes: [], done: false, outputFiles: {} });
+  const [outputs, setOutputs] = useState<OutputProject[]>([]);
+  const [clearingCache, setClearingCache] = useState(false);
+  const [cacheMsg, setCacheMsg] = useState("");
+  const [sceneDuration, setSceneDuration] = useState(8);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const isNoVoice = style === "introvert";
+
+  const loadOutputs = useCallback(async () => {
+    const r = await fetch(`/api/output?style=${style}`).then(r => r.json()).catch(() => ({ projects: [] }));
+    setOutputs(r.projects ?? []);
+  }, [style]);
+
+  useEffect(() => { loadOutputs(); }, [loadOutputs]);
+
+  function parseJSON() {
+    try {
+      const parsed = JSON.parse(jsonText.trim());
+      setScript(parsed);
+      setParseError("");
+      setCacheMsg("");
+    } catch (e) {
+      setParseError(String(e));
+      setScript(null);
+    }
+  }
+
+  async function clearImageCache() {
+    if (!script) return;
+    setClearingCache(true); setCacheMsg("");
+    const res = await fetch(`/api/cache?project=${script.project_name}&style=${style}`, { method: "DELETE" })
+      .then(r => r.json()).catch(() => null);
+    setClearingCache(false);
+    setCacheMsg(res?.deleted != null ? `✓ Đã xóa ${res.deleted} ảnh cũ — sẽ tạo lại khi chạy` : "Lỗi xóa cache");
+  }
+
+  async function startRun() {
+    if (!script) return;
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    const scenes: SceneState[] = script.scenes.map(s => ({
+      n: s.n, image: "idle", voice: s.voice_text ? "idle" : "skip",
+      voice_text: s.voice_text?.slice(0, 80),
+    }));
+    setRun({ running: true, log: [`Bắt đầu: ${script.project_name} — ${script.scenes.length} scenes`], scenes, done: false, outputFiles: {} });
+
+    await runFromJSON(script, (ev: RunEvent) => {
+      setRun(prev => {
+        const log = [...prev.log];
+        const sc = prev.scenes.map(s => ({ ...s }));
+        if (ev.type === "scene_start") log.push(`Scene ${ev.n}/${ev.total}...`);
+        if (ev.type === "image_done") { sc[ev.n - 1].image = "ok"; }
+        if (ev.type === "image_error") { sc[ev.n - 1].image = "err"; log.push(`❌ Ảnh ${ev.n}: ${ev.error}`); }
+        if (ev.type === "voice_done") { sc[ev.n - 1].voice = "ok"; }
+        if (ev.type === "voice_error") { sc[ev.n - 1].voice = "err"; log.push(`❌ Voice ${ev.n}: ${ev.error}`); }
+        if (ev.type === "assemble_start") log.push("Ghép video...");
+        if (ev.type === "assemble_done") {
+          log.push("✅ Xong!");
+          return { ...prev, log, scenes: sc, running: false, done: true, outputFiles: ev.files };
+        }
+        if (ev.type === "assemble_error") {
+          log.push(`❌ Ghép lỗi: ${ev.error}`);
+          return { ...prev, log, scenes: sc, running: false };
+        }
+        if (ev.type === "done") return { ...prev, log, scenes: sc, running: false, done: true };
+        return { ...prev, log, scenes: sc };
+      });
+    }, ctrl.signal, music ?? undefined, styleVariant, styleExtra, isNoVoice ? sceneDuration : undefined);
+
+    loadOutputs();
+  }
+
+  function stopRun() {
+    abortRef.current?.abort();
+    setRun(prev => ({ ...prev, running: false, log: [...prev.log, "⏹ Đã dừng"] }));
+  }
+
+  const estimatedCost = script ? (script.scenes.length * 0.028).toFixed(2) : null;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* JSON input */}
+      <div style={{ background: "#1a1a1a", border: "1px solid #333", borderRadius: 8, padding: 14 }}>
+        <div style={{ fontSize: 11, color: "#888", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
+          JSON Script
+        </div>
+        <textarea
+          value={jsonText}
+          onChange={e => { setJsonText(e.target.value); setScript(null); setParseError(""); }}
+          placeholder="Paste JSON từ Claude.ai Pro vào đây..."
+          style={{
+            width: "100%", height: 150, background: "#111", color: "#e0e0e0",
+            border: "1px solid #444", borderRadius: 6, padding: 10,
+            fontFamily: "monospace", fontSize: 12, resize: "vertical", boxSizing: "border-box",
+          }}
+        />
+        {parseError && <div style={{ color: "#f87171", fontSize: 11, marginTop: 4 }}>{parseError}</div>}
+        <button onClick={parseJSON} style={btnStyle("#2563eb")}>
+          Validate JSON
+        </button>
+      </div>
+
+      {/* Script info */}
+      {script && (
+        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10 }}>
+            <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+              <Chip label="Project" value={script.project_name} />
+              <Chip label="Style" value={styleVariant ?? script.style} />
+              <Chip label="Scenes" value={String(script.scenes.length)} />
+              <Chip label="Chi phí ~" value={`$${estimatedCost}`} color="#4ade80" />
+              {script.formats && <Chip label="Formats" value={script.formats.join(", ")} />}
+            </div>
+            <button onClick={clearImageCache} disabled={clearingCache}
+              title="Xóa ảnh + video cũ, force tạo lại"
+              style={{ padding: "5px 10px", background: "#1f1010", color: "#f87171", border: "1px solid #7f1d1d", borderRadius: 5, cursor: "pointer", fontSize: 11, marginTop: 0 }}>
+              {clearingCache ? "Đang xóa..." : "🗑 Xóa & làm mới"}
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto py-2">
-            {sessions.length === 0 && <p className="text-xs text-zinc-600 px-4 py-3">Chưa có session nào</p>}
-            {sessions.map((s) => (
-              <div key={s.id} onClick={() => setActiveId(s.id)}
-                className={`group flex items-start gap-2 px-3 py-2.5 mx-1 rounded-lg cursor-pointer transition-colors ${s.id === activeId ? "bg-zinc-800" : "hover:bg-zinc-900"}`}>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-zinc-300 truncate leading-tight">{s.title}</p>
-                  <p className="text-xs text-zinc-600 mt-0.5">{new Date(s.createdAt).toLocaleDateString("vi-VN")}</p>
+
+          {/* Duration control — chỉ hiện khi không có voice */}
+          {isNoVoice && (
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #2a2a2a", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 11, color: "#888" }}>Thời lượng/scene:</span>
+                <input type="number" min={3} max={30} value={sceneDuration}
+                  onChange={e => setSceneDuration(Math.max(3, +e.target.value))}
+                  style={{ ...inputStyle, width: 52, textAlign: "center" }} />
+                <span style={{ fontSize: 11, color: "#888" }}>giây</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#6b7280" }}>→</div>
+              <div style={{ fontSize: 12 }}>
+                <span style={{ color: "#e0e0e0", fontWeight: 600 }}>
+                  {Math.floor(script.scenes.length * sceneDuration / 60)}m{String(script.scenes.length * sceneDuration % 60).padStart(2,"0")}s
+                </span>
+                <span style={{ color: "#555", fontSize: 11 }}> ({script.scenes.length} × {sceneDuration}s)</span>
+              </div>
+              <MusicDurationCalc
+                scenes={script.scenes.length}
+                offset={music?.auto?.startOffset ?? 0}
+                onCalc={setSceneDuration}
+              />
+            </div>
+          )}
+
+          {cacheMsg && <div style={{ marginTop: 6, fontSize: 11, color: cacheMsg.startsWith("✓") ? "#4ade80" : "#f87171" }}>{cacheMsg}</div>}
+        </div>
+      )}
+
+      {/* Run controls */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        {!run.running ? (
+          <button onClick={startRun} disabled={!script}
+            style={btnStyle(script ? "#16a34a" : "#374151")}>
+            ▶ Chạy Pipeline
+          </button>
+        ) : (
+          <button onClick={stopRun} style={btnStyle("#dc2626")}>
+            ⏹ Dừng
+          </button>
+        )}
+        {run.done && (
+          <button onClick={loadOutputs} style={{ ...btnStyle("#374151"), marginTop: 0 }}>
+            ↻ Làm mới
+          </button>
+        )}
+      </div>
+
+      {/* Scene progress grid */}
+      {run.scenes.length > 0 && (
+        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12 }}>
+          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            Tiến độ — {run.scenes.filter(s => s.image === "ok").length}/{run.scenes.length} ảnh
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {run.scenes.map(s => (
+              <div key={s.n} title={s.voice_text ?? `Scene ${s.n}`}
+                style={{
+                  width: 34, height: 34, borderRadius: 4, display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center", fontSize: 9,
+                  background: s.image === "ok" ? "#052e16" : s.image === "err" ? "#450a0a" : "#1a1a1a",
+                  border: `1px solid ${s.image === "ok" ? "#16a34a" : s.image === "err" ? "#b91c1c" : "#333"}`,
+                  color: "#aaa",
+                }}>
+                <div style={{ fontWeight: 700 }}>{s.n}</div>
+                <div style={{ fontSize: 8, color: s.voice === "ok" ? "#4ade80" : s.voice === "err" ? "#f87171" : "#555" }}>
+                  {s.voice === "ok" ? "♪" : ""}
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
-                  className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 text-xs shrink-0 transition-opacity">✕</button>
+              </div>
+            ))}
+          </div>
+          {run.log.length > 0 && (
+            <div style={{ marginTop: 8, fontSize: 11, color: "#888", fontFamily: "monospace" }}>
+              {run.log[run.log.length - 1]}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Done output */}
+      {Object.keys(run.outputFiles).length > 0 && (
+        <div style={{ background: "#052e16", border: "1px solid #16a34a", borderRadius: 8, padding: 12 }}>
+          <div style={{ fontSize: 11, color: "#4ade80", marginBottom: 8 }}>✅ Video đã xuất</div>
+          {Object.entries(run.outputFiles).map(([fmt, p]) => (
+            <div key={fmt} style={{ fontFamily: "monospace", fontSize: 11, color: "#86efac", marginBottom: 2 }}>
+              [{fmt}] {p}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Output history */}
+      {outputs.length > 0 && (
+        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12 }}>
+          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            Output ({outputs.length} video)
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            {outputs.slice(0, 10).map(o => (
+              <div key={o.name} style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "6px 8px", background: "#111", borderRadius: 4, fontSize: 12,
+              }}>
+                <span style={{ color: "#e0e0e0", fontFamily: "monospace" }}>{o.name}</span>
+                <span style={{ color: "#666", fontSize: 11 }}>{o.sizeMB}MB · {o.date}</span>
               </div>
             ))}
           </div>
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* Main */}
-      <div className="flex flex-col flex-1 min-w-0">
-        {/* Header */}
-        <div className="border-b border-zinc-800 px-4 py-3 flex items-center gap-3 shrink-0">
-          <button onClick={() => setSidebarOpen((v) => !v)}
-            className="text-zinc-500 hover:text-white transition-colors text-lg leading-none">☰</button>
-          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-xs shrink-0">CS</div>
-          <h1 className="font-semibold text-white text-sm truncate flex-1">
-            {activeSession?.title ?? "Claude Content Studio"}
-          </h1>
+// ── Horror tab ─────────────────────────────────────────────────────────────────
+function HorrorTab({ musicFiles }: { musicFiles: MusicFile[] }) {
+  const [catOpen, setCatOpen] = useState(true);
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<WanseeStory | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [music] = useState<MusicConfig | null>(null);
+  const [horrorLevel, setHorrorLevel] = useState<"horror_light" | "horror_heavy" | "horror_extreme">("horror_light");
+  const [styleExtra, setStyleExtra] = useState("");
 
-          {/* Stats bar — hiện khi đang chạy hoặc vừa xong */}
-          {(loading || stats.images > 0 || stats.voices > 0) && (
-            <div className="flex items-center gap-3 shrink-0">
-              {stats.images > 0 && <span className="text-xs text-zinc-400">🎨 {stats.images}</span>}
-              {stats.clips > 0 && <span className="text-xs text-zinc-400">✨ {stats.clips}</span>}
-              {stats.voices > 0 && <span className="text-xs text-zinc-400">🎙️ {stats.voices}</span>}
-              {stats.cost > 0 && (
-                <span className="text-xs text-yellow-500 font-medium">${stats.cost.toFixed(2)}</span>
-              )}
-              {loading && stats.currentTool && (
-                <span className="text-xs text-zinc-500 animate-pulse">{stats.currentTool}...</span>
-              )}
-            </div>
-          )}
+  const horrorLevels = [
+    { key: "horror_light" as const, label: "👻 Nhẹ", desc: "Subtly wrong, psychological" },
+    { key: "horror_heavy" as const, label: "😱 Nặng", desc: "Distorted, body horror" },
+    { key: "horror_extreme" as const, label: "💀 Cực đại", desc: "Cosmic, visceral terror" },
+  ];
+
+  const filtered = WANSEE_CATALOG.filter(s =>
+    !search ||
+    s.titleVi.toLowerCase().includes(search.toLowerCase()) ||
+    s.title.toLowerCase().includes(search.toLowerCase()) ||
+    s.tags.some(t => t.includes(search.toLowerCase()))
+  );
+
+  function selectStory(story: WanseeStory) {
+    setSelected(story);
+    setCopied(false);
+  }
+
+  function copyToClipboard() {
+    if (!selected) return;
+    navigator.clipboard.writeText(horrorPrompt(selected.titleVi));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "270px 1fr", gap: 16, minHeight: 0 }}>
+      {/* Catalog panel */}
+      <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, overflow: "hidden", display: "flex", flexDirection: "column", maxHeight: "calc(100vh - 120px)" }}>
+        <div
+          onClick={() => setCatOpen(!catOpen)}
+          style={{ padding: "10px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #2a2a2a", background: "#161616", flexShrink: 0 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#e0e0e0" }}>📁 Wansee</span>
+          <span style={{ color: "#666", fontSize: 12 }}>{catOpen ? "▾" : "▸"} {WANSEE_CATALOG.length}</span>
         </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl w-full mx-auto">
-          {!activeSession || activeSession.messages.length === 0 ? (
-            <div className="mt-4 max-w-3xl mx-auto">
-              <div className="text-center mb-3">
-                <div className="text-3xl mb-2">🎬</div>
-                <h2 className="text-lg font-semibold text-zinc-300">Chào Quang!</h2>
-                <p className="text-zinc-500 text-sm">Chọn kênh và video muốn clone</p>
+        {catOpen && (
+          <div style={{ flex: 1, overflow: "auto", padding: 10 }}>
+            <input
+              value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm kiếm..."
+              style={{ ...inputStyle, width: "100%", marginBottom: 8, boxSizing: "border-box" as const }}
+            />
+            {filtered.map(story => (
+              <div
+                key={story.id}
+                onClick={() => selectStory(story)}
+                style={{
+                  padding: "8px 10px", borderRadius: 6, cursor: "pointer", marginBottom: 3,
+                  background: selected?.id === story.id ? "#1e3a5f" : "transparent",
+                  border: `1px solid ${selected?.id === story.id ? "#2563eb" : "transparent"}`,
+                }}>
+                <div style={{ fontSize: 12, color: "#e0e0e0" }}>{story.titleVi}</div>
+                <div style={{ fontSize: 10, color: "#555", marginTop: 2 }}>{story.tags.join(" · ")}</div>
               </div>
-              <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
-                {CHANNELS.map((ch) => (
-                  <button key={ch.id} onClick={() => setActiveChannel(ch.id)}
-                    className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeChannel === ch.id ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400 hover:text-white"}`}>
-                    {ch.name}
-                  </button>
-                ))}
-              </div>
-              {(() => {
-                const ch = CHANNELS.find((c) => c.id === activeChannel)!;
-                return (
-                  <>
-                    <p className="text-xs text-zinc-600 mb-2">{ch.description} — {ch.videos.length} videos</p>
-                    <div className="flex flex-col gap-1 max-h-[58vh] overflow-y-auto pr-1">
-                      {ch.videos.map((v, i) => (
-                        <button key={v.id}
-                          onClick={() => setConfirmVideo({ title: v.title, url: v.url, style: ch.style })}
-                          className="text-left bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-600 rounded-lg px-4 py-2.5 transition-colors group">
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs text-zinc-600 w-8 shrink-0">#{i + 1}</span>
-                            <span className="text-sm text-zinc-200 flex-1 truncate">{v.title}</span>
-                            <span className="text-xs text-zinc-500 shrink-0">{(v.views / 1_000_000).toFixed(1)}M</span>
-                            <span className="text-xs text-zinc-700 group-hover:text-zinc-400 shrink-0">clone →</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-          ) : (
-            activeSession.messages.map((msg, i) => <ChatMessage key={i} msg={msg} />)
-          )}
-
-          {loading && (
-            <div className="flex justify-start mb-4">
-              <div className="bg-zinc-800 rounded-2xl rounded-tl-sm px-4 py-3 text-zinc-400 text-sm animate-pulse">
-                Claude đang làm việc...
-              </div>
-            </div>
-          )}
-
-          {/* Post-run actions */}
-          {!loading && activeSession && activeSession.messages.length > 0 && (
-            <div className="mt-4 mb-2 space-y-3">
-              {/* Sau test: tạo full hoặc test lại */}
-              {isTest && (
-                <div className="border border-zinc-700 rounded-2xl p-4 bg-zinc-900/60">
-                  <p className="text-xs text-zinc-400 mb-3 font-medium">✅ Test xong — tiếp theo?</p>
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => {
-                        const firstMsg = typeof activeSession.history.find(m => m.role === "user")?.content === "string"
-                          ? activeSession.history.find(m => m.role === "user")!.content as string : "";
-                        sendMessage(firstMsg.replace("CHỈ 3 SCENE để test pipeline, ", "tối thiểu 7 phút (15-20 scene), ")
-                          .replace("CHỈ 3 SCENE để test, ", "tối thiểu 7 phút (15-20 scene), "));
-                      }}
-                      className="bg-blue-600 hover:bg-blue-500 rounded-xl px-4 py-2.5 text-left transition-colors">
-                      <div className="text-sm font-medium text-white">🎬 Tạo full 7 phút</div>
-                      <div className="text-xs text-blue-200 mt-0.5">Dùng y nguyên cốt truyện này</div>
-                    </button>
-                    <button
-                      onClick={() => {
-                        const firstMsg = typeof activeSession.history.find(m => m.role === "user")?.content === "string"
-                          ? activeSession.history.find(m => m.role === "user")!.content as string : "";
-                        sendMessage(firstMsg, createSession((activeSession.title ?? "Test") + " v2"));
-                      }}
-                      className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-xl px-4 py-2.5 text-left transition-colors">
-                      <div className="text-sm font-medium text-white">🔁 Test lại</div>
-                      <div className="text-xs text-zinc-500 mt-0.5">Tạo session mới, chạy lại 3 scene</div>
-                    </button>
-                    <input type="text" placeholder="Hoặc nhập yêu cầu chỉnh sửa... (Enter)"
-                      className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500"
-                      onKeyDown={(e) => {
-                        if (e.key !== "Enter") return;
-                        const val = (e.target as HTMLInputElement).value.trim();
-                        if (!val) return;
-                        (e.target as HTMLInputElement).value = "";
-                        sendMessage(val);
-                      }} />
-                  </div>
-                </div>
-              )}
-
-              {/* Sau khi có video: generate YouTube metadata */}
-              {hasVideo && (
-                <div className="border border-yellow-800/50 rounded-2xl p-4 bg-yellow-950/20">
-                  <p className="text-xs text-yellow-400 mb-3 font-medium">📋 Tạo metadata YouTube</p>
-                  <button
-                    onClick={() => sendMessage(
-                      "Dựa vào video vừa tạo, hãy viết cho tôi:\n1. Tiêu đề YouTube tiếng Việt (hấp dẫn, có keyword, ≤70 ký tự)\n2. Mô tả (200-300 chữ, có keyword, có CTA cuối)\n3. Tags (15-20 tags tiếng Việt liên quan)\n4. Thumbnail concept (mô tả ảnh thumbnail nên dùng scene nào, thêm text gì)"
-                    )}
-                    className="w-full bg-yellow-700 hover:bg-yellow-600 rounded-xl px-4 py-2.5 text-left transition-colors">
-                    <div className="text-sm font-medium text-white">✍️ Generate tiêu đề, mô tả, tags, thumbnail</div>
-                    <div className="text-xs text-yellow-200 mt-0.5">Tối ưu SEO cho YouTube tiếng Việt</div>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Confirm dialog */}
-        {confirmVideo && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-              <h3 className="font-semibold text-white mb-1 truncate">{confirmVideo.title}</h3>
-              <p className="text-xs text-zinc-500 mb-3">Chọn format xuất</p>
-              <div className="flex gap-2 mb-5">
-                {[{ id: "youtube", label: "YouTube", desc: "16:9" }, { id: "shorts", label: "Shorts", desc: "9:16" }, { id: "tiktok", label: "TikTok", desc: "9:16 ≤60s" }].map((f) => (
-                  <button key={f.id}
-                    onClick={() => setConfirmFormats((prev) => prev.includes(f.id) ? prev.filter((x) => x !== f.id) : [...prev, f.id])}
-                    className={`flex-1 rounded-lg px-3 py-2 text-center transition-colors border ${confirmFormats.includes(f.id) ? "bg-blue-600 border-blue-500 text-white" : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:text-white"}`}>
-                    <div className="text-xs font-medium">{f.label}</div>
-                    <div className="text-xs opacity-60">{f.desc}</div>
-                  </button>
-                ))}
-              </div>
-
-              <p className="text-xs text-zinc-500 mb-3">Chọn chế độ tạo</p>
-              {(() => {
-                const fmt = confirmFormats;
-                const fmtNote = fmt.length > 1 ? ` (${fmt.join("+")})` : "";
-                const isShortOnly = fmt.every(f => f !== "youtube");
-                const fmtArg = fmt.map(f => `"${f}"`).join(",");
-                return (
-                  <div className="flex flex-col gap-2">
-                    <button onClick={() => { const v = confirmVideo; closeConfirm(); sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, CHỈ 3 SCENE để test pipeline, style ${v.style}, formats: [${fmtArg}]`, createSession(v.title)); }}
-                      className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-xl px-4 py-3 text-left transition-colors">
-                      <div className="text-sm font-medium text-white">🧪 Test — 3 scene{fmtNote}</div>
-                      <div className="text-xs text-zinc-500 mt-0.5">Pipeline nhanh, tiết kiệm token</div>
-                    </button>
-                    {!isShortOnly && (
-                      <button onClick={() => { const v = confirmVideo; closeConfirm(); sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, tối thiểu 7 phút (15-20 scene), style ${v.style}, formats: [${fmtArg}]`, createSession(v.title)); }}
-                        className="bg-blue-600 hover:bg-blue-500 rounded-xl px-4 py-3 text-left transition-colors">
-                        <div className="text-sm font-medium text-white">🎬 Full — 7 phút{fmtNote}</div>
-                        <div className="text-xs text-blue-200 mt-0.5">Video hoàn chỉnh để đăng YouTube</div>
-                      </button>
-                    )}
-                    <button onClick={() => { const v = confirmVideo; closeConfirm(); sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, CHỈ 3 SCENE để test, dùng animated mode (generate_image rồi generate_video_clip cho mỗi scene), style ${v.style}, formats: [${fmtArg}]`, createSession(v.title + " [anim]")); }}
-                      className="bg-purple-700 hover:bg-purple-600 rounded-xl px-4 py-3 text-left transition-colors">
-                      <div className="text-sm font-medium text-white">✨ Test Animated — 3 scene{fmtNote}</div>
-                      <div className="text-xs text-purple-300 mt-0.5">Clip 5s có chuyển động (~$0.24)</div>
-                    </button>
-                    {!isShortOnly && (
-                      <button onClick={() => { const v = confirmVideo; closeConfirm(); sendMessage(`Clone video "${v.title}" (${v.url}) thành tiếng Việt, bối cảnh Việt Nam, tối thiểu 7 phút (15-20 scene), dùng animated mode (generate_image rồi generate_video_clip cho mỗi scene), style ${v.style}, formats: [${fmtArg}]`, createSession(v.title + " [anim full]")); }}
-                        className="bg-purple-900 hover:bg-purple-800 border border-purple-600 rounded-xl px-4 py-3 text-left transition-colors">
-                        <div className="text-sm font-medium text-white">🎞️ Full Animated — 7 phút{fmtNote}</div>
-                        <div className="text-xs text-purple-400 mt-0.5">Video hoàn chỉnh có chuyển động (~$1.2–1.6)</div>
-                      </button>
-                    )}
-                    {isShortOnly && <p className="text-xs text-zinc-500 text-center py-1">Shorts/TikTok tối đa 60s — chỉ dùng Test 3 scene</p>}
-                    <button onClick={closeConfirm} className="mt-2 w-full text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Huỷ</button>
-                  </div>
-                );
-              })()}
-            </div>
+            ))}
           </div>
         )}
+      </div>
 
-        {/* Input */}
-        <div className="border-t border-zinc-800 px-4 py-4 max-w-4xl w-full mx-auto">
-          <div className="flex gap-3 items-end">
-            <textarea value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-              placeholder="Mô tả video bạn muốn tạo... (Enter để gửi)"
-              rows={2}
-              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-blue-500 transition-colors"
-              disabled={loading} />
-            {loading ? (
-              <button onClick={() => abortRef.current?.abort()}
-                className="bg-red-600 hover:bg-red-500 text-white rounded-xl px-5 py-3 text-sm font-medium transition-colors shrink-0">Dừng</button>
-            ) : (
-              <button onClick={() => sendMessage(input)} disabled={!input.trim()}
-                className="bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white rounded-xl px-5 py-3 text-sm font-medium transition-colors shrink-0">Tạo</button>
-            )}
+      {/* Right panel */}
+      <div style={{ overflow: "auto", maxHeight: "calc(100vh - 120px)" }}>
+        {selected ? (
+          <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 14 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#e0e0e0", marginBottom: 4 }}>{selected.titleVi}</div>
+            <div style={{ fontSize: 11, color: "#666", marginBottom: 10 }}>{selected.setting}</div>
+            <div style={{ fontStyle: "italic", color: "#aaa", fontSize: 12, marginBottom: 12, borderLeft: "2px solid #374151", paddingLeft: 10 }}>
+              "{selected.hook}"
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={copyToClipboard} style={btnStyle(copied ? "#166534" : "#2563eb")}>
+                {copied ? "✓ Đã copy" : "📋 Copy Prompt → Claude.ai Pro"}
+              </button>
+              <button onClick={() => setSelected(null)} style={{ ...btnStyle("#374151"), marginTop: 8 }}>Bỏ chọn</button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ background: "#161616", border: "1px dashed #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 14, textAlign: "center", color: "#555", fontSize: 13 }}>
+            👈 Chọn story từ catalog để lấy prompt
+          </div>
+        )}
+        {/* Horror level picker */}
+        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 14 }}>
+          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Cấp độ kinh dị</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {horrorLevels.map(l => (
+              <button key={l.key} onClick={() => setHorrorLevel(l.key)}
+                style={{ padding: "7px 14px", background: horrorLevel === l.key ? "#450a0a" : "#1a1a1a", color: horrorLevel === l.key ? "#fca5a5" : "#888", border: `1px solid ${horrorLevel === l.key ? "#b91c1c" : "#333"}`, borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
+                <span>{l.label}</span>
+                <span style={{ fontSize: 9, color: horrorLevel === l.key ? "#f87171" : "#555" }}>{l.desc}</span>
+              </button>
+            ))}
           </div>
         </div>
+
+        <StylePreview styleKey={horrorLevel} onConfirm={extra => setStyleExtra(extra)} />
+        <div style={{ marginTop: 14 }}>
+          <RunPanel style="horror" styleVariant={horrorLevel} styleExtra={styleExtra} music={music} musicFiles={musicFiles} onMusicChange={() => {}} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Introvert tab ──────────────────────────────────────────────────────────────
+function IntrovertTab({ musicFiles, onMusicUploaded }: { musicFiles: MusicFile[]; onMusicUploaded: () => void }) {
+  const [topic, setTopic] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [music, setMusic] = useState<MusicConfig | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [mood, setMood] = useState<"introvert_sad" | "introvert_fun">("introvert_sad");
+  const [styleExtra, setStyleExtra] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const moodOptions = [
+    { key: "introvert_sad" as const, label: "😔 Buồn / Tâm sự", desc: "Film grain, lạnh, cô đơn" },
+    { key: "introvert_fun" as const, label: "😄 Vui / Meme", desc: "Pastel ấm, cozy, dễ thương" },
+  ];
+
+  async function uploadMusic(file: File) {
+    setUploading(true);
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch("/api/music", { method: "POST", body: form }).then(r => r.json()).catch(() => null);
+    setUploading(false);
+    if (res?.path) {
+      onMusicUploaded();
+      setMusic({ mode: "auto", auto: { musicPath: res.path, startOffset: 0, volume: 1.0, fadeIn: 0, fadeOut: 0 } });
+    }
+  }
+
+  function copyPrompt() {
+    if (!topic.trim()) return;
+    navigator.clipboard.writeText(introvertPrompt(topic));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "250px 1fr", gap: 16 }}>
+      {/* Left: idea + music */}
+      <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", gap: 14, height: "fit-content" }}>
+        <div>
+          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Ý tưởng video</div>
+          <textarea
+            value={topic}
+            onChange={e => setTopic(e.target.value)}
+            placeholder="VD: người hướng nội khi bị ép đi chơi nhóm"
+            style={{ ...inputStyle, width: "100%", height: 90, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit", fontSize: 12, display: "block" }}
+          />
+          <button onClick={copyPrompt} disabled={!topic.trim()}
+            style={btnStyle(topic.trim() ? (copied ? "#166534" : "#7c3aed") : "#374151")}>
+            {copied ? "✓ Đã copy" : "📋 Copy Prompt → Claude.ai Pro"}
+          </button>
+        </div>
+
+        <div style={{ borderTop: "1px solid #2a2a2a", paddingTop: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1 }}>Nhạc nền</div>
+            <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+              style={{ padding: "3px 8px", background: "#1f2937", color: "#9ca3af", border: "1px solid #374151", borderRadius: 4, cursor: "pointer", fontSize: 11 }}>
+              {uploading ? "Đang tải..." : "+ Upload"}
+            </button>
+            <input ref={fileInputRef} type="file" accept=".mp3,.wav,.m4a,.ogg,.flac" style={{ display: "none" }}
+              onChange={e => { const f = e.target.files?.[0]; if (f) uploadMusic(f); e.target.value = ""; }} />
+          </div>
+          <select
+            value={music?.auto?.musicPath ?? ""}
+            onChange={e => {
+              if (!e.target.value) { setMusic(null); return; }
+              setMusic({ mode: "auto", auto: { musicPath: e.target.value, startOffset: 0, volume: 1.0, fadeIn: 0, fadeOut: 0 } });
+            }}
+            style={{ ...selectStyle, width: "100%", marginBottom: 10, boxSizing: "border-box" as const }}
+          >
+            <option value="">— Không có nhạc —</option>
+            {musicFiles.map(f => <option key={f.path} value={f.path}>{f.name}</option>)}
+          </select>
+          {music?.auto?.musicPath && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={{ color: "#aaa", fontSize: 12, display: "flex", flexDirection: "column", gap: 4 }}>
+                Volume: {Math.round(music.auto!.volume * 100)}%
+                <input type="range" min={0} max={1} step={0.05} value={music.auto!.volume}
+                  onChange={e => setMusic({ ...music!, auto: { ...music!.auto!, volume: +e.target.value } })} />
+              </label>
+              <label style={{ color: "#aaa", fontSize: 12 }}>
+                Cắt intro (giây):&nbsp;
+                <input type="number" min={0} value={music.auto!.startOffset}
+                  onChange={e => setMusic({ ...music!, auto: { ...music!.auto!, startOffset: +e.target.value } })}
+                  style={{ ...inputStyle, width: 55 }} />
+              </label>
+            </div>
+          )}
+        </div>
+
+        <div style={{ fontSize: 10, color: "#444", lineHeight: 1.6 }}>
+          no voice · text overlay · 5s/scene
+        </div>
+      </div>
+
+      {/* Right: mood picker + style preview + run panel */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {/* Mood picker */}
+        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14 }}>
+          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Mood video</div>
+          <div style={{ display: "flex", gap: 10 }}>
+            {moodOptions.map(m => (
+              <button key={m.key} onClick={() => setMood(m.key)}
+                style={{ flex: 1, padding: "10px 12px", background: mood === m.key ? (m.key === "introvert_sad" ? "#1e1b4b" : "#1a1200") : "#111", color: mood === m.key ? (m.key === "introvert_sad" ? "#a5b4fc" : "#fde68a") : "#777", border: `1px solid ${mood === m.key ? (m.key === "introvert_sad" ? "#4f46e5" : "#b45309") : "#333"}`, borderRadius: 8, cursor: "pointer", textAlign: "left" }}>
+                <div style={{ fontSize: 13 }}>{m.label}</div>
+                <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{m.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <StylePreview styleKey={mood} onConfirm={extra => setStyleExtra(extra)} />
+        <RunPanel style="introvert" styleVariant={mood} styleExtra={styleExtra} music={music} musicFiles={musicFiles} onMusicChange={setMusic} />
+      </div>
+    </div>
+  );
+}
+
+// ── Idea tab ───────────────────────────────────────────────────────────────────
+function IdeaTab() {
+  const styles = [
+    { key: "history", label: "📜 Lịch sử" },
+    { key: "facts", label: "💡 Facts" },
+    { key: "story", label: "💬 Tâm sự" },
+    { key: "gaming", label: "🎮 Gaming" },
+  ];
+  const [style, setStyle] = useState("history");
+  const [topic, setTopic] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  function copyPrompt() {
+    if (!topic.trim()) return;
+    navigator.clipboard.writeText(buildGenericPrompt(style, topic));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div style={{ maxWidth: 560 }}>
+      <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 24 }}>
+        <h2 style={{ margin: "0 0 20px", fontSize: 15, color: "#e0e0e0" }}>Ý Tưởng Kênh Mới</h2>
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: "#888", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Chọn style</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {styles.map(s => (
+              <button key={s.key} onClick={() => setStyle(s.key)}
+                style={{ padding: "6px 14px", background: style === s.key ? "#374151" : "#1f2937", color: "#e0e0e0", border: `1px solid ${style === s.key ? "#6b7280" : "#374151"}`, borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: "#888", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Ý tưởng / chủ đề</div>
+          <textarea value={topic} onChange={e => setTopic(e.target.value)}
+            placeholder="Mô tả ý tưởng video..."
+            style={{ ...inputStyle, width: "100%", height: 80, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit", display: "block" }}
+          />
+        </div>
+
+        <button onClick={copyPrompt} disabled={!topic.trim()}
+          style={btnStyle(topic.trim() ? (copied ? "#166534" : "#2563eb") : "#374151")}>
+          {copied ? "✓ Đã copy prompt" : "📋 Copy Prompt → Claude.ai Pro"}
+        </button>
+
+        <div style={{ marginTop: 20, padding: 12, background: "#111", borderRadius: 8, fontSize: 11, color: "#555", lineHeight: 1.8 }}>
+          <strong style={{ color: "#888" }}>Flow:</strong> Copy prompt → Claude.ai Pro → lấy JSON<br />→ Paste vào Horror hoặc Introvert tab → chạy pipeline
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ───────────────────────────────────────────────────────────────────
+export default function Page() {
+  const [tab, setTab] = useState<Tab>("horror");
+  const [horrorOpen, setHorrorOpen] = useState(true);
+  const [musicFiles, setMusicFiles] = useState<MusicFile[]>([]);
+
+  useEffect(() => {
+    fetch("/api/music").then(r => r.json()).then(d => setMusicFiles(d.files ?? [])).catch(() => {});
+  }, []);
+
+  return (
+    <div style={{ display: "flex", height: "100vh", background: "#0a0a0a", color: "#e0e0e0", fontFamily: "'Inter', 'Segoe UI', sans-serif", overflow: "hidden" }}>
+      {/* Sidebar */}
+      <div style={{ width: 196, background: "#111", borderRight: "1px solid #1f1f1f", padding: "14px 0", display: "flex", flexDirection: "column", flexShrink: 0 }}>
+        <div style={{ padding: "0 14px 14px", borderBottom: "1px solid #1f1f1f", marginBottom: 6 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#e0e0e0" }}>Content Studio</div>
+          <div style={{ fontSize: 10, color: "#444", marginTop: 2 }}>CauChuyen30Dem</div>
+        </div>
+
+        {/* Horror folder */}
+        <div>
+          <div onClick={() => setHorrorOpen(!horrorOpen)}
+            style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 14px", cursor: "pointer", color: "#888", fontSize: 12, userSelect: "none" }}>
+            <span>👻 Horror Content</span>
+            <span style={{ color: "#444" }}>{horrorOpen ? "▾" : "▸"}</span>
+          </div>
+          {horrorOpen && (
+            <div onClick={() => setTab("horror")}
+              style={{
+                padding: "6px 14px 6px 26px", cursor: "pointer", fontSize: 12,
+                background: tab === "horror" ? "#1e3a5f" : "transparent",
+                color: tab === "horror" ? "#60a5fa" : "#666",
+                borderLeft: `2px solid ${tab === "horror" ? "#2563eb" : "transparent"}`,
+              }}>
+              📁 Wansee
+            </div>
+          )}
+        </div>
+
+        {/* Introvert */}
+        <div onClick={() => setTab("introvert")}
+          style={{
+            padding: "7px 14px", cursor: "pointer", fontSize: 12,
+            background: tab === "introvert" ? "#2d1b69" : "transparent",
+            color: tab === "introvert" ? "#a78bfa" : "#888",
+            borderLeft: `2px solid ${tab === "introvert" ? "#7c3aed" : "transparent"}`,
+          }}>
+          🌙 Hướng Nội
+        </div>
+
+        {/* Idea */}
+        <div onClick={() => setTab("idea")}
+          style={{
+            padding: "7px 14px", cursor: "pointer", fontSize: 12,
+            background: tab === "idea" ? "#1a1200" : "transparent",
+            color: tab === "idea" ? "#fbbf24" : "#888",
+            borderLeft: `2px solid ${tab === "idea" ? "#d97706" : "transparent"}`,
+          }}>
+          💡 Ý Tưởng Mới
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
+        <h1 style={{ margin: "0 0 16px", fontSize: 17, fontWeight: 700, color: "#e0e0e0" }}>
+          {tab === "horror" && "👻 Horror Content — Wansee"}
+          {tab === "introvert" && "🌙 Hướng Nội Content"}
+          {tab === "idea" && "💡 Ý Tưởng Mới"}
+        </h1>
+
+        {tab === "horror" && <HorrorTab musicFiles={musicFiles} />}
+        {tab === "introvert" && <IntrovertTab musicFiles={musicFiles} onMusicUploaded={() => fetch("/api/music").then(r => r.json()).then(d => setMusicFiles(d.files ?? []))} />}
+        {tab === "idea" && <IdeaTab />}
       </div>
     </div>
   );

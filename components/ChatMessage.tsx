@@ -15,12 +15,6 @@ const TOOL_ICONS: Record<string, string> = {
   assemble_video: "🎬",
 };
 
-const FORMAT_LABELS: Record<string, string> = {
-  youtube: "▶️ YouTube 16:9",
-  shorts: "📱 Shorts 9:16",
-  tiktok: "🎵 TikTok 9:16",
-};
-
 export default function ChatMessage({ msg }: { msg: Message }) {
   if (msg.role === "user") {
     return (
@@ -71,19 +65,10 @@ export default function ChatMessage({ msg }: { msg: Message }) {
     if (msg.tool === "assemble_video" && files) {
       return (
         <div className="flex justify-start mb-4">
-          <div className="bg-green-950 border border-green-800 rounded-2xl p-4 max-w-[90%] w-full">
-            <p className="text-green-300 text-sm font-medium mb-3">🎬 Video hoàn chỉnh!</p>
+          <div className="bg-green-950 border border-green-800 rounded-2xl p-4 max-w-[90%]">
+            <p className="text-green-300 text-sm font-medium mb-2">🎬 Video hoàn chỉnh!</p>
             {Object.entries(files).map(([fmt, filePath]) => (
-              <div key={fmt} className="mb-3">
-                <p className="text-xs text-green-500 mb-1">{FORMAT_LABELS[fmt] ?? fmt}</p>
-                <video
-                  src={`/api/video?path=${encodeURIComponent(filePath)}`}
-                  controls
-                  className="w-full rounded-lg bg-black"
-                  style={{ maxHeight: "360px" }}
-                />
-                <p className="text-xs text-zinc-600 mt-1 truncate">{filePath}</p>
-              </div>
+              <p key={fmt} className="text-xs text-zinc-400 font-mono break-all">{filePath}</p>
             ))}
           </div>
         </div>

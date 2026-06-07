@@ -29,8 +29,29 @@ const SYSTEM_PROMPT = `Bạn là Claude Content Studio — AI tạo video YouTub
 - Ví dụ sai: "scene_01", "voice_01", "kidnap_scene_01"
 - outputFilename của assemble_video = PROJECT_NAME (không có "__scene")
 
-## VISUAL STYLE (prefix MỌI image prompt)
+## VISUAL STYLE (prefix MỌI image prompt — bắt buộc copy nguyên văn vào ĐẦU mỗi prompt)
 ${WANSEE_IMAGE_STYLE}
+
+## HORROR DETAIL — BẮT BUỘC MỖI ẢNH (QUAN TRỌNG NHẤT)
+Mỗi image prompt PHẢI chỉ định 1 điều CỤ THỂ và SAI trong cảnh đó. Đây là thứ làm ảnh thực sự đáng sợ:
+- "her shadow on the wall is shaped like a different person reaching toward her"
+- "her reflection in the mirror is facing the wrong direction, looking at something behind the viewer"
+- "there are 7 doors in the hallway but this apartment only has 3 rooms"
+- "a hand with too many fingers is visible under the bed, perfectly still"
+- "the figure in the background has been standing in the exact same position in every photo on the wall"
+- "the ceiling above her has a dark stain shaped exactly like a human body outline"
+- "her shadow has no head"
+Đặt chi tiết SAI này ở vị trí người xem sẽ phát hiện ra sau vài giây nhìn — không phải ngay lập tức.
+
+## ĐỒNG NHẤT NHÂN VẬT & BỐI CẢNH (CỰC KỲ QUAN TRỌNG)
+Lỗi thường gặp: các ảnh trông như do nhiều AI khác nhau vẽ. Để tránh:
+1. NGAY ĐẦU project, viết 1 đoạn "CHARACTER SHEET" cố định bằng tiếng Anh mô tả CHI TIẾT nhân vật chính:
+   - giới tính, tuổi, kiểu tóc + màu tóc, khuôn mặt, trang phục cụ thể (màu áo, kiểu áo)
+   Ví dụ: "a 24-year-old Vietnamese man, short black messy hair, thin face, wearing a grey hoodie and dark jeans"
+2. COPY NGUYÊN VĂN character sheet đó vào MỌI prompt có nhân vật này — không đổi từ ngữ
+3. Mô tả bối cảnh cố định (cùng căn phòng/ngôi nhà) cũng lặp lại y nguyên giữa các scene cùng địa điểm
+4. Cấu trúc mỗi image prompt: [VISUAL STYLE] + [CHARACTER SHEET nếu có người] + [hành động/cảnh cụ thể của scene]
+=> Cùng project tự động dùng chung 1 seed, cộng mô tả lặp lại → ảnh đồng nhất, đáng sợ, liền mạch.
 
 ## SCRIPT STYLE
 ${WANSEE_SCRIPT_STYLE}
@@ -68,26 +89,40 @@ export async function runAgent(
 
   while (true) {
     if (signal?.aborted) break;
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 8192,
-        system: SYSTEM_PROMPT,
-        tools: TOOL_DEFINITIONS,
-        messages,
-      }),
-    });
 
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Anthropic API error ${res.status}: ${err}`);
+    // Gọi API với retry tự động khi gặp 429 (rate limit) — chờ rồi thử lại
+    let res: Response | null = null;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      if (signal?.aborted) return;
+      res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 8192,
+          system: SYSTEM_PROMPT,
+          tools: TOOL_DEFINITIONS,
+          messages,
+        }),
+      });
+
+      if (res.status === 429 || res.status === 529) {
+        const retryAfter = parseInt(res.headers.get("retry-after") ?? "") || (attempt + 1) * 15;
+        onEvent({ role: "assistant", content: `⏳ Đạt giới hạn API, chờ ${retryAfter}s rồi tiếp tục...` });
+        await new Promise((r) => setTimeout(r, retryAfter * 1000));
+        continue;
+      }
+      break;
+    }
+
+    if (!res || !res.ok) {
+      const err = res ? await res.text() : "no response";
+      throw new Error(`Anthropic API error ${res?.status}: ${err}`);
     }
 
     const data: AnthropicResponse = await res.json();

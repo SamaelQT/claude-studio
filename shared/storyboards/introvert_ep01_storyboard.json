@@ -1,0 +1,225 @@
+{
+  "_note": "Storyboard Tập 1 — kênh Người Hướng Nội. Chuyển sang task Script JSON để tạo fal prompts.",
+  "_updated": "2026-06-07",
+
+  "video": {
+    "episode": 1,
+    "title_draft": "Ngày Mọi Thứ Sụp Đổ — Sinh Nhật Tháng 9",
+    "channel": "Người Hướng Nội",
+    "music": "Nếu — Binz ft. Obito (album Gặp Lại, 2026)",
+    "duration": "~4 phút (khớp bài hát)",
+    "total_images": 32,
+    "note_ep2": "Tập 2 sẽ là hành trình đứng dậy sau ngày đó"
+  },
+
+  "character_sheet": {
+    "protagonist": "Nam 23 tuổi, sinh viên đại học năm cuối, Đồng Nai/HCM",
+    "style": "KHÔNG thấy mặt — chỉ thấy vai, tay, dáng từ sau lưng, bóng silhouette",
+    "clothing": "Áo thun đơn giản, quần dài, dép hoặc giày thể thao",
+    "girl": "Cô gái cùng phòng trọ — sống chung thời đại học, cũng KHÔNG thấy mặt rõ",
+    "visual_style": "Cinematic photorealistic, NO face visible, góc sau lưng hoặc cận tay/vai",
+    "color_palette": {
+      "present": "Lạnh, xanh xám, ánh đèn đường vàng nhạt",
+      "flashback_happy": "Ấm, amber, tone vàng nhẹ",
+      "flashback_conflict": "Trung tính, hơi tối"
+    }
+  },
+
+  "key_story_beats": {
+    "setting": "Tháng 9/2024 — ngày sinh nhật nhân vật chính",
+    "beat_1": "Sáng: rớt báo cáo tốt nghiệp tại trường",
+    "beat_2": "Chiều: nhận email từ chối thực tập",
+    "beat_3": "Đường về: khóc trên xe máy giữa dòng xe",
+    "beat_4": "Tối: cô ấy tuyên bố chia tay — 'Chán anh rồi, anh không có tương lai'",
+    "beat_5": "Cô ấy dọn đồ rời khỏi phòng trọ họ sống chung",
+    "beat_6": "Đêm: một mình hoàn toàn trong phòng trọ trống"
+  },
+
+  "climax_image": {
+    "position": "Điệp khúc cuối — câu 'Nếu cả thế giới quay lưng với anh, em có phải người duy nhất quay mặt về anh?'",
+    "description": "Anh ngồi trên sàn phòng trọ, lưng tựa mép giường, co ro, đầu cúi. Xung quanh trên sàn: tờ kết quả rớt báo cáo + điện thoại mở email từ chối thực tập + phía giường bên cạnh trống hoàn toàn (vết lõm gối vẫn còn). Ánh sáng duy nhất: đèn đường lọt qua cửa sổ, xanh lạnh. Đây là ngày sinh nhật của anh.",
+    "emotion": "Đỉnh cảm xúc — 3 thứ sụp đổ cùng 1 ngày, gộp vào 1 khung hình"
+  },
+
+  "storyboard": [
+    {
+      "img": 1, "lines": "1,2",
+      "lyric": "Nếu sự thật anh không thể giải thích... em có phải là người đầu tiên tin? Nếu những câu chuyện của họ đúng... em có phải là người cuối cùng tin?",
+      "scene": "Buổi sáng sớm phòng trọ nhỏ. Ánh sáng vàng nhạt qua cửa sổ. Hai ly cà phê trên bàn, một chưa ai uống. Dáng anh nhìn ra cửa sổ từ sau lưng. HINT sinh nhật: tờ lịch trên tường hoặc bánh nhỏ chưa mở",
+      "tone": "present_cold", "beat": "Mở đầu — bình yên giả tạo"
+    },
+    {
+      "img": 2, "lines": "3,4",
+      "lyric": "Nếu như mai giông tố tan nát bầu trời anh. Tất cả anh xây đã sụp đổ",
+      "scene": "CẢNH RỚT BÁO CÁO: Phòng báo cáo tốt nghiệp — hội đồng 3 người ngồi im lặng, tờ nhận xét đặt úp xuống bàn. Dáng anh đứng phía xa, vai cúi, nhìn tờ giấy. Không thấy mặt",
+      "tone": "present_cold", "beat": "Rớt tốt nghiệp — sáng"
+    },
+    {
+      "img": 3, "lines": "5,6,7",
+      "lyric": "Em có phải là người cuối rời đi? Nếu anh bớt chiều con tim hơn... bớt mộng mơ... bớt ở trên mây",
+      "scene": "Anh bước ra khỏi phòng báo cáo — hành lang dài trống vắng, nắng chiếu một góc. Dáng anh đứng một mình giữa hành lang nhìn xuống điện thoại",
+      "tone": "present_cold", "beat": "Bước ra một mình"
+    },
+    {
+      "img": 4, "lines": "8",
+      "lyric": "Em sẽ không phải đoán cảm xúc của anh, thế có đỡ mệt cho em hơn",
+      "scene": "HỒI TƯỞNG (tone amber): Cô ấy một mình ăn cơm trong phòng trọ, phần của anh vẫn còn đó nguội lạnh. Cô ấy nhìn về phía màn hình game anh đang chơi — chỉ thấy lưng cô ấy",
+      "tone": "flashback_conflict", "beat": "Cô ấy ăn một mình"
+    },
+    {
+      "img": 5, "lines": "9,10",
+      "lyric": "Nếu những lời đồn kia đều đúng... Nơi anh có một chút ghen tuông và đáng nghĩ hơn, lý trí hơn",
+      "scene": "HỒI TƯỞNG (tone amber): Màn hình game sáng rực lúc 2 giờ chiều. Phía sau: cô ấy mặc đồng phục đi làm thêm đứng trước gương chỉnh tóc. Anh không nhìn lại",
+      "tone": "flashback_conflict", "beat": "Anh chơi game, cô ấy đi làm"
+    },
+    {
+      "img": 6, "lines": "11,12",
+      "lyric": "Biết cách nói ra điều anh nghĩ hơn. Nếu anh kiên quyết hơn... nhiều mưu mô và toan tính hơn",
+      "scene": "HỒI TƯỞNG (tone amber): Cô ấy cầm túi bước ra cửa — quay nhìn lại anh một lần. Anh vẫn nhìn màn hình, không quay lại. Cô ấy tự đóng cửa",
+      "tone": "flashback_conflict", "beat": "Cô ấy đi, anh không biết"
+    },
+    {
+      "img": 7, "lines": "13,14",
+      "lyric": "Nếu anh ích kỷ hơn, nếu anh bớt hiền hơn. Em sẽ bớt thiệt hơn, em sẽ có nhiều hơn",
+      "scene": "CẢNH RỚT THỰC TẬP: Bàn tay cầm điện thoại — màn hình hiện email tiêu đề 'Thông báo kết quả tuyển dụng', nội dung bắt đầu 'Rất tiếc...'. Ngoài cửa sổ phía sau: bầu trời chiều tối dần",
+      "tone": "present_cold", "beat": "Rớt thực tập — chiều"
+    },
+    {
+      "img": 8, "lines": "15",
+      "lyric": "Nếu có những góc tối nơi sâu trong anh, nơi những ngóc ngách không cho ai tới",
+      "scene": "HỒI TƯỞNG: Hai người ngồi im lặng trong phòng trọ sau một trận cãi — mỗi người nhìn một hướng. Khoảng cách rất ngắn nhưng như rất xa",
+      "tone": "flashback_conflict", "beat": "Những lần cãi nhau"
+    },
+    {
+      "img": 9, "lines": "16",
+      "lyric": "Nhưng anh muốn nói ra cho em nghe baby — khi đó em có xem anh như là người lạ?",
+      "scene": "HỒI TƯỞNG: Cô ấy đang nói chuyện, anh ngồi đối diện nhìn đi chỗ khác. Tay cô ấy đặt lên bàn — anh không cầm lấy",
+      "tone": "flashback_conflict", "beat": "Không lắng nghe"
+    },
+    {
+      "img": 10, "lines": "17,18",
+      "lyric": "Nếu như cả thế giới quay lưng với anh — có phải em là người duy nhất quay mặt về anh?",
+      "scene": "HIỆN TẠI: Anh đứng trước cổng trường chiều — đông người qua lại, không ai nhìn anh. Dáng anh nhỏ giữa đám đông, cầm điện thoại",
+      "tone": "present_cold", "beat": "Trở về hiện tại"
+    },
+    {
+      "img": 11, "lines": "19",
+      "lyric": "Nếu như anh lạc mất trong khi đi tìm những thứ hão huyền — có phải em là người đầu tiên chạy đi tìm kiếm?",
+      "scene": "Anh đội mũ bảo hiểm lên xe máy — nhìn vào kính chiếu hậu, mắt đỏ hoe. Chỉ thấy kính chiếu hậu và đôi mắt",
+      "tone": "present_cold", "beat": "Lên xe về"
+    },
+    {
+      "img": 12, "lines": "20",
+      "lyric": "Nếu như cả thế giới quay lưng với anh, nếu không may anh mất sạch trí nhớ — em vẫn còn đó bên anh?",
+      "scene": "Xe chạy trong dòng xe buổi chiều tối — góc nhìn từ bên cạnh, dáng anh nhỏ giữa dòng xe lớn, đèn đường bắt đầu lên",
+      "tone": "present_cold", "beat": "Giữa dòng người"
+    },
+    {
+      "img": 13, "lines": "21,22,23,24",
+      "lyric": "Nếu anh rơi tận đáy sâu (rất sâu)... nếu như có một ngày anh mất hết, em vẫn bên anh? Em còn bên anh?",
+      "scene": "Cận cảnh: má anh trong mũ bảo hiểm — một giọt nước mắt lăn dài. Đèn đường và xe cộ nhòe trong nền. Tầm nhìn mờ. Không thấy mặt, chỉ thấy giọt nước mắt và má",
+      "tone": "present_cold", "beat": "Khóc trên xe"
+    },
+    {
+      "img": 14, "lines": "25,26",
+      "lyric": "Nếu một mai bình yên vụn vỡ. Bầu trời anh mịt mù giông tố",
+      "scene": "Anh dừng xe trước cửa phòng trọ — đứng im ngoài cửa không vào, tay cầm chìa khóa. Đèn trong phòng sáng — cô ấy ở trong",
+      "tone": "present_cold", "beat": "Đứng trước cửa"
+    },
+    {
+      "img": 15, "lines": "27,28",
+      "lyric": "Những gì anh xây một giây sụp đổ — liệu em còn ở đó?",
+      "scene": "Anh mở cửa bước vào — cô ấy đứng giữa phòng, mặt bình thản, không nhìn anh. Không khí nặng nề. Không ai nói gì trước",
+      "tone": "present_cold", "beat": "Cô ấy chờ để nói"
+    },
+    {
+      "img": 16, "lines": "29,30",
+      "lyric": "Nếu như vào ngày đó anh nói hết những điều anh nghĩ — thì mình giờ chẳng phải nổi đóa",
+      "scene": "Hai người đứng đối mặt trong phòng trọ nhỏ. Cô ấy nói — chỉ thấy môi và cằm cô ấy. Câu nói hiện dưới dạng text: 'Chán anh rồi. Anh không có tương lai.'",
+      "tone": "present_cold", "beat": "Chia tay"
+    },
+    {
+      "img": 17, "lines": "31,32,33",
+      "lyric": "Mắt hoen lệ mi ướt, yêu thương của cuộc tình rơi xuống. Nhìn người lạc vào dòng đời. Lại thêm một lần nữa anh khiến trái tim em lại vơi",
+      "scene": "Anh ngồi xuống mép giường — tay chống gối, nhìn xuống sàn. Cô ấy phía sau bắt đầu lấy đồ của mình từng món. Không ai nói gì",
+      "tone": "present_cold", "beat": "Cô ấy dọn đồ"
+    },
+    {
+      "img": 18, "lines": "34",
+      "lyric": "Hòa vào dòng cảm xúc anh chỉ gieo ở giọng lại thôi",
+      "scene": "Túi đồ của cô ấy đặt ở cửa — vài thứ của cô ấy còn sót trên kệ, phần của cô ấy trống dần từng chỗ",
+      "tone": "present_cold", "beat": "Từng thứ một"
+    },
+    {
+      "img": 19, "lines": "35",
+      "lyric": "Thì lại nhớ nhung hơi ấm xưa in trên bờ môi",
+      "scene": "Cửa sổ phòng trọ — ngoài trời tối, mưa bắt đầu rơi trên kính. Ánh đèn đường vàng nhòe trong mưa",
+      "tone": "present_cold", "beat": "Trời mưa"
+    },
+    {
+      "img": 20, "lines": "36",
+      "lyric": "ừ mà thôi xin em đừng care điều anh nói",
+      "scene": "Cô ấy kéo túi ra khỏi cửa — nhìn lại anh một lần cuối. Anh ngồi trên giường không đứng dậy, không giữ",
+      "tone": "present_cold", "beat": "Anh không giữ"
+    },
+    {
+      "img": 21, "lines": "37",
+      "lyric": "Gió rét, giết anh trong từng cơn sao lại tìm em hơn",
+      "scene": "Cửa đóng lại — anh một mình trong phòng. Nhìn từ góc rộng: phòng trọ nhỏ, nửa hoàn toàn trống",
+      "tone": "present_cold", "beat": "Cô ấy đi rồi"
+    },
+    {
+      "img": 22, "lines": "38,39",
+      "lyric": "Dù anh làm em đau đớn. Nhìn hình bóng ấy khuất xa do chính anh",
+      "scene": "Anh gõ tin nhắn cho cô ấy trên điện thoại — nhìn chằm chằm rồi xóa hết. Màn hình về trống",
+      "tone": "present_cold", "beat": "Nuốt vào"
+    },
+    {
+      "img": 23, "lines": "40,41,42 — Điệp khúc cuối bắt đầu",
+      "lyric": "[ĐIỆP KHÚC CUỐI] Nếu như cả thế giới quay lưng với anh — có phải em là người duy nhất quay mặt về anh?",
+      "scene": "ĐỈNH CẢM XÚC: Anh ngồi trên sàn phòng trọ, lưng tựa mép giường, co ro, đầu cúi. Xung quanh trên sàn: tờ kết quả rớt báo cáo + điện thoại mở email từ chối thực tập + phía giường bên cạnh trống hoàn toàn (vết lõm gối vẫn còn). Ánh sáng duy nhất: đèn đường lọt qua cửa sổ, xanh lạnh. Ngày sinh nhật của anh — 3 thứ sụp đổ cùng 1 ngày",
+      "tone": "present_cold", "beat": "ĐỈNH — tất cả sụp đổ"
+    },
+    {
+      "img": 24, "lines": "43,44,45",
+      "lyric": "Nếu như anh lạc mất... có phải em là người đầu tiên chạy đi tìm kiếm? / Nếu không may anh mất sạch trí nhớ, em vẫn còn đó bên anh?",
+      "scene": "QUÁ KHỨ vs HIỆN TẠI — split/fade: Trái: hai người ngồi cạnh nhau trên giường xem phim, vai chạm vai, ấm amber. Phải: anh ngồi đúng chỗ đó một mình, khoảng trống bên cạnh, lạnh xanh",
+      "tone": "split_past_present", "beat": "Ký ức vs thực tại"
+    },
+    {
+      "img": 25, "lines": "46",
+      "lyric": "Nếu anh rơi tận đáy sâu — em vẫn bên anh? Em còn bên anh?",
+      "scene": "Bàn học nhỏ — phần của cô ấy sạch trơn, chỉ còn đồ anh. Một tách cà phê — tách kia trống, nguội",
+      "tone": "present_cold", "beat": "Câu trả lời trong ảnh"
+    },
+    {
+      "img": 26, "lines": "47,48",
+      "lyric": "[Post-bridge] Gió rét... sao lại tìm em hơn",
+      "scene": "Bình minh qua cửa sổ — anh vẫn ngồi, chưa ngủ. Trên bàn: chiếc bánh sinh nhật nhỏ, nến chưa thắp, chưa ai thổi",
+      "tone": "present_cold", "beat": "Sinh nhật — một mình"
+    },
+    {
+      "img": 27, "lines": "49,50",
+      "lyric": "Nhìn hình bóng ấy khuất xa... bao vết thương ngu ngốc kia đi tặng em",
+      "scene": "Căn phòng nhìn từ ngưỡng cửa — nửa trống hoàn toàn (phần cô ấy), nửa còn đồ anh. Anh đứng ở cửa nhìn vào. Fade to black → text: 'Tập 1'",
+      "tone": "present_cold", "beat": "Kết — bỏ lửng"
+    }
+  ],
+
+  "instructions_for_script_task": {
+    "task": "Tạo fal.ai image prompt (tiếng Anh) cho từng ảnh trong mảng storyboard",
+    "style_rules": [
+      "Cinematic photorealistic",
+      "NO face visible — back view, hands, silhouette only",
+      "Male protagonist: 23yo Vietnamese man, simple t-shirt, casual pants",
+      "Girl: also no face visible clearly",
+      "present_cold tone: desaturated, blue-gray, cold street light",
+      "flashback_happy tone: warm amber, soft yellow light",
+      "flashback_conflict tone: neutral, slightly dim",
+      "16:9 ratio, 1280x720",
+      "NO text in image",
+      "Cinematic depth of field"
+    ],
+    "output_format": "Thêm field 'fal_prompt' vào từng object trong mảng storyboard"
+  }
+}

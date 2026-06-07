@@ -1,0 +1,169 @@
+{
+  "project": "introvert_ep01",
+  "total_images": 27,
+  "style_base": "Cinematic photorealistic, 16:9 1280x720, NO face visible, NO text in image, shallow depth of field, Vietnamese setting",
+  "images": [
+    {
+      "img": 1,
+      "beat": "Mở đầu — bình yên giả tạo",
+      "tone": "present_cold",
+      "fal_prompt": "A small Vietnamese student apartment room at early morning, warm pale yellow light through a thin curtain. Two ceramic coffee cups on a wooden desk, one untouched and slightly steaming. A 23-year-old Vietnamese man seen only from behind, simple white t-shirt, standing at the window looking out at the quiet street below. On the wall: a paper calendar with a date circled. Cinematic photorealistic, desaturated warm-to-cold transition, shallow depth of field, 16:9, no faces visible, no text."
+    },
+    {
+      "img": 2,
+      "beat": "Rớt tốt nghiệp — sáng",
+      "tone": "present_cold",
+      "fal_prompt": "A university thesis defense room in Vietnam, fluorescent overhead light. Three professors sit silently behind a long table, a graded paper placed face-down on the desk in front of them. Far end of the room: a 23-year-old Vietnamese man seen only from behind, simple t-shirt, shoulders hunched forward staring at the paper. Cold blue-gray color grade, cinematic photorealistic, no faces visible, no text, 16:9."
+    },
+    {
+      "img": 3,
+      "beat": "Bước ra một mình",
+      "tone": "present_cold",
+      "fal_prompt": "A long empty university corridor in Vietnam, afternoon sunlight cutting diagonally through a window onto the tiled floor. A 23-year-old Vietnamese man stands alone in the middle of the hallway seen from behind, simple t-shirt and pants, looking down at his phone. Other students visible as blurred figures far in the background. Desaturated blue-gray tone, cinematic photorealistic, shallow depth of field, no face visible, 16:9, no text."
+    },
+    {
+      "img": 4,
+      "beat": "Cô ấy ăn một mình",
+      "tone": "flashback_conflict",
+      "fal_prompt": "A small Vietnamese student apartment, daytime. A young woman seen only from behind sits alone at a small table eating a meal, her portion half-eaten. Across the room a gaming monitor glows brightly — the back of a male figure visible playing a game, back turned to her. Her untouched extra portion sits getting cold. Neutral slightly dim lighting, muted warm tones, cinematic photorealistic, no faces visible, 16:9, no text."
+    },
+    {
+      "img": 5,
+      "beat": "Anh chơi game, cô ấy đi làm",
+      "tone": "flashback_conflict",
+      "fal_prompt": "A Vietnamese student apartment at 2pm. A bright gaming monitor dominates the foreground — the silhouette of a young man hunched at the keyboard, back to camera. In the background near a small mirror: a young woman in a part-time work uniform adjusting her hair before leaving, seen from behind. Neutral slightly dim lighting, cinematic photorealistic, no faces visible, shallow depth of field, 16:9, no text."
+    },
+    {
+      "img": 6,
+      "beat": "Cô ấy đi, anh không biết",
+      "tone": "flashback_conflict",
+      "fal_prompt": "A Vietnamese student apartment doorway. A young woman seen only from behind holds a bag, pausing at the door — her head slightly turned back toward the room. In the background: the back of a young man still facing a computer monitor, not turning around. She reaches for the door handle alone. Soft neutral dim light, muted tones, cinematic photorealistic, no faces visible, 16:9, no text."
+    },
+    {
+      "img": 7,
+      "beat": "Rớt thực tập — chiều",
+      "tone": "present_cold",
+      "fal_prompt": "Close-up of two hands holding a smartphone. The screen displays an email with the subject line partially visible: a formal rejection letter beginning with 'Rất tiếc...' The background through a window shows a Vietnamese street at late afternoon, sky turning dark gray. Cold desaturated color grade, cinematic photorealistic, depth of field focused on phone screen, 16:9, no face visible, no text overlay."
+    },
+    {
+      "img": 8,
+      "beat": "Những lần cãi nhau",
+      "tone": "flashback_conflict",
+      "fal_prompt": "A small Vietnamese student apartment. Two figures sit on opposite ends of a small sofa — a young man and a young woman, both seen from behind or side silhouette, turned away from each other. The space between them feels enormous despite being inches apart. A turned-off TV reflects the room dimly. Neutral slightly dim lighting, no warm tones, cinematic photorealistic, no faces visible, 16:9, no text."
+    },
+    {
+      "img": 9,
+      "beat": "Không lắng nghe",
+      "tone": "flashback_conflict",
+      "fal_prompt": "A Vietnamese student apartment, daytime. A young woman sits across a small table, leaning slightly forward as if speaking — her hand placed open on the table, reaching toward the other side. Across from her a young man seen from behind looks away toward the window. Her hand remains unclaimed on the table. Neutral muted lighting, cinematic photorealistic, no faces visible, shallow depth of field, 16:9, no text."
+    },
+    {
+      "img": 10,
+      "beat": "Trở về hiện tại",
+      "tone": "present_cold",
+      "fal_prompt": "Outside a Vietnamese university gate at late afternoon, crowd of students streaming past. A 23-year-old Vietnamese man stands alone in the flow of people, seen from behind, simple t-shirt, holding a phone at his side. The crowd moves around him as if he is invisible. Cold blue-gray desaturated color grade, cinematic photorealistic, no face visible, 16:9, no text."
+    },
+    {
+      "img": 11,
+      "beat": "Lên xe về",
+      "tone": "present_cold",
+      "fal_prompt": "A rearview mirror of a Vietnamese motorbike fills the frame. Reflected in the mirror: a pair of reddened eyes under a motorcycle helmet visor, visibly holding back tears. The street behind reflected in the mirror shows Hồ Chí Minh City traffic at dusk. Cold desaturated blue tone, cinematic photorealistic, tight crop on mirror, shallow depth of field, 16:9, no full face visible, no text."
+    },
+    {
+      "img": 12,
+      "beat": "Giữa dòng người",
+      "tone": "present_cold",
+      "fal_prompt": "Ho Chi Minh City street at dusk, heavy motorbike traffic. A lone motorbike carrying a 23-year-old Vietnamese man in helmet seen from the side — small among the surrounding stream of vehicles and trucks. Street lights beginning to flicker on, casting orange-yellow pools in the blue-gray evening. Cinematic photorealistic, wide shot, desaturated cold tone, no face visible, 16:9, no text."
+    },
+    {
+      "img": 13,
+      "beat": "Khóc trên xe",
+      "tone": "present_cold",
+      "fal_prompt": "Extreme close-up: the cheek and jaw of a young Vietnamese man inside a motorcycle helmet visor. A single tear rolling down his cheek. Background completely bokeh: blurred city street lights and vehicles, golden smears against cold blue. Only cheek, jaw, and tear visible — no full face. Cold desaturated color grade, cinematic photorealistic, 16:9, no text."
+    },
+    {
+      "img": 14,
+      "beat": "Đứng trước cửa",
+      "tone": "present_cold",
+      "fal_prompt": "Outside the door of a Vietnamese student apartment at night. A 23-year-old Vietnamese man stands motionless in front of the closed door, seen from behind — one hand holding his keys, not inserted yet. Light leaks warm from under and around the door frame. He stands still in the dark hallway. Cold blue exterior contrasting with warm interior light, cinematic photorealistic, no face visible, 16:9, no text."
+    },
+    {
+      "img": 15,
+      "beat": "Cô ấy chờ để nói",
+      "tone": "present_cold",
+      "fal_prompt": "Interior of a small Vietnamese student apartment. A 23-year-old Vietnamese man enters through the door seen from behind. In the middle of the room a young woman stands with her back partially turned, arms loosely at her sides, waiting — posture tense. The air between them is heavy. Cold desaturated blue-gray interior lighting, cinematic photorealistic, no faces visible, 16:9, no text."
+    },
+    {
+      "img": 16,
+      "beat": "Chia tay",
+      "tone": "present_cold",
+      "fal_prompt": "Interior of a small Vietnamese student apartment. Two figures face each other at close range — seen only from chin down, no full faces. The young woman's lips and jaw visible as she speaks. Below her face in the frame, a text subtitle card reads: 'Chán anh rồi. Anh không có tương lai.' Cold desaturated blue-gray light, cinematic photorealistic, shallow depth of field, 16:9. Note: the subtitle is part of the scene composition as a visual element, rendered as a simple white text overlay in the lower third."
+    },
+    {
+      "img": 17,
+      "beat": "Cô ấy dọn đồ",
+      "tone": "present_cold",
+      "fal_prompt": "A Vietnamese student apartment. A 23-year-old Vietnamese man sits on the edge of a bed seen from behind, elbows on knees, head bowed — looking at the floor. Behind him: a young woman seen from behind methodically picking up her belongings one by one from shelves. Neither speaks. Cold blue-gray light, cinematic photorealistic, wide shot capturing both figures, no faces visible, 16:9, no text."
+    },
+    {
+      "img": 18,
+      "beat": "Từng thứ một",
+      "tone": "present_cold",
+      "fal_prompt": "Close-up composition: a packed bag sitting near the apartment door, a few items still remaining on a half-empty shelf — a hair tie, a small photo frame face-down, a mug. The shelves show clear empty gaps where things used to be. Cold desaturated blue-gray light, cinematic photorealistic, shallow depth of field on the bag and shelf, 16:9, no faces visible, no text."
+    },
+    {
+      "img": 19,
+      "beat": "Trời mưa",
+      "tone": "present_cold",
+      "fal_prompt": "A rain-streaked apartment window at night. Outside: a Vietnamese alley street, orange-yellow street lights dissolving in the rain into soft glowing streaks on the wet road. The glass surface in the foreground is beaded with water droplets. View from inside looking out. Cold blue interior, warm blurred street light bokeh, cinematic photorealistic, 16:9, no faces, no text."
+    },
+    {
+      "img": 20,
+      "beat": "Anh không giữ",
+      "tone": "present_cold",
+      "fal_prompt": "Vietnamese student apartment doorway. A young woman wheels a small bag out through the door, seen from behind — she pauses and turns her head slightly back into the room. In the background on the bed: a 23-year-old Vietnamese man sits motionless, seen from behind, making no move to stand or stop her. Cold blue-gray light, cinematic photorealistic, depth of field with her sharp in foreground and him soft in background, 16:9, no faces visible, no text."
+    },
+    {
+      "img": 21,
+      "beat": "Cô ấy đi rồi",
+      "tone": "present_cold",
+      "fal_prompt": "Wide shot of a small Vietnamese student apartment from the doorway looking in. The room is split visually: the right half completely bare — empty hangers, bare shelves, vacant floor space. The left half still holds a young man's belongings. A 23-year-old Vietnamese man sits on the bed in the occupied half, seen from behind, unmoving. Cold blue-gray light, cinematic photorealistic, wide angle showing the contrast of full and empty halves, 16:9, no face visible, no text."
+    },
+    {
+      "img": 22,
+      "beat": "Nuốt vào",
+      "tone": "present_cold",
+      "fal_prompt": "Extreme close-up of two hands holding a smartphone in a dark Vietnamese apartment. The messaging app is open, a partially typed message visible on screen — then a thumb hovers over the delete key. The screen returns to empty. Only hands and phone visible. Cold blue phone screen glow against dark surroundings, cinematic photorealistic, tight macro shot, 16:9, no face, no text."
+    },
+    {
+      "img": 23,
+      "beat": "ĐỈNH — tất cả sụp đổ",
+      "tone": "present_cold",
+      "fal_prompt": "HERO SHOT. A Vietnamese student apartment at night. A 23-year-old Vietnamese man sits curled on the bare floor, back leaning against the foot of his bed, knees drawn up, head bowed forward — seen entirely from behind. Scattered on the floor around him: a printed thesis result sheet face-up, a smartphone screen showing a rejection email. The adjacent bed is completely empty — only the indent of a pillow remains. The ONLY light source: cold blue-white street light streaming through the window, casting long shadows. This is his birthday. Three losses in one day. Cinematic photorealistic, extreme emotional weight, cold desaturated blue-gray, deep shadows, 16:9, no face visible, no text."
+    },
+    {
+      "img": 24,
+      "beat": "Ký ức vs thực tại",
+      "tone": "split_past_present",
+      "fal_prompt": "Diptych or seamless split-frame composition. LEFT HALF: warm amber light — a Vietnamese student apartment, two figures seen from behind sitting close together on a bed watching something, shoulders touching, intimate and comfortable, warm golden-yellow tones, soft focus. RIGHT HALF: cold blue light — the exact same spot, same angle, but only one figure remains — a 23-year-old Vietnamese man sitting alone, the space beside him completely empty. The split between warm past and cold present is sharp. Cinematic photorealistic, 16:9, no faces visible, no text."
+    },
+    {
+      "img": 25,
+      "beat": "Câu trả lời trong ảnh",
+      "tone": "present_cold",
+      "fal_prompt": "A small wooden desk in a Vietnamese student apartment. One side of the desk is occupied: books, a lamp, a used coffee mug. The other half is completely bare — only faint dust outlines remain where items used to be. Two coffee cups: one used, one empty and cold. Cold blue-gray light, cinematic photorealistic, top-down or slight angle shot emphasizing the empty half, shallow depth of field, 16:9, no faces, no text."
+    },
+    {
+      "img": 26,
+      "beat": "Sinh nhật — một mình",
+      "tone": "present_cold",
+      "fal_prompt": "A Vietnamese student apartment at dawn, pale blue-gray early morning light through the window. A 23-year-old Vietnamese man sits slouched at his desk seen from behind, clearly having not slept. On the desk in front of him: a small single-serving birthday cake — one unlit candle on top, still in its plastic packaging, unopened. No one to celebrate with. Cold desaturated morning light, cinematic photorealistic, shallow depth of field on the cake, 16:9, no face visible, no text."
+    },
+    {
+      "img": 27,
+      "beat": "Kết — bỏ lửng",
+      "tone": "present_cold",
+      "fal_prompt": "View from the doorway of a Vietnamese student apartment looking inward. The room is divided in two: the right side completely emptied — bare shelves, empty hangers, clean floor. The left side still inhabited. A 23-year-old Vietnamese man stands at the doorway threshold seen from behind, one hand on the door frame, looking into the room — not entering, not leaving. The scene slowly fades to dark at the edges. Cold desaturated blue-gray, cinematic photorealistic, wide contemplative shot, 16:9, no face visible, no text."
+    }
+  ]
+}

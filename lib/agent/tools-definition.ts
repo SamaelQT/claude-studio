@@ -85,11 +85,6 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
           },
         },
         outputFilename: { type: "string", description: "Tên file video output (không có đuôi)" },
-        subtitles: {
-          type: "array",
-          items: { type: "string" },
-          description: "Subtitle text cho từng scene (optional, cùng số lượng với scenes)",
-        },
         formats: {
           type: "array",
           items: { type: "string", enum: ["youtube", "shorts", "tiktok"] },

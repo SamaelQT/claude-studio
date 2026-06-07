@@ -39,7 +39,8 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
       case "generate_video_clip": {
         const filename = input.filename as string;
         const project = getProjectDir(filename);
-        const outDir = path.join(process.cwd(), "output", project, "clips");
+        const styleDir = (input.style as string) || "misc";
+        const outDir = path.join(process.cwd(), "output", styleDir, project, "clips");
         fs.mkdirSync(outDir, { recursive: true });
         const cached = path.join(outDir, `${filename}.mp4`);
         if (fs.existsSync(cached)) {
@@ -57,20 +58,22 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
       case "generate_image": {
         const filename = input.filename as string;
         const project = getProjectDir(filename);
-        const outDir = path.join(process.cwd(), "output", project, "images");
+        const styleDir = (input.style as string) || "misc";
+        const outDir = path.join(process.cwd(), "output", styleDir, project, "images");
         fs.mkdirSync(outDir, { recursive: true });
         const cached = path.join(outDir, `${filename}.png`);
         if (fs.existsSync(cached)) {
           return { success: true, data: { filePath: cached, message: `Anh da co (cache): ${cached}` } };
         }
-        const filePath = await generateImage(input.prompt as string, filename, outDir);
+        const filePath = await generateImage(input.prompt as string, filename, outDir, styleDir);
         return { success: true, data: { filePath, message: `Anh da tao: ${filePath}` } };
       }
 
       case "generate_voice": {
         const filename = input.filename as string;
         const project = getProjectDir(filename);
-        const outDir = path.join(process.cwd(), "output", project, "voices");
+        const styleDir = (input.style as string) || "misc";
+        const outDir = path.join(process.cwd(), "output", styleDir, project, "voices");
         fs.mkdirSync(outDir, { recursive: true });
         const cached = path.join(outDir, `${filename}.mp3`);
         if (fs.existsSync(cached)) {
@@ -88,30 +91,51 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
       case "assemble_video": {
         const outputFilename = input.outputFilename as string;
         const project = getProjectDir(outputFilename) || outputFilename;
-        const videoOutDir = path.join(process.cwd(), "output", project);
+        const styleDir = (input.style as string) || "misc";
+        const videoOutDir = path.join(process.cwd(), "output", styleDir, project);
         fs.mkdirSync(videoOutDir, { recursive: true });
+
+        // Cache check — nếu video youtube đã có thì trả về luôn
+        const formats = ((input.formats as string[] | undefined) ?? ["youtube"]);
+        const safeName = outputFilename.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60);
+        const cachedFiles: Record<string, string> = {};
+        const missingFormats: string[] = [];
+        for (const fmt of formats) {
+          const p = path.join(videoOutDir, `${safeName}_${fmt}.mp4`);
+          if (fs.existsSync(p)) cachedFiles[fmt] = p;
+          else missingFormats.push(fmt);
+        }
+        if (missingFormats.length === 0) {
+          const lines = Object.entries(cachedFiles).map(([f, p]) => `${f}: ${p}`).join("\n");
+          return { success: true, data: { files: cachedFiles, message: `Video da co (cache):\n${lines}` } };
+        }
 
         const resolveAsset = (p: string, subdir: string, ext: string) => {
           if (path.isAbsolute(p) && fs.existsSync(p)) return p;
           const base = p.replace(/\.(png|jpg|mp3|wav)$/i, "");
+          const inStyleProject = path.join(process.cwd(), "output", styleDir, project, subdir, `${base}${ext}`);
+          if (fs.existsSync(inStyleProject)) return inStyleProject;
+          // fallback: cấu trúc cũ không có style folder
           const inProject = path.join(process.cwd(), "output", project, subdir, `${base}${ext}`);
           if (fs.existsSync(inProject)) return inProject;
-          // fallback flat structure cũ
-          return path.join(process.cwd(), "output", subdir, `${base}${ext}`);
+          return inStyleProject;
         };
 
-        const scenes = (input.scenes as Array<{ imagePath?: string; clipPath?: string; voicePath: string }>).map((s) => ({
-          imagePath: s.clipPath
-            ? resolveAsset(s.clipPath, "clips", ".mp4")
-            : resolveAsset(s.imagePath ?? "", "images", ".png"),
-          voicePath: resolveAsset(s.voicePath, "voices", ".mp3"),
+        type SceneIn = { imagePath?: string; clipPath?: string; voicePath: string; voiceText?: string; mainText?: string; punchline?: string; duration?: number };
+        const scenes = (input.scenes as SceneIn[]).map((s) => ({
+          imagePath: s.clipPath ? resolveAsset(s.clipPath, "clips", ".mp4") : resolveAsset(s.imagePath ?? "", "images", ".png"),
+          voicePath: s.voicePath ? resolveAsset(s.voicePath, "voices", ".mp3") : "",
+          voiceText: s.voiceText,
+          mainText: s.mainText,
+          punchline: s.punchline,
+          duration: s.duration,
           isVideoClip: !!s.clipPath,
         }));
 
         const missing: string[] = [];
         for (const s of scenes) {
           if (!fs.existsSync(s.imagePath)) missing.push(`${s.isVideoClip ? "clip" : "image"}: ${s.imagePath}`);
-          if (!fs.existsSync(s.voicePath)) missing.push(`voice: ${s.voicePath}`);
+          if (s.voicePath && !fs.existsSync(s.voicePath)) missing.push(`voice: ${s.voicePath}`);
         }
         if (missing.length > 0) {
           return { success: false, error: `File khong ton tai:\n${missing.join("\n")}` };
@@ -120,9 +144,9 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
         const result = await assembleVideo(
           scenes,
           outputFilename,
-          input.subtitles as string[] | undefined,
           ((input.formats as string[] | undefined) ?? ["youtube"]) as import("@/lib/tools/video").VideoFormat[],
-          videoOutDir
+          videoOutDir,
+          input.music as import("@/lib/tools/video").MusicConfig | undefined
         );
         const lines = Object.entries(result).map(([fmt, p]) => `${fmt}: ${p}`).join("\n");
         return { success: true, data: { files: result, message: `Video hoan chinh:\n${lines}` } };
