@@ -1,84 +1,103 @@
-// Chạy toàn bộ pipeline (image + voice + video) từ JSON script
-// KHÔNG dùng Claude API — zero LLM cost
+// Pipeline: image + voice + video từ JSON script
+// Free image providers only (Pollinations → HuggingFace → Cloudflare)
 
-// Flux-optimized prompts: keyword-forward, trigger words first, negative via wording
-const IMAGE_STYLES: Record<string, string> = {
-  // ── Horror variants ────────────────────────────────────────────────────────
+import fs from "fs";
+import path from "path";
+
+// ── Style DNA loader ───────────────────────────────────────────────────────────
+export interface StyleDNA {
+  id: string;
+  name: string;
+  channel: string;
+  description: string;
+  prompt_prefix: string;
+  scene_layer?: string;
+  negative?: string;
+  guidance_scale?: number;
+  voice?: string;
+  voice_speed?: number;
+  preview_prompt?: string;
+}
+
+export function loadStyle(channel: string, styleId: string): StyleDNA | null {
+  try {
+    const filePath = path.join(process.cwd(), "styles", channel, `${styleId}.json`);
+    const raw = fs.readFileSync(filePath, "utf-8");
+    return JSON.parse(raw) as StyleDNA;
+  } catch {
+    return null;
+  }
+}
+
+export function listStyles(channel: string): StyleDNA[] {
+  try {
+    const dir = path.join(process.cwd(), "styles", channel);
+    const files = fs.readdirSync(dir).filter(f => f.endsWith(".json"));
+    return files.map(f => {
+      const raw = fs.readFileSync(path.join(dir, f), "utf-8");
+      return JSON.parse(raw) as StyleDNA;
+    });
+  } catch {
+    return [];
+  }
+}
+
+// ── Legacy image style prompts (fallback nếu không có style JSON) ──────────────
+const LEGACY_STYLES: Record<string, string> = {
   horror:
-    "manga panel, black and white ink illustration, Junji Ito style, dense crosshatch shading, high contrast monochrome, single blood red accent only, psychological horror atmosphere, ONE subtle visual error in the scene (wrong shadow direction, extra fingers, reflection mismatch), no color palette except black white and red, horror manga page, detailed ink linework",
-
-  horror_light:
-    "manga panel, Junji Ito style ink illustration, black and white crosshatch, clean precise linework, everyday scene with barely visible wrongness — shadow pointing wrong way, object reflected differently, figure barely visible in background, unsettling subtle detail, psychological unease, monochrome ink, no gore, atmospheric dread",
-
-  horror_heavy:
-    "Junji Ito manga page, intense black ink, deep shadow fill, visceral horror illustration, distorted human anatomy, spiral motifs, grotesque detail, dense crosshatch shadows, blood red accent only color, body horror elements, oppressive darkness, monochrome ink illustration, deeply disturbing composition",
-
-  horror_extreme:
-    "Junji Ito cosmic horror manga, maximum darkness, near-total black ink fill, white highlight accents and blood red only, incomprehensible scale, writhing organic masses, faces in absolute terror, spiral vortex geometry, chaos composition, visceral nightmare imagery, monochrome ink, no color except red accent",
-
-  // ── Introvert variants ─────────────────────────────────────────────────────
-  introvert:
-    "35mm film photograph, analog grain texture, melancholic mood, cold desaturated color palette, faded blues and washed grays, quiet lonely interior space, cinematic natural lighting, no people, emotional atmosphere, film photography aesthetic",
-
+    "manga panel, black and white ink illustration, Junji Ito style, dense crosshatch shading, high contrast monochrome, single blood red accent only, psychological horror atmosphere, ONE subtle visual error in the scene, horror manga page, detailed ink linework",
   introvert_sad:
-    "35mm analog film photograph, heavy grain, overexposed highlights, deeply melancholic mood, cold blue-gray desaturated palette, quiet lonely scene — unmade bed, single dim lamp, rain on dark window, empty chair, forgotten cold drink, late night 3am atmosphere, raw emotional sadness, no people, not aesthetic or polished, honest film photography",
-
+    "flat 2D webtoon illustration, clean simple linework, soft cel-shading, Korean slice-of-life style, muted cool blue-gray palette, melancholic quiet scene, relatable everyday moment",
   introvert_fun:
-    "cozy aesthetic flat illustration, soft warm pastel colors — cream beige dusty rose sage green butter yellow, warm dim lighting, comfortable scene — blanket pile, snacks, glowing laptop, fairy lights, headphones, cozy corner, relatable comfort moment, cute and inviting, no people, soft shadows, warm glow",
-
-  // ── Other channels ─────────────────────────────────────────────────────────
-  history:
-    "historical oil painting illustration, period-accurate scene, cinematic dramatic lighting, muted earth tones and sepia, documentary aesthetic, detailed environment, painterly style",
-
-  story:
-    "cinematic slice-of-life illustration, warm natural lighting, Vietnamese everyday setting, golden hour or blue hour mood, emotional atmosphere, soft colors, relatable scene",
-
-  facts:
-    "bold graphic design illustration, clean modern style, vibrant accent colors, clear subject focus, informative aesthetic, flat design elements",
-
-  gaming:
-    "dynamic game art illustration, vibrant neon colors, dramatic action perspective, energetic composition, game-art style, bold colors",
+    "flat 2D webtoon illustration, warm pastel palette, cozy aesthetic, clean linework, soft cel-shading, comfortable everyday scene",
 };
 
-const PREVIEW_SCENES: Record<string, string> = {
-  horror_light:   "empty apartment hallway at night, one fluorescent light flickering, door at the end slightly open, shadow on the wall that faces the wrong direction",
-  horror_heavy:   "bathroom mirror showing a dark distorted figure that is not in the room, water pooling on cracked floor tiles, single bare light bulb",
-  horror_extreme: "spiral staircase descending into void darkness, walls covered in identical screaming faces, spiral patterns consuming the space",
-  introvert_sad:  "unmade bed with crumpled sheets, single bedside lamp, rain on window glass, cold cup of tea forgotten, phone face-down, 3am darkness",
-  introvert_fun:  "cozy desk corner, warm fairy lights strung above, snack bowl, glowing laptop screen, soft headphones, blanket draped over chair",
+export const PREVIEW_SCENES: Record<string, string> = {
+  "wansee/manga-horror":    "apartment hallway at night, single fluorescent light, shadow beneath door has too many legs",
+  "wansee/webtoon-horror":  "young woman in kitchen at 3am, refrigerator light, second shadow on wall she has not noticed",
+  "wansee/psychological":   "empty school hallway fluorescent lights, lockers stretching too far, faces hidden in wall texture",
+  "huong-noi/soft-light":   "girl sitting alone at cafe window at night, rainy glass, warm lamp, looking at phone",
 };
-
-export { PREVIEW_SCENES };
 
 export async function generatePreviewImage(
-  styleKey: string,
+  channel: string,
+  styleId: string,
   sceneDesc: string,
   extraNotes: string,
 ): Promise<{ filePath: string } | { error: string }> {
-  const stylePrefix = IMAGE_STYLES[styleKey] ?? IMAGE_STYLES.introvert_sad;
-  const prompt = [stylePrefix, sceneDesc, extraNotes].filter(Boolean).join(". ");
-  const filename = `style_preview__${styleKey}__${Date.now()}`;
+  const style = loadStyle(channel, styleId);
+  const prompt_prefix = style?.prompt_prefix ?? LEGACY_STYLES[styleId] ?? LEGACY_STYLES.horror;
+  const prompt = [prompt_prefix, sceneDesc, extraNotes].filter(Boolean).join(". ");
+  const filename = `preview__${channel}__${styleId}__${Date.now()}`;
+
+  const previewDir = path.join(process.cwd(), "output", channel, "_previews");
+  fs.mkdirSync(previewDir, { recursive: true });
+
   const res = await fetch("/api/tools", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tool: "generate_image", input: { prompt, filename, style: styleKey.split("_")[0] } }),
+    body: JSON.stringify({ tool: "generate_image", input: { prompt, filename, style: channel, outDir: previewDir } }),
   }).then(r => r.json()).catch(e => ({ success: false, error: e.message }));
+
   if (!res.success) return { error: res.error };
   return { filePath: res.data.filePath };
 }
 
+// ── Types ──────────────────────────────────────────────────────────────────────
 export interface SceneInput {
   n: number;
   image_prompt: string;
-  voice_text?: string;   // optional — introvert style có thể không có voice
-  main_text?: string;    // text lớn hiển thị trong ảnh (introvert style)
-  punchline?: string;    // dòng nhỏ hơn bên dưới (punchline / reaction)
-  duration?: number;     // giây hiển thị scene (mặc định 5s nếu không có voice)
+  voice_text?: string;
+  main_text?: string;
+  punchline?: string;
+  duration?: number;
 }
 
 export interface ScriptJSON {
   project_name: string;
-  style: string;
+  channel: string;           // "wansee" | "huong-noi" | ...
+  style_id: string;          // "manga-horror" | "soft-light" | ...
+  style?: string;            // legacy compat
   character_sheet?: string;
   scenes: SceneInput[];
   formats?: string[];
@@ -89,34 +108,44 @@ export type RunEvent =
   | { type: "image_done"; n: number; path: string }
   | { type: "image_error"; n: number; error: string }
   | { type: "voice_done"; n: number; path: string }
-  | { type: "voice_error"; n: number; error: string }
+  | { type: "voice_error"; n: number; error: string; fallback: "silent" }
   | { type: "assemble_start" }
   | { type: "assemble_done"; files: Record<string, string> }
   | { type: "assemble_error"; error: string }
   | { type: "done" };
 
 export interface MusicConfig {
-  mode: "auto" | "manual";
+  mode: "auto" | "manual" | "lyric" | "beat" | "whisper";
   auto?: { musicPath: string; startOffset: number; volume: number; fadeIn: number; fadeOut: number };
   manual?: Array<{ musicPath: string; musicStart: number; videoStart: number; videoEnd: number; volume: number }>;
+  // lyric/beat/whisper: timestamps được tính trước và truyền vào dưới dạng manual cues
 }
 
+// ── Main runner ────────────────────────────────────────────────────────────────
 export async function runFromJSON(
   script: ScriptJSON,
   onEvent: (e: RunEvent) => void,
   signal?: AbortSignal,
   music?: MusicConfig,
-  styleVariant?: string,
+  styleIdOverride?: string,
   styleExtra?: string,
-  sceneDuration?: number,  // giây mỗi scene (introvert/no-voice), override JSON
+  sceneDuration?: number,
 ) {
-  const { project_name, style, character_sheet = "", scenes, formats = ["youtube"] } = script;
-  const total = scenes.length;
-  const styleKey = styleVariant ?? style;
-  const basePrefix = IMAGE_STYLES[styleKey] ?? IMAGE_STYLES[style] ?? IMAGE_STYLES.horror;
-  const imageStylePrefix = styleExtra ? `${basePrefix}. Additional requirements: ${styleExtra}` : basePrefix;
-  const isIntrovert = style === "introvert";
+  const { project_name, scenes, formats = ["youtube"] } = script;
+  const channel = script.channel ?? (script.style?.startsWith("horror") ? "wansee" : "huong-noi");
+  const styleId = styleIdOverride ?? script.style_id ?? script.style ?? "manga-horror";
+
+  // Load style DNA
+  const styleDNA = loadStyle(channel, styleId);
+  const promptPrefix = styleDNA
+    ? [styleDNA.prompt_prefix, styleDNA.scene_layer].filter(Boolean).join(". ")
+    : (LEGACY_STYLES[styleId] ?? LEGACY_STYLES.horror);
+
+  const imageStylePrefix = styleExtra ? `${promptPrefix}. Additional: ${styleExtra}` : promptPrefix;
+  const voiceStyle = styleDNA?.voice ? (styleDNA.id ?? channel) : channel;
+  const isNoVoice = channel === "huong-noi" || styleId.includes("introvert");
   const defaultDuration = sceneDuration ?? 5;
+  const total = scenes.length;
 
   const sceneResults: Array<{
     imagePath: string;
@@ -125,9 +154,11 @@ export async function runFromJSON(
     mainText?: string;
     punchline?: string;
     duration?: number;
+    voiceFailed?: boolean;
   } | null> = Array(total).fill(null);
 
   const CONCURRENCY = 3;
+
   for (let i = 0; i < total; i += CONCURRENCY) {
     if (signal?.aborted) return;
     const batch = scenes.slice(i, i + CONCURRENCY);
@@ -139,33 +170,53 @@ export async function runFromJSON(
 
       const filename = `${project_name}__scene_${String(scene.n).padStart(2, "0")}`;
 
-      // ── Image ──
-      const fullPrompt = [imageStylePrefix, character_sheet, scene.image_prompt].filter(Boolean).join(", ");
+      // ── Image ──────────────────────────────────────────────────────────────
+      const fullPrompt = [imageStylePrefix, script.character_sheet, scene.image_prompt]
+        .filter(Boolean).join(", ");
+
       const imgRes = await fetch("/api/tools", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: "generate_image", input: { prompt: fullPrompt, filename, style } }),
+        body: JSON.stringify({
+          tool: "generate_image",
+          input: { prompt: fullPrompt, filename, style: channel },
+        }),
         signal,
       }).then(r => r.json()).catch(e => ({ success: false, error: e.message }));
 
-      if (!imgRes.success) { onEvent({ type: "image_error", n: scene.n, error: imgRes.error }); return; }
+      if (!imgRes.success) {
+        onEvent({ type: "image_error", n: scene.n, error: imgRes.error });
+        return; // không có ảnh thì bỏ scene này
+      }
       onEvent({ type: "image_done", n: scene.n, path: imgRes.data.filePath });
 
-      // ── Voice (bỏ qua nếu introvert và không có voice_text) ──
+      // ── Voice (optional — lỗi KHÔNG drop scene, dùng silent thay thế) ────
       let voicePath = "";
-      if (scene.voice_text?.trim()) {
+      let voiceFailed = false;
+
+      if (scene.voice_text?.trim() && !isNoVoice) {
         const voiceFilename = `${project_name}__voice_${String(scene.n).padStart(2, "0")}`;
         const voiceRes = await fetch("/api/tools", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tool: "generate_voice", input: { text: scene.voice_text, filename: voiceFilename, style } }),
+          body: JSON.stringify({
+            tool: "generate_voice",
+            input: { text: scene.voice_text, filename: voiceFilename, style: voiceStyle },
+          }),
           signal,
         }).then(r => r.json()).catch(e => ({ success: false, error: e.message }));
 
-        if (!voiceRes.success) { onEvent({ type: "voice_error", n: scene.n, error: voiceRes.error }); return; }
-        voicePath = voiceRes.data.filePath;
+        if (voiceRes.success) {
+          voicePath = voiceRes.data.filePath;
+          onEvent({ type: "voice_done", n: scene.n, path: voicePath });
+        } else {
+          // BUG FIX: không drop scene — dùng silent audio, cảnh vẫn xuất hiện trong video
+          voiceFailed = true;
+          onEvent({ type: "voice_error", n: scene.n, error: voiceRes.error, fallback: "silent" });
+        }
+      } else {
+        onEvent({ type: "voice_done", n: scene.n, path: "" });
       }
-      onEvent({ type: "voice_done", n: scene.n, path: voicePath });
 
       sceneResults[idx] = {
         imagePath: imgRes.data.filePath,
@@ -173,7 +224,8 @@ export async function runFromJSON(
         voiceText: scene.voice_text ?? "",
         mainText: scene.main_text,
         punchline: scene.punchline,
-        duration: scene.duration ?? (isIntrovert ? defaultDuration : undefined),
+        duration: scene.duration ?? (isNoVoice || voiceFailed ? defaultDuration : undefined),
+        voiceFailed,
       };
     }));
   }
@@ -181,17 +233,32 @@ export async function runFromJSON(
   if (signal?.aborted) return;
 
   const validScenes = sceneResults.filter(Boolean) as NonNullable<typeof sceneResults[0]>[];
-  if (validScenes.length === 0) { onEvent({ type: "assemble_error", error: "Không có scene nào thành công" }); return; }
+  if (validScenes.length === 0) {
+    onEvent({ type: "assemble_error", error: "Không có scene nào thành công" });
+    return;
+  }
+
+  const failedVoice = validScenes.filter(s => s.voiceFailed).length;
+  if (failedVoice > 0) {
+    console.warn(`[runner] ${failedVoice} scenes dùng silent audio do voice thất bại`);
+  }
 
   onEvent({ type: "assemble_start" });
+
   const asmRes = await fetch("/api/tools", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tool: "assemble_video", input: { scenes: validScenes, outputFilename: project_name, formats, music, style } }),
+    body: JSON.stringify({
+      tool: "assemble_video",
+      input: { scenes: validScenes, outputFilename: project_name, formats, music, style: channel },
+    }),
     signal,
   }).then(r => r.json()).catch(e => ({ success: false, error: e.message }));
 
-  if (!asmRes.success) { onEvent({ type: "assemble_error", error: asmRes.error }); return; }
+  if (!asmRes.success) {
+    onEvent({ type: "assemble_error", error: asmRes.error });
+    return;
+  }
   onEvent({ type: "assemble_done", files: asmRes.data.files });
   onEvent({ type: "done" });
 }

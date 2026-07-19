@@ -143,25 +143,30 @@ async function createSceneClip(scene: Scene, outputClip: string, aspect: "16:9" 
     }
 
     // mainText (big centered text)
+    // Font size: Shorts 9:16 (h=1920) cần lớn hơn để đọc được trên mobile
     if (mainTextFile) {
-      const fs2 = w >= 1920 ? 72 : 52;
-      const yPos = punchlineFile ? `(h/2)-${Math.round(fs2 * 0.9)}` : "(h-text_h)/2";
+      const fs2 = h >= 1920 ? 80 : w >= 1920 ? 72 : 56;
+      const centerY = is916 ? "h*0.44" : "h/2";
+      const yPos = punchlineFile ? `(${centerY})-${Math.round(fs2 * 1.0)}` : `(${centerY})-(text_h/2)`;
       complexF = complexF.replace("[v]", "[vmt_in]");
       complexF += `;[vmt_in]drawtext=textfile=${escapeSubtitlePath(mainTextFile)}` +
         `:fontfile=${escapeSubtitlePath("C:/Windows/Fonts/Arial.ttf")}` +
-        `:fontsize=${fs2}:fontcolor=white:borderw=3:bordercolor=black@0.8` +
-        `:shadowx=2:shadowy=2:shadowcolor=black@0.6:x=(w-text_w)/2:y=${yPos}[v]`;
+        `:fontsize=${fs2}:fontcolor=white` +
+        `:box=1:boxcolor=black@0.55:boxborderw=${Math.round(fs2 * 0.35)}` +
+        `:borderw=0:x=(w-text_w)/2:y=${yPos}[v]`;
     }
 
-    // punchline (smaller italic text below)
+    // punchline (smaller text below mainText)
     if (punchlineFile) {
-      const fs2 = w >= 1920 ? 46 : 34;
-      const yPos = mainTextFile ? `(h/2)+${Math.round(fs2 * 0.6)}` : "(h*2/3)";
+      const fs2 = h >= 1920 ? 54 : w >= 1920 ? 46 : 38;
+      const centerY = is916 ? "h*0.44" : "h/2";
+      const yPos = mainTextFile ? `(${centerY})+${Math.round(fs2 * 0.5)}` : `(h*2/3)-(text_h/2)`;
       complexF = complexF.replace("[v]", "[vpl_in]");
       complexF += `;[vpl_in]drawtext=textfile=${escapeSubtitlePath(punchlineFile)}` +
-        `:fontfile=${escapeSubtitlePath("C:/Windows/Fonts/Ariali.ttf")}` +
-        `:fontsize=${fs2}:fontcolor=white@0.92:borderw=2:bordercolor=black@0.7` +
-        `:shadowx=1:shadowy=1:shadowcolor=black@0.5:x=(w-text_w)/2:y=${yPos}[v]`;
+        `:fontfile=${escapeSubtitlePath("C:/Windows/Fonts/Arial.ttf")}` +
+        `:fontsize=${fs2}:fontcolor=white@0.90` +
+        `:box=1:boxcolor=black@0.45:boxborderw=${Math.round(fs2 * 0.3)}` +
+        `:borderw=0:x=(w-text_w)/2:y=${yPos}[v]`;
     }
 
     let cmd = ffmpeg().input(fwd(scene.imagePath)).inputOptions(["-loop 1"]);

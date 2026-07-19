@@ -1,0 +1,13 @@
+{
+  "id": "webtoon-explainer",
+  "name": "Webtoon Giải Thích",
+  "channel": "psych2go",
+  "description": "Nhân vật webtoon đơn giản — giải thích tâm lý qua hình ảnh relatable",
+  "prompt_prefix": "flat 2D webtoon character, simple round expressive face, minimal features, Korean manhwa style, clean bold linework, solid flat colors, single character in spotlight with abstract or symbolic background, mood lighting matches emotion being discussed, soft muted palette with ONE bold accent color (purple, teal, or warm orange), composition: character centered with small symbolic icons around them (thought bubbles, small hearts, lightning bolts, question marks)",
+  "scene_layer": "each scene illustrates ONE psychological concept visually — use metaphors: social battery as a phone battery bar, introvert recharging as a person surrounded by soft glow, overwhelm as too many speech bubbles, comfort zone as a small cozy circle. Keep backgrounds minimal and symbolic, not realistic",
+  "negative": "photorealistic, 3D, horror, action, complex background, crowd scene, chibi overly cute, moe",
+  "guidance_scale": 3.0,
+  "voice": "banmai",
+  "voice_speed": 0,
+  "preview_prompt": "flat 2D webtoon character, simple round-faced person sitting cross-legged in meditation pose, soft purple glow around them, small battery icon showing 100% above head, minimal abstract background with floating small icons, Korean manhwa style, muted purple and white palette, peaceful psychology concept illustration"
+}

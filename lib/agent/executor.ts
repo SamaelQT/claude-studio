@@ -7,7 +7,7 @@ import { assembleVideo } from "@/lib/tools/video";
 import { getYoutubeTranscript } from "@/lib/tools/transcript";
 import { generateVideoClip } from "@/lib/tools/videoclip";
 
-export type ToolName = "get_youtube_transcript" | "search_web" | "generate_image" | "generate_video_clip" | "generate_voice" | "assemble_video";
+export type ToolName = "get_youtube_transcript" | "search_web" | "generate_image" | "generate_video_clip" | "generate_voice" | "assemble_video" | "generate_script";
 
 export interface ToolResult {
   success: boolean;
@@ -65,8 +65,8 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
         if (fs.existsSync(cached)) {
           return { success: true, data: { filePath: cached, message: `Anh da co (cache): ${cached}` } };
         }
-        const filePath = await generateImage(input.prompt as string, filename, outDir, styleDir);
-        return { success: true, data: { filePath, message: `Anh da tao: ${filePath}` } };
+        const result = await generateImage(input.prompt as string, filename, outDir, styleDir, (input.provider as import("@/lib/tools/image").ProviderKey | "auto") ?? undefined);
+        return { success: true, data: { filePath: result.path, usedProvider: result.usedProvider, message: `Anh da tao (${result.usedProvider}): ${result.path}` } };
       }
 
       case "generate_voice": {
@@ -150,6 +150,21 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
         );
         const lines = Object.entries(result).map(([fmt, p]) => `${fmt}: ${p}`).join("\n");
         return { success: true, data: { files: result, message: `Video hoan chinh:\n${lines}` } };
+      }
+
+      case "generate_script": {
+        // Dùng Claude API để tạo kịch bản từ prompt
+        const { Anthropic } = await import("@anthropic-ai/sdk");
+        const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+        const msg = await client.messages.create({
+          model: "claude-opus-4-5",
+          max_tokens: 4096,
+          messages: [{ role: "user", content: input.prompt as string }],
+        });
+        const text = msg.content.find(b => b.type === "text")?.text ?? "";
+        // Extract JSON từ response
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        return { success: true, data: { script: jsonMatch ? jsonMatch[0] : text } };
       }
 
       default:

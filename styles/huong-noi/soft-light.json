@@ -1,0 +1,13 @@
+{
+  "id": "soft-light",
+  "name": "Nhẹ Nhàng",
+  "channel": "huong-noi",
+  "description": "Webtoon nhẹ nhàng — nét vẽ dễ gần, màu muted, cảm xúc bình thường",
+  "prompt_prefix": "flat 2D webtoon illustration, clean simple linework with soft rounded edges, semi-cel shading, Korean slice-of-life webtoon aesthetic, simple round-faced characters with minimal features and large expressive eyes, muted warm or cool palette (deep blue-gray for night scenes, warm pinks and skin tones for emotional close-ups, desaturated gray with single color accent for lonely scenes), manga panel composition OR single wide environmental shot, soft atmospheric backgrounds — not detailed, just mood, quiet everyday melancholy, character design similar to 'A Silent Voice' or 'I Love Yoo' webtoon style",
+  "scene_layer": "no horror elements — focus on: relatable quiet emotion, body language that says more than text, everyday objects (coffee cup, phone, unmade bed, rainy window) as emotional anchors, soft lighting from single source (lamp, phone screen, window)",
+  "negative": "horror, dark themes, photorealistic, 3D, detailed complex background, American comic style, chibi, moe anime",
+  "guidance_scale": 3.0,
+  "voice": "banmai",
+  "voice_speed": 0,
+  "preview_prompt": "flat 2D webtoon illustration, simple round-faced girl sitting alone at cafe window at night, rainy glass, warm lamplight inside vs cold blue outside, she is looking at her phone with a small sad expression, warm pinks and deep navy, clean soft linework, minimal background detail, quiet relatable melancholy"
+}

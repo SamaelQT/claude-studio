@@ -1,0 +1,13 @@
+{
+  "id": "psychological",
+  "name": "Ám Ảnh Tâm Lý",
+  "channel": "wansee",
+  "description": "Kinh dị trừu tượng — hình học sai, khuôn mặt ẩn, thông điệp ẩn",
+  "prompt_prefix": "psychological horror surrealist illustration, liminal space aesthetic, brutalist architecture gone wrong, impossible geometry — staircases that lead into floors, doors opening onto brick walls, rooms inside rooms, hidden faces embedded in wallpaper texture and wood grain and carpet pattern, cold institutional color palette (cream, piss yellow, fluorescent white, mold green), the figure if present is small and lost in overwhelming wrong space, dreamlike dread without explicit monster, found-footage documentation quality",
+  "scene_layer": "embed 3-5 hidden faces or figures in environmental textures — in wood grain, in curtain folds, in cloud formations, in wallpaper patterns — viewer should feel watched without knowing why, geometry should be subtly impossible in one way",
+  "negative": "bright colors, clear cheerful space, photorealistic portrait, 3D render, manga linework, gore",
+  "guidance_scale": 3.5,
+  "voice": "minhquang",
+  "voice_speed": -1,
+  "preview_prompt": "liminal space psychological horror, empty school hallway at impossible hour, fluorescent lights buzzing, linoleum floor stretching too far, lockers that go on longer than the building should allow, faces barely visible in the painted cinder block texture, one locker slightly open with darkness inside that is too dark, overhead lights casting no shadows on the floor"
+}

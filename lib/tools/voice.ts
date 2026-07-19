@@ -1,19 +1,44 @@
 import fs from "fs";
 import path from "path";
 
-// [voice, speed] — speed âm = đọc chậm rãi, tạo tension; horror/history đọc chậm để lôi cuốn
+// [voice, speed] — speed âm = đọc chậm rãi, tạo tension
+// AceSound voices (chất lượng cao hơn): banmai, thuminh
 export const VOICE_STYLES: Record<string, { voice: string; speed: number }> = {
-  horror:    { voice: "minhquang", speed: -1 },
-  history:   { voice: "leminh",    speed: -1 },
-  news:      { voice: "minhquang", speed: 0 },
-  finance:   { voice: "leminh",    speed: 0 },
-  facts:     { voice: "lannhi",    speed: 0 },
-  lifestyle: { voice: "banmai",    speed: 0 },
-  kids:      { voice: "banmai",    speed: 0 },
-  gaming:    { voice: "giahuy",    speed: 0 },
-  travel:    { voice: "ngoclam",   speed: 0 },
-  default:   { voice: "lannhi",    speed: 0 },
+  horror:      { voice: "leminh",   speed: -2 },
+  history:     { voice: "leminh",   speed: -1 },
+  "huong-noi": { voice: "banmai",   speed: -1 },  // AceSound — tự nhiên, chậm rãi
+  "psych2go":  { voice: "banmai",   speed: 0  },  // thân mật, rõ ràng
+  news:        { voice: "thuminh",  speed: 0  },
+  finance:     { voice: "leminh",   speed: 0  },
+  facts:       { voice: "thuminh",  speed: 0  },
+  lifestyle:   { voice: "banmai",   speed: 0  },
+  kids:        { voice: "banmai",   speed: 0  },
+  gaming:      { voice: "giahuy",   speed: 1  },
+  travel:      { voice: "banmai",   speed: 0  },
+  default:     { voice: "banmai",   speed: 0  },
 };
+
+// Chuẩn hóa text cho TTS — chia câu ngắn, thêm pause tự nhiên
+function preprocessText(text: string, style: string): string {
+  let t = text.trim();
+
+  // Chuẩn hóa dấu câu → pause rõ ràng
+  t = t.replace(/([.!?])(\s+)/g, "$1\n");   // xuống dòng sau câu
+  t = t.replace(/,\s+/g, ", ");              // giữ nguyên dấu phẩy
+  t = t.replace(/\s{2,}/g, " ");
+
+  // Ký tự đặc biệt dễ gây lỗi TTS
+  t = t.replace(/"/g, "").replace(/"/g, "").replace(/"/g, "");
+  t = t.replace(/–|—/g, ",");
+  t = t.replace(/\*/g, "");
+
+  // Với huong-noi: câu quá dài (>50 ký tự) → thêm dấu phẩy ở chỗ hợp lý
+  if (style === "huong-noi") {
+    t = t.replace(/([a-zA-ZÀ-ỹ]{30,})\s+(mà|nhưng|và|thì|vì|nên|hay|hoặc)\s+/gi, "$1, $2 ");
+  }
+
+  return t.trim();
+}
 
 export async function generateVoice(
   text: string,
@@ -25,12 +50,12 @@ export async function generateVoice(
   fs.mkdirSync(dir, { recursive: true });
   const outputPath = path.join(dir, `${filename}.mp3`);
   const { voice, speed } = VOICE_STYLES[style] ?? VOICE_STYLES.default;
+  const processedText = preprocessText(text, style);
 
-  // Thử tối đa 3 lần — mỗi lần gửi request MỚI (URL cũ đôi khi treo vĩnh viễn)
   let lastErr: unknown;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      return await generateFPT(text, outputPath, voice, speed);
+      return await generateFPT(processedText, outputPath, voice, speed);
     } catch (e) {
       lastErr = e;
       console.warn(`FPT.AI attempt ${attempt}/3 failed:`, e instanceof Error ? e.message : e);

@@ -1,0 +1,13 @@
+{
+  "id": "manga-horror",
+  "name": "Manga Horror",
+  "channel": "wansee",
+  "description": "Junji Ito style — mực đen trắng dày đặc, chi tiết ám ảnh, xoắn ốc",
+  "prompt_prefix": "Junji Ito manga illustration, ultra-dense black ink crosshatching, stark monochrome with single blood-red accent, oppressive negative space, obsessive linework density suggesting madness, disturbing symmetry broken at one point, hidden secondary figure barely visible in shadow, wrong-scale anatomy (head too large, fingers too many or too few), spiral motif embedded in texture, panel composition — the horror lives in the DETAIL not the subject",
+  "scene_layer": "include exactly 2-3 hidden wrong details: mismatched shadow direction, reflection showing something not in frame, figure in background that should not exist, door handle on wrong side, clock hands spelling impossible time, window reflection different from room",
+  "negative": "photorealistic, 3D render, full color, western cartoon, anime cute, digital painting smooth",
+  "guidance_scale": 4.5,
+  "voice": "minhquang",
+  "voice_speed": -1,
+  "preview_prompt": "apartment hallway at night, single fluorescent light, linoleum floor, door at far end slightly ajar — shadow beneath door has too many legs, reflection in hall window shows someone standing that is not there, one ceiling tile has a hand print that faces down"
+}

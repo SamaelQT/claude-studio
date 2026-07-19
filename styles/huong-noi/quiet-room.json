@@ -1,0 +1,13 @@
+{
+  "id": "quiet-room",
+  "name": "Phòng Riêng",
+  "channel": "huong-noi",
+  "description": "Không gian cá nhân — phòng ngủ, ánh đèn đọc sách, đồ vật quen thuộc",
+  "prompt_prefix": "flat 2D webtoon illustration, cozy indoor bedroom scene, soft warm lamplight, Korean slice-of-life manhwa style, muted warm palette (cream, dusty pink, sage green, warm gray), top-down or isometric view of small lived-in room OR eye-level intimate close-up, simple character in pajamas or comfortable clothes, everyday objects as emotional anchors: piles of books, coffee mug, phone screen light, unmade bed with soft duvet, plant on windowsill, string lights, lo-fi aesthetic, clean minimal linework, soft cel-shading, mood: safe introvert sanctuary",
+  "scene_layer": "room details should feel personal and specific — not generic. Include exactly ONE interesting object per scene (a journal left open, a sticky note on monitor, a cat curled up, a half-eaten snack, earbuds tangled). Character action: reading, staring at ceiling, typing, curled up with phone, looking out window from inside. Warm safe feeling even in sad moments",
+  "negative": "outdoor, night exterior, horror, action, crowd, complex background, photorealistic, 3D, chibi",
+  "guidance_scale": 2.8,
+  "voice": "banmai",
+  "voice_speed": 0,
+  "preview_prompt": "flat 2D webtoon illustration, cozy bedroom at night, warm lamp light, simple round-faced girl curled up reading on unmade bed, muted cream and dusty pink tones, small plant on windowsill, coffee mug on nightstand, string lights, Korean manhwa style, top-down view, safe cozy sanctuary feeling, clean linework minimal detail"
+}

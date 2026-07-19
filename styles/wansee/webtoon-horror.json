@@ -1,0 +1,13 @@
+{
+  "id": "webtoon-horror",
+  "name": "Webtoon Horror",
+  "channel": "wansee",
+  "description": "Korean webtoon style — màu muted, kinh dị qua biểu cảm và ngữ cảnh",
+  "prompt_prefix": "Korean horror webtoon art style, clean precise linework, muted cold color palette (desaturated teal, gray, washed violet), flat cel-shading, mundane setting made terrifying through context — ordinary rooms that feel wrong, uncanny facial expressions (smile that goes slightly too wide, eyes that do not blink), environmental storytelling horror, one object in frame placed incorrectly or impossibly, character design with oversized eyes showing pure fear, vertical scroll panel composition",
+  "scene_layer": "horror through atmosphere and implication: protagonist facing away, wet footprints leading nowhere, phone screen showing message impossible to have been sent, mirror reflecting slightly wrong angle, door that was closed now open",
+  "negative": "black and white, heavy gore, photorealistic, 3D, western comic, cute anime, bright colors",
+  "guidance_scale": 4.0,
+  "voice": "minhquang",
+  "voice_speed": -1,
+  "preview_prompt": "Korean webtoon style, young woman standing in apartment kitchen at 3am, muted cold teal and gray, she is looking at the refrigerator — it is open and lit from inside casting long shadow, the shadow on the wall behind her has a second figure she has not noticed, facial expression neutral but eyes wide, flat clean linework"
+}

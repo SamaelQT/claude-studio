@@ -1,822 +1,790 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { WANSEE_CATALOG, WanseeStory } from "@/lib/wansee-catalog";
-import { runFromJSON, ScriptJSON, RunEvent, MusicConfig, generatePreviewImage, PREVIEW_SCENES } from "@/lib/agent/json-runner";
+import { runFromJSON, ScriptJSON, RunEvent, MusicConfig, StyleDNA } from "@/lib/agent/runner-types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-type Tab = "horror" | "introvert" | "idea";
-type SceneState = { n: number; image: "idle" | "ok" | "err"; voice: "idle" | "ok" | "err" | "skip"; voice_text?: string };
-type OutputProject = { name: string; file: string; path: string; sizeMB: number; date: string };
-type MusicFile = { name: string; path: string };
+type Channel = { id: string; name: string; accent: string; icon: string };
+type SceneState = { n: number; img: "idle"|"ok"|"err"; voice: "idle"|"ok"|"err"|"skip"|"silent" };
+type ProviderInfo = {
+  key: string; name: string; model: string; quality: string;
+  free: boolean; unlimited?: boolean; hasKey?: boolean;
+  balance?: number | null; balanceLabel?: string | null;
+  quota?: { used: number; limit: number; pct: number; resetIn: string } | null;
+  status: { ok: boolean; lastError?: string };
+};
+type SyncMode = "fill" | "lyric" | "beat" | "whisper";
 
-interface RunState {
-  running: boolean;
-  log: string[];
-  scenes: SceneState[];
-  done: boolean;
-  outputFiles: Record<string, string>;
-}
+const CHANNELS: Channel[] = [
+  { id: "wansee",    name: "Wansee",      accent: "#c0392b", icon: "💀" },
+  { id: "huong-noi", name: "Hướng Nội",  accent: "#4a7fb5", icon: "🌙" },
+  { id: "psych2go",  name: "Tâm Lý Trẻ", accent: "#8a4bc7", icon: "🧠" },
+];
+
+// ── CSS-in-JS tokens ──────────────────────────────────────────────────────────
+const C = {
+  bg:      "#0a0a0a",
+  panel:   "#141414",
+  card:    "#1a1a1a",
+  border:  "#2a2a2a",
+  muted:   "#555",
+  text:    "#e8e8e8",
+  sub:     "#888",
+};
+
+const s = {
+  panel: { background: C.panel, borderRadius: 10, border: `1px solid ${C.border}`, padding: "16px 20px" } as React.CSSProperties,
+  input: { background: "#111", border: `1px solid ${C.border}`, borderRadius: 7, color: C.text, padding: "9px 13px", fontSize: 13, width: "100%", outline: "none", boxSizing: "border-box" } as React.CSSProperties,
+  btn: (bg: string): React.CSSProperties => ({ background: bg, color: "#fff", border: "none", borderRadius: 7, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }),
+  label: { fontSize: 11, fontWeight: 600, color: C.sub, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, display: "block" } as React.CSSProperties,
+  section: { marginBottom: 20 } as React.CSSProperties,
+};
 
 // ── Prompt builders ───────────────────────────────────────────────────────────
-function horrorPrompt(title: string) {
+function buildWanseePrompt(topic: string, styleId: string): string {
+  const styleNote = styleId === "manga-horror"
+    ? "Junji Ito manga style — B&W ink, hidden wrong details, spiral motifs, dense crosshatch"
+    : styleId === "webtoon-horror"
+    ? "Korean webtoon horror — clean lines, muted cold palette, horror through context and expression"
+    : "Psychological horror — liminal space, hidden faces in textures, impossible geometry, institutional palette";
+
   return `Bạn là AI viết kịch bản horror YouTube tiếng Việt theo style Wansee Entertainment.
+Style ảnh: ${styleNote}
 
-Tạo JSON kịch bản cho video: "${title}"
+Tạo JSON kịch bản cho video: "${topic}"
 
-JSON FORMAT — trả về JSON thuần, KHÔNG markdown:
+Trả về JSON THUẦN (không markdown, không giải thích):
 {
-  "project_name": "ten_du_an_a_z_0_9",
-  "style": "horror",
-  "character_sheet": "mô tả nhân vật chính để giữ consistency",
+  "project_name": "ten_a_z_0_9_gach_duoi",
+  "channel": "wansee",
+  "style_id": "${styleId}",
+  "character_sheet": "mô tả nhân vật chính ngắn gọn — ngoại hình, trang phục, để giữ visual consistency",
   "scenes": [
     {
       "n": 1,
-      "image_prompt": "mô tả cảnh, PHẢI có 1 chi tiết SAI (shadow wrong, reflection different, extra fingers...)",
-      "voice_text": "60-80 chữ, ngôi thứ nhất, dùng ... ngắt nhịp, KHÔNG dùng !"
+      "image_prompt": "mô tả cảnh + BẮT BUỘC 2-3 chi tiết SAI ẩn (shadow wrong direction, reflection shows different, extra fingers, figure in background, object placed impossibly)",
+      "voice_text": "60-80 chữ, ngôi thứ nhất, dùng '...' ngắt nhịp, KHÔNG dùng '!', bình thản nhưng ám ảnh"
     }
   ],
   "formats": ["youtube"]
 }
 
-QUY TẮC:
-- 20-22 scenes
-- Cấu trúc: Scene 1-3 bình thường → 4-7 dấu hiệu lạ → 8-13 leo thang → 14-18 cao trào → 19-22 kết ám ảnh
-- image_prompt: PHẢI có chi tiết SAI cụ thể
-- voice_text: 60-80 chữ, ... ngắt nhịp, không "!"
-- project_name: chỉ a-z 0-9 gạch dưới`;
+CẤU TRÚC 20-22 scenes: Scene 1-3 bình thường → 4-7 dấu hiệu bất thường đầu tiên → 8-13 leo thang căng thẳng → 14-18 cao trào → 19-22 kết thúc ám ảnh không giải thích.
+image_prompt: luôn có chi tiết sai CỤ THỂ, không mơ hồ.`;
 }
 
-function introvertPrompt(topic: string) {
-  return `Bạn là AI viết kịch bản video "Chuyện Người Hướng Nội" — kiểu meme/relatable content.
+function buildPsych2GoPrompt(topic: string, styleId: string): string {
+  return `Bạn là AI viết kịch bản video tâm lý học tiếng Việt theo style Psych2Go — súc tích, dễ hiểu, relatable.
+Style ảnh: ${styleId === "motion-graphic" ? "flat 2D motion graphic, bold colors, simple icons, minimalist infographic style" : "flat 2D animated character, simple round face, Korean webtoon style, expressive body language, clean background with accent color"}.
 
-Tạo JSON kịch bản cho chủ đề: "${topic}"
+Chủ đề: "${topic}"
 
-JSON FORMAT — trả về JSON thuần, KHÔNG markdown:
+Trả về JSON THUẦN (không markdown, không giải thích):
 {
-  "project_name": "ten_du_an_a_z_0_9",
-  "style": "introvert",
+  "project_name": "ten_a_z_0_9_gach_duoi",
+  "channel": "psych2go",
+  "style_id": "${styleId}",
   "scenes": [
     {
       "n": 1,
-      "image_prompt": "cozy aesthetic scene — bedroom, cafe, rainy window, desk lamp. Muted pastel tones",
-      "main_text": "câu chính — ngắn, relatable, đúng cảm xúc",
-      "punchline": "câu reaction/punchline bên dưới (optional)",
+      "image_prompt": "mô tả visual cụ thể — nhân vật/biểu tượng, hành động, màu sắc, mood. Ví dụ: flat 2D character ngồi một mình ở góc phòng, ánh đèn xanh lạnh, bong bóng suy nghĩ rỗng",
+      "voice_text": "lời dẫn 25-40 chữ — tự nhiên, không quá formal, dùng 'bạn' xưng hô thân mật",
+      "main_text": "keyword hoặc tiêu đề con — 3-6 chữ, in đậm trên màn hình",
       "duration": 5
     }
   ],
   "formats": ["youtube", "shorts"]
 }
 
+CẤU TRÚC 8-12 scenes:
+- Scene 1: Hook — câu hỏi rhetorical hoặc fact gây tò mò
+- Scene 2: Giới thiệu chủ đề
+- Scene 3-9: Từng điểm/dấu hiệu (mỗi scene = 1 điểm)
+- Scene 10-12: Kết luận + CTA nhẹ ("Bạn thấy mình có những điểm này không?")
+
 QUY TẮC:
-- 10-15 scenes
-- Mỗi scene = 1 ý/cảm xúc, không cần voice
-- main_text: ngắn gọn, đúng tâm trạng, tiếng Việt tự nhiên
-- punchline: reaction hài/buồn, optional
-- image_prompt: aesthetic, cozy, không có người`;
+- voice_text: ngắn gọn, conversational, dùng "bạn" — như nói chuyện với bạn bè
+- main_text: label cho điểm đó, VD "Bạn thích ở một mình", "Nghe nhiều hơn nói"
+- image_prompt: CHỈ mô tả visual, không kể chuyện — màu sắc, nhân vật, biểu tượng, mood`;
 }
 
-function buildGenericPrompt(style: string, topic: string) {
-  const styleMap: Record<string, string> = {
-    history: "kênh lịch sử Việt Nam, ngôi thứ ba, nghiêm túc, có tư liệu",
-    facts: "kênh kiến thức/facts, ngắn gọn, thú vị, có số liệu",
-    gaming: "kênh gaming Việt Nam, hào hứng, nhanh, slang gaming",
-    story: "kênh tâm sự chuyện người thật, ngôi thứ nhất, cảm xúc",
-  };
-  return `Bạn là AI viết kịch bản YouTube tiếng Việt theo style: ${styleMap[style] ?? style}.
+function buildHuongNoiPrompt(topic: string, styleId: string): string {
+  const styleHint =
+    styleId === "night-city"   ? "setting: đêm khuya, ngoài trời, thành phố, ánh đèn, mưa, một mình" :
+    styleId === "quiet-room"   ? "setting: trong phòng, cozy, đồ vật quen thuộc, ánh đèn ấm" :
+                                 "setting: linh hoạt — café, nhà, công ty, ngoài đường — mood nhẹ nhàng";
 
-Tạo JSON kịch bản cho: "${topic}"
+  return `Bạn là AI viết kịch bản video "Chuyện Người Hướng Nội" — webtoon slice-of-life, cảm xúc relatable.
+${styleHint}
 
-Trả về JSON với project_name, style="${style}", scenes (n, image_prompt, voice_text), formats.
-Số scene: 15-20. voice_text: 50-80 chữ/scene.`;
+Chủ đề: "${topic}"
+
+Trả về JSON THUẦN (không markdown, không giải thích):
+{
+  "project_name": "ten_a_z_0_9_gach_duoi",
+  "channel": "huong-noi",
+  "style_id": "${styleId}",
+  "scenes": [
+    {
+      "n": 1,
+      "image_prompt": "flat 2D webtoon — mô tả cảnh CỤ THỂ: góc máy, lighting, character action, 1-2 đồ vật đặc trưng, không có người cũng OK",
+      "main_text": "câu chính — 5-12 chữ, NGẮN, relatable, tự nhiên như status FB/tweet",
+      "punchline": "câu phản ứng hoặc sub-text nhỏ bên dưới — optional, dùng khi cần twist/humor nhẹ",
+      "duration": 6
+    }
+  ],
+  "formats": ["youtube", "shorts"]
 }
 
-// ── Shared styles ──────────────────────────────────────────────────────────────
-function btnStyle(bg: string): React.CSSProperties {
-  return {
-    padding: "7px 14px", background: bg, color: "#fff", border: "none",
-    borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 500,
-    marginTop: 8, display: "inline-flex", alignItems: "center", gap: 4,
-  };
+QUY TẮC QUAN TRỌNG:
+- 12-15 scenes, mỗi scene = 1 khoảnh khắc / 1 cảm xúc nhỏ (không nhồi nhiều ý)
+- main_text: NGẮN và HIT — như caption mạng xã hội, không phải văn xuôi
+- punchline: twist nhỏ, self-aware humor, hoặc sự thật đau lòng thứ 2 — dùng tối đa 60% scenes
+- image_prompt: aesthetic và cụ thể — góc máy rõ, ánh sáng rõ, mood rõ. KHÔNG chung chung.
+- Cấu trúc: Scene 1-2 setup context → 3-10 chuỗi khoảnh khắc relatable (peak ở giữa) → 11-13 kết thúc ấm hoặc bittersweet
+- duration: 6 cho scene thường, 8 cho scene có chữ dài, 4 cho scene punchline nhanh`;
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "#111", color: "#e0e0e0", border: "1px solid #333",
-  borderRadius: 6, padding: "6px 10px", fontSize: 12, outline: "none",
-};
+// ── App ────────────────────────────────────────────────────────────────────────
+export default function App() {
+  // Channel & style
+  const [channelId, setChannelId]     = useState("wansee");
+  const [styles, setStyles]           = useState<StyleDNA[]>([]);
+  const [styleId, setStyleId]         = useState("manga-horror");
+  const [previewUrl, setPreviewUrl]   = useState<Record<string, string>>({});
+  const [previewLoading, setPreviewLoading] = useState<Record<string, boolean>>({});
 
-const selectStyle: React.CSSProperties = {
-  background: "#111", color: "#e0e0e0", border: "1px solid #333",
-  borderRadius: 6, padding: "6px 10px", fontSize: 12,
-};
+  // Script
+  const [topic, setTopic]         = useState("");
+  const [jsonScript, setJsonScript] = useState("");
+  const [generating, setGenerating] = useState(false);
 
-// ── Small components ───────────────────────────────────────────────────────────
-function Chip({ label, value, color = "#e0e0e0" }: { label: string; value: string; color?: string }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <span style={{ fontSize: 9, color: "#666", textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</span>
-      <span style={{ fontSize: 12, color, fontWeight: 500 }}>{value}</span>
-    </div>
-  );
-}
+  // Music
+  const [syncMode, setSyncMode]     = useState<SyncMode>("fill");
+  const [musicFile, setMusicFile]   = useState<{ name: string; path: string } | null>(null);
+  const [musicDuration, setMusicDuration] = useState<number | null>(null);
+  const [lrcText, setLrcText]       = useState("");
+  const [syncResult, setSyncResult] = useState<{ points: { time: number; label?: string }[]; sceneDurations: number[] } | null>(null);
+  const [analyzingMusic, setAnalyzingMusic] = useState(false);
+  const [sceneDuration, setSceneDuration] = useState(6);
 
-// ── Music Duration Calculator ──────────────────────────────────────────────────
-function MusicDurationCalc({ scenes, offset, onCalc }: { scenes: number; offset: number; onCalc: (s: number) => void }) {
-  const [totalSec, setTotalSec] = useState("");
-  const avail = Math.max(0, (parseInt(totalSec) || 0) - offset);
-  const perScene = scenes > 0 && avail > 0 ? Math.round(avail / scenes) : 0;
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <span style={{ fontSize: 11, color: "#666" }}>Nhạc dài (s):</span>
-      <input type="number" min={0} value={totalSec} onChange={e => setTotalSec(e.target.value)}
-        placeholder="240"
-        style={{ ...inputStyle, width: 58, textAlign: "center", fontSize: 11 }} />
-      {perScene > 0 && (
-        <button onClick={() => onCalc(perScene)}
-          style={{ padding: "3px 8px", background: "#1f2937", color: "#60a5fa", border: "1px solid #374151", borderRadius: 4, cursor: "pointer", fontSize: 11 }}>
-          → {perScene}s/scene
-        </button>
-      )}
-    </div>
-  );
-}
+  // Formats
+  const [formats, setFormats] = useState<string[]>(["youtube"]);
 
-// ── Style Preview component ────────────────────────────────────────────────────
-function StylePreview({ styleKey, onConfirm }: { styleKey: string; onConfirm: (extra: string) => void }) {
-  const [sceneDesc, setSceneDesc] = useState(PREVIEW_SCENES[styleKey] ?? "");
-  const [extraNotes, setExtraNotes] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [imgPath, setImgPath] = useState("");
-  const [confirmed, setConfirmed] = useState(false);
-  const [error, setError] = useState("");
-
-  async function generate() {
-    setLoading(true); setError(""); setImgPath("");
-    const res = await generatePreviewImage(styleKey, sceneDesc, extraNotes);
-    setLoading(false);
-    if ("error" in res) { setError(res.error); return; }
-    setImgPath(res.filePath);
-  }
-
-  function confirm() {
-    setConfirmed(true);
-    onConfirm(extraNotes);
-  }
-
-  return (
-    <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 14 }}>
-      <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
-        Xem thử style ảnh
-      </div>
-
-      {confirmed ? (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 12, color: "#4ade80" }}>✓ Style đã xác nhận{extraNotes ? ` — "${extraNotes}"` : ""}</span>
-          <button onClick={() => { setConfirmed(false); setImgPath(""); }} style={{ ...btnStyle("#374151"), marginTop: 0, fontSize: 11, padding: "4px 10px" }}>Đổi style</button>
-        </div>
-      ) : (
-        <>
-          <div style={{ marginBottom: 8 }}>
-            <div style={{ fontSize: 11, color: "#666", marginBottom: 4 }}>Cảnh test</div>
-            <textarea value={sceneDesc} onChange={e => setSceneDesc(e.target.value)}
-              style={{ ...inputStyle, width: "100%", height: 56, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit", fontSize: 11 }} />
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 11, color: "#666", marginBottom: 4 }}>Yêu cầu thêm (optional)</div>
-            <input value={extraNotes} onChange={e => setExtraNotes(e.target.value)}
-              placeholder="VD: tối hơn, nhiều bóng tối, màu lạnh hơn..."
-              style={{ ...inputStyle, width: "100%", boxSizing: "border-box" as const }} />
-          </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: imgPath ? 12 : 0 }}>
-            <button onClick={generate} disabled={loading} style={btnStyle(loading ? "#374151" : "#4b5563")}>
-              {loading ? "Đang tạo ảnh..." : imgPath ? "↻ Tạo lại" : "👁 Xem thử"}
-            </button>
-            {imgPath && <button onClick={confirm} style={{ ...btnStyle("#16a34a"), marginTop: 0 }}>✓ Xác nhận style này</button>}
-          </div>
-          {error && <div style={{ color: "#f87171", fontSize: 11, marginTop: 6 }}>{error}</div>}
-          {imgPath && (
-            <img
-              src={`/api/file?path=${encodeURIComponent(imgPath)}`}
-              alt="style preview"
-              style={{ width: "100%", borderRadius: 6, border: "1px solid #333", marginTop: 4, display: "block" }}
-            />
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Run Panel (shared by Horror and Introvert) ─────────────────────────────────
-function RunPanel({
-  style, styleVariant, styleExtra, music, musicFiles, onMusicChange,
-}: {
-  style: string;
-  styleVariant?: string;
-  styleExtra?: string;
-  music: MusicConfig | null;
-  musicFiles: MusicFile[];
-  onMusicChange: (m: MusicConfig | null) => void;
-}) {
-  const [jsonText, setJsonText] = useState("");
-  const [script, setScript] = useState<ScriptJSON | null>(null);
-  const [parseError, setParseError] = useState("");
-  const [run, setRun] = useState<RunState>({ running: false, log: [], scenes: [], done: false, outputFiles: {} });
-  const [outputs, setOutputs] = useState<OutputProject[]>([]);
-  const [clearingCache, setClearingCache] = useState(false);
-  const [cacheMsg, setCacheMsg] = useState("");
-  const [sceneDuration, setSceneDuration] = useState(8);
+  // Run state
+  const [running, setRunning]   = useState(false);
+  const [scenes, setScenes]     = useState<SceneState[]>([]);
+  const [log, setLog]           = useState<string[]>([]);
+  const [outputFiles, setOutputFiles] = useState<Record<string, string>>({});
   const abortRef = useRef<AbortController | null>(null);
+  const logRef   = useRef<HTMLDivElement>(null);
 
-  const isNoVoice = style === "introvert";
+  // Providers
+  const [providers, setProviders] = useState<ProviderInfo[]>([]);
+  const [activeProvider, setActiveProviderState] = useState<string>("auto");
 
-  const loadOutputs = useCallback(async () => {
-    const r = await fetch(`/api/output?style=${style}`).then(r => r.json()).catch(() => ({ projects: [] }));
-    setOutputs(r.projects ?? []);
-  }, [style]);
+  const channel = CHANNELS.find(c => c.id === channelId)!;
 
-  useEffect(() => { loadOutputs(); }, [loadOutputs]);
-
-  function parseJSON() {
-    try {
-      const parsed = JSON.parse(jsonText.trim());
-      setScript(parsed);
-      setParseError("");
-      setCacheMsg("");
-    } catch (e) {
-      setParseError(String(e));
-      setScript(null);
-    }
-  }
-
-  async function clearImageCache() {
-    if (!script) return;
-    setClearingCache(true); setCacheMsg("");
-    const res = await fetch(`/api/cache?project=${script.project_name}&style=${style}`, { method: "DELETE" })
-      .then(r => r.json()).catch(() => null);
-    setClearingCache(false);
-    setCacheMsg(res?.deleted != null ? `✓ Đã xóa ${res.deleted} ảnh cũ — sẽ tạo lại khi chạy` : "Lỗi xóa cache");
-  }
-
-  async function startRun() {
-    if (!script) return;
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-    const scenes: SceneState[] = script.scenes.map(s => ({
-      n: s.n, image: "idle", voice: s.voice_text ? "idle" : "skip",
-      voice_text: s.voice_text?.slice(0, 80),
-    }));
-    setRun({ running: true, log: [`Bắt đầu: ${script.project_name} — ${script.scenes.length} scenes`], scenes, done: false, outputFiles: {} });
-
-    await runFromJSON(script, (ev: RunEvent) => {
-      setRun(prev => {
-        const log = [...prev.log];
-        const sc = prev.scenes.map(s => ({ ...s }));
-        if (ev.type === "scene_start") log.push(`Scene ${ev.n}/${ev.total}...`);
-        if (ev.type === "image_done") { sc[ev.n - 1].image = "ok"; }
-        if (ev.type === "image_error") { sc[ev.n - 1].image = "err"; log.push(`❌ Ảnh ${ev.n}: ${ev.error}`); }
-        if (ev.type === "voice_done") { sc[ev.n - 1].voice = "ok"; }
-        if (ev.type === "voice_error") { sc[ev.n - 1].voice = "err"; log.push(`❌ Voice ${ev.n}: ${ev.error}`); }
-        if (ev.type === "assemble_start") log.push("Ghép video...");
-        if (ev.type === "assemble_done") {
-          log.push("✅ Xong!");
-          return { ...prev, log, scenes: sc, running: false, done: true, outputFiles: ev.files };
-        }
-        if (ev.type === "assemble_error") {
-          log.push(`❌ Ghép lỗi: ${ev.error}`);
-          return { ...prev, log, scenes: sc, running: false };
-        }
-        if (ev.type === "done") return { ...prev, log, scenes: sc, running: false, done: true };
-        return { ...prev, log, scenes: sc };
-      });
-    }, ctrl.signal, music ?? undefined, styleVariant, styleExtra, isNoVoice ? sceneDuration : undefined);
-
-    loadOutputs();
-  }
-
-  function stopRun() {
-    abortRef.current?.abort();
-    setRun(prev => ({ ...prev, running: false, log: [...prev.log, "⏹ Đã dừng"] }));
-  }
-
-  const estimatedCost = script ? (script.scenes.length * 0.028).toFixed(2) : null;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {/* JSON input */}
-      <div style={{ background: "#1a1a1a", border: "1px solid #333", borderRadius: 8, padding: 14 }}>
-        <div style={{ fontSize: 11, color: "#888", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
-          JSON Script
-        </div>
-        <textarea
-          value={jsonText}
-          onChange={e => { setJsonText(e.target.value); setScript(null); setParseError(""); }}
-          placeholder="Paste JSON từ Claude.ai Pro vào đây..."
-          style={{
-            width: "100%", height: 150, background: "#111", color: "#e0e0e0",
-            border: "1px solid #444", borderRadius: 6, padding: 10,
-            fontFamily: "monospace", fontSize: 12, resize: "vertical", boxSizing: "border-box",
-          }}
-        />
-        {parseError && <div style={{ color: "#f87171", fontSize: 11, marginTop: 4 }}>{parseError}</div>}
-        <button onClick={parseJSON} style={btnStyle("#2563eb")}>
-          Validate JSON
-        </button>
-      </div>
-
-      {/* Script info */}
-      {script && (
-        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10 }}>
-            <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-              <Chip label="Project" value={script.project_name} />
-              <Chip label="Style" value={styleVariant ?? script.style} />
-              <Chip label="Scenes" value={String(script.scenes.length)} />
-              <Chip label="Chi phí ~" value={`$${estimatedCost}`} color="#4ade80" />
-              {script.formats && <Chip label="Formats" value={script.formats.join(", ")} />}
-            </div>
-            <button onClick={clearImageCache} disabled={clearingCache}
-              title="Xóa ảnh + video cũ, force tạo lại"
-              style={{ padding: "5px 10px", background: "#1f1010", color: "#f87171", border: "1px solid #7f1d1d", borderRadius: 5, cursor: "pointer", fontSize: 11, marginTop: 0 }}>
-              {clearingCache ? "Đang xóa..." : "🗑 Xóa & làm mới"}
-            </button>
-          </div>
-
-          {/* Duration control — chỉ hiện khi không có voice */}
-          {isNoVoice && (
-            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #2a2a2a", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 11, color: "#888" }}>Thời lượng/scene:</span>
-                <input type="number" min={3} max={30} value={sceneDuration}
-                  onChange={e => setSceneDuration(Math.max(3, +e.target.value))}
-                  style={{ ...inputStyle, width: 52, textAlign: "center" }} />
-                <span style={{ fontSize: 11, color: "#888" }}>giây</span>
-              </div>
-              <div style={{ fontSize: 12, color: "#6b7280" }}>→</div>
-              <div style={{ fontSize: 12 }}>
-                <span style={{ color: "#e0e0e0", fontWeight: 600 }}>
-                  {Math.floor(script.scenes.length * sceneDuration / 60)}m{String(script.scenes.length * sceneDuration % 60).padStart(2,"0")}s
-                </span>
-                <span style={{ color: "#555", fontSize: 11 }}> ({script.scenes.length} × {sceneDuration}s)</span>
-              </div>
-              <MusicDurationCalc
-                scenes={script.scenes.length}
-                offset={music?.auto?.startOffset ?? 0}
-                onCalc={setSceneDuration}
-              />
-            </div>
-          )}
-
-          {cacheMsg && <div style={{ marginTop: 6, fontSize: 11, color: cacheMsg.startsWith("✓") ? "#4ade80" : "#f87171" }}>{cacheMsg}</div>}
-        </div>
-      )}
-
-      {/* Run controls */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        {!run.running ? (
-          <button onClick={startRun} disabled={!script}
-            style={btnStyle(script ? "#16a34a" : "#374151")}>
-            ▶ Chạy Pipeline
-          </button>
-        ) : (
-          <button onClick={stopRun} style={btnStyle("#dc2626")}>
-            ⏹ Dừng
-          </button>
-        )}
-        {run.done && (
-          <button onClick={loadOutputs} style={{ ...btnStyle("#374151"), marginTop: 0 }}>
-            ↻ Làm mới
-          </button>
-        )}
-      </div>
-
-      {/* Scene progress grid */}
-      {run.scenes.length > 0 && (
-        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
-            Tiến độ — {run.scenes.filter(s => s.image === "ok").length}/{run.scenes.length} ảnh
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-            {run.scenes.map(s => (
-              <div key={s.n} title={s.voice_text ?? `Scene ${s.n}`}
-                style={{
-                  width: 34, height: 34, borderRadius: 4, display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center", fontSize: 9,
-                  background: s.image === "ok" ? "#052e16" : s.image === "err" ? "#450a0a" : "#1a1a1a",
-                  border: `1px solid ${s.image === "ok" ? "#16a34a" : s.image === "err" ? "#b91c1c" : "#333"}`,
-                  color: "#aaa",
-                }}>
-                <div style={{ fontWeight: 700 }}>{s.n}</div>
-                <div style={{ fontSize: 8, color: s.voice === "ok" ? "#4ade80" : s.voice === "err" ? "#f87171" : "#555" }}>
-                  {s.voice === "ok" ? "♪" : ""}
-                </div>
-              </div>
-            ))}
-          </div>
-          {run.log.length > 0 && (
-            <div style={{ marginTop: 8, fontSize: 11, color: "#888", fontFamily: "monospace" }}>
-              {run.log[run.log.length - 1]}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Done output */}
-      {Object.keys(run.outputFiles).length > 0 && (
-        <div style={{ background: "#052e16", border: "1px solid #16a34a", borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 11, color: "#4ade80", marginBottom: 8 }}>✅ Video đã xuất</div>
-          {Object.entries(run.outputFiles).map(([fmt, p]) => (
-            <div key={fmt} style={{ fontFamily: "monospace", fontSize: 11, color: "#86efac", marginBottom: 2 }}>
-              [{fmt}] {p}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Output history */}
-      {outputs.length > 0 && (
-        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
-            Output ({outputs.length} video)
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-            {outputs.slice(0, 10).map(o => (
-              <div key={o.name} style={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                padding: "6px 8px", background: "#111", borderRadius: 4, fontSize: 12,
-              }}>
-                <span style={{ color: "#e0e0e0", fontFamily: "monospace" }}>{o.name}</span>
-                <span style={{ color: "#666", fontSize: 11 }}>{o.sizeMB}MB · {o.date}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Horror tab ─────────────────────────────────────────────────────────────────
-function HorrorTab({ musicFiles }: { musicFiles: MusicFile[] }) {
-  const [catOpen, setCatOpen] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<WanseeStory | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [music] = useState<MusicConfig | null>(null);
-  const [horrorLevel, setHorrorLevel] = useState<"horror_light" | "horror_heavy" | "horror_extreme">("horror_light");
-  const [styleExtra, setStyleExtra] = useState("");
-
-  const horrorLevels = [
-    { key: "horror_light" as const, label: "👻 Nhẹ", desc: "Subtly wrong, psychological" },
-    { key: "horror_heavy" as const, label: "😱 Nặng", desc: "Distorted, body horror" },
-    { key: "horror_extreme" as const, label: "💀 Cực đại", desc: "Cosmic, visceral terror" },
-  ];
-
-  const filtered = WANSEE_CATALOG.filter(s =>
-    !search ||
-    s.titleVi.toLowerCase().includes(search.toLowerCase()) ||
-    s.title.toLowerCase().includes(search.toLowerCase()) ||
-    s.tags.some(t => t.includes(search.toLowerCase()))
-  );
-
-  function selectStory(story: WanseeStory) {
-    setSelected(story);
-    setCopied(false);
-  }
-
-  function copyToClipboard() {
-    if (!selected) return;
-    navigator.clipboard.writeText(horrorPrompt(selected.titleVi));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "270px 1fr", gap: 16, minHeight: 0 }}>
-      {/* Catalog panel */}
-      <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, overflow: "hidden", display: "flex", flexDirection: "column", maxHeight: "calc(100vh - 120px)" }}>
-        <div
-          onClick={() => setCatOpen(!catOpen)}
-          style={{ padding: "10px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #2a2a2a", background: "#161616", flexShrink: 0 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#e0e0e0" }}>📁 Wansee</span>
-          <span style={{ color: "#666", fontSize: 12 }}>{catOpen ? "▾" : "▸"} {WANSEE_CATALOG.length}</span>
-        </div>
-        {catOpen && (
-          <div style={{ flex: 1, overflow: "auto", padding: 10 }}>
-            <input
-              value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Tìm kiếm..."
-              style={{ ...inputStyle, width: "100%", marginBottom: 8, boxSizing: "border-box" as const }}
-            />
-            {filtered.map(story => (
-              <div
-                key={story.id}
-                onClick={() => selectStory(story)}
-                style={{
-                  padding: "8px 10px", borderRadius: 6, cursor: "pointer", marginBottom: 3,
-                  background: selected?.id === story.id ? "#1e3a5f" : "transparent",
-                  border: `1px solid ${selected?.id === story.id ? "#2563eb" : "transparent"}`,
-                }}>
-                <div style={{ fontSize: 12, color: "#e0e0e0" }}>{story.titleVi}</div>
-                <div style={{ fontSize: 10, color: "#555", marginTop: 2 }}>{story.tags.join(" · ")}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Right panel */}
-      <div style={{ overflow: "auto", maxHeight: "calc(100vh - 120px)" }}>
-        {selected ? (
-          <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#e0e0e0", marginBottom: 4 }}>{selected.titleVi}</div>
-            <div style={{ fontSize: 11, color: "#666", marginBottom: 10 }}>{selected.setting}</div>
-            <div style={{ fontStyle: "italic", color: "#aaa", fontSize: 12, marginBottom: 12, borderLeft: "2px solid #374151", paddingLeft: 10 }}>
-              "{selected.hook}"
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={copyToClipboard} style={btnStyle(copied ? "#166534" : "#2563eb")}>
-                {copied ? "✓ Đã copy" : "📋 Copy Prompt → Claude.ai Pro"}
-              </button>
-              <button onClick={() => setSelected(null)} style={{ ...btnStyle("#374151"), marginTop: 8 }}>Bỏ chọn</button>
-            </div>
-          </div>
-        ) : (
-          <div style={{ background: "#161616", border: "1px dashed #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 14, textAlign: "center", color: "#555", fontSize: 13 }}>
-            👈 Chọn story từ catalog để lấy prompt
-          </div>
-        )}
-        {/* Horror level picker */}
-        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 14 }}>
-          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Cấp độ kinh dị</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {horrorLevels.map(l => (
-              <button key={l.key} onClick={() => setHorrorLevel(l.key)}
-                style={{ padding: "7px 14px", background: horrorLevel === l.key ? "#450a0a" : "#1a1a1a", color: horrorLevel === l.key ? "#fca5a5" : "#888", border: `1px solid ${horrorLevel === l.key ? "#b91c1c" : "#333"}`, borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
-                <span>{l.label}</span>
-                <span style={{ fontSize: 9, color: horrorLevel === l.key ? "#f87171" : "#555" }}>{l.desc}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <StylePreview styleKey={horrorLevel} onConfirm={extra => setStyleExtra(extra)} />
-        <div style={{ marginTop: 14 }}>
-          <RunPanel style="horror" styleVariant={horrorLevel} styleExtra={styleExtra} music={music} musicFiles={musicFiles} onMusicChange={() => {}} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Introvert tab ──────────────────────────────────────────────────────────────
-function IntrovertTab({ musicFiles, onMusicUploaded }: { musicFiles: MusicFile[]; onMusicUploaded: () => void }) {
-  const [topic, setTopic] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [music, setMusic] = useState<MusicConfig | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [mood, setMood] = useState<"introvert_sad" | "introvert_fun">("introvert_sad");
-  const [styleExtra, setStyleExtra] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const moodOptions = [
-    { key: "introvert_sad" as const, label: "😔 Buồn / Tâm sự", desc: "Film grain, lạnh, cô đơn" },
-    { key: "introvert_fun" as const, label: "😄 Vui / Meme", desc: "Pastel ấm, cozy, dễ thương" },
-  ];
-
-  async function uploadMusic(file: File) {
-    setUploading(true);
-    const form = new FormData();
-    form.append("file", file);
-    const res = await fetch("/api/music", { method: "POST", body: form }).then(r => r.json()).catch(() => null);
-    setUploading(false);
-    if (res?.path) {
-      onMusicUploaded();
-      setMusic({ mode: "auto", auto: { musicPath: res.path, startOffset: 0, volume: 1.0, fadeIn: 0, fadeOut: 0 } });
-    }
-  }
-
-  function copyPrompt() {
-    if (!topic.trim()) return;
-    navigator.clipboard.writeText(introvertPrompt(topic));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "250px 1fr", gap: 16 }}>
-      {/* Left: idea + music */}
-      <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", gap: 14, height: "fit-content" }}>
-        <div>
-          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Ý tưởng video</div>
-          <textarea
-            value={topic}
-            onChange={e => setTopic(e.target.value)}
-            placeholder="VD: người hướng nội khi bị ép đi chơi nhóm"
-            style={{ ...inputStyle, width: "100%", height: 90, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit", fontSize: 12, display: "block" }}
-          />
-          <button onClick={copyPrompt} disabled={!topic.trim()}
-            style={btnStyle(topic.trim() ? (copied ? "#166534" : "#7c3aed") : "#374151")}>
-            {copied ? "✓ Đã copy" : "📋 Copy Prompt → Claude.ai Pro"}
-          </button>
-        </div>
-
-        <div style={{ borderTop: "1px solid #2a2a2a", paddingTop: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1 }}>Nhạc nền</div>
-            <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
-              style={{ padding: "3px 8px", background: "#1f2937", color: "#9ca3af", border: "1px solid #374151", borderRadius: 4, cursor: "pointer", fontSize: 11 }}>
-              {uploading ? "Đang tải..." : "+ Upload"}
-            </button>
-            <input ref={fileInputRef} type="file" accept=".mp3,.wav,.m4a,.ogg,.flac" style={{ display: "none" }}
-              onChange={e => { const f = e.target.files?.[0]; if (f) uploadMusic(f); e.target.value = ""; }} />
-          </div>
-          <select
-            value={music?.auto?.musicPath ?? ""}
-            onChange={e => {
-              if (!e.target.value) { setMusic(null); return; }
-              setMusic({ mode: "auto", auto: { musicPath: e.target.value, startOffset: 0, volume: 1.0, fadeIn: 0, fadeOut: 0 } });
-            }}
-            style={{ ...selectStyle, width: "100%", marginBottom: 10, boxSizing: "border-box" as const }}
-          >
-            <option value="">— Không có nhạc —</option>
-            {musicFiles.map(f => <option key={f.path} value={f.path}>{f.name}</option>)}
-          </select>
-          {music?.auto?.musicPath && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <label style={{ color: "#aaa", fontSize: 12, display: "flex", flexDirection: "column", gap: 4 }}>
-                Volume: {Math.round(music.auto!.volume * 100)}%
-                <input type="range" min={0} max={1} step={0.05} value={music.auto!.volume}
-                  onChange={e => setMusic({ ...music!, auto: { ...music!.auto!, volume: +e.target.value } })} />
-              </label>
-              <label style={{ color: "#aaa", fontSize: 12 }}>
-                Cắt intro (giây):&nbsp;
-                <input type="number" min={0} value={music.auto!.startOffset}
-                  onChange={e => setMusic({ ...music!, auto: { ...music!.auto!, startOffset: +e.target.value } })}
-                  style={{ ...inputStyle, width: 55 }} />
-              </label>
-            </div>
-          )}
-        </div>
-
-        <div style={{ fontSize: 10, color: "#444", lineHeight: 1.6 }}>
-          no voice · text overlay · 5s/scene
-        </div>
-      </div>
-
-      {/* Right: mood picker + style preview + run panel */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {/* Mood picker */}
-        <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14 }}>
-          <div style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Mood video</div>
-          <div style={{ display: "flex", gap: 10 }}>
-            {moodOptions.map(m => (
-              <button key={m.key} onClick={() => setMood(m.key)}
-                style={{ flex: 1, padding: "10px 12px", background: mood === m.key ? (m.key === "introvert_sad" ? "#1e1b4b" : "#1a1200") : "#111", color: mood === m.key ? (m.key === "introvert_sad" ? "#a5b4fc" : "#fde68a") : "#777", border: `1px solid ${mood === m.key ? (m.key === "introvert_sad" ? "#4f46e5" : "#b45309") : "#333"}`, borderRadius: 8, cursor: "pointer", textAlign: "left" }}>
-                <div style={{ fontSize: 13 }}>{m.label}</div>
-                <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{m.desc}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <StylePreview styleKey={mood} onConfirm={extra => setStyleExtra(extra)} />
-        <RunPanel style="introvert" styleVariant={mood} styleExtra={styleExtra} music={music} musicFiles={musicFiles} onMusicChange={setMusic} />
-      </div>
-    </div>
-  );
-}
-
-// ── Idea tab ───────────────────────────────────────────────────────────────────
-function IdeaTab() {
-  const styles = [
-    { key: "history", label: "📜 Lịch sử" },
-    { key: "facts", label: "💡 Facts" },
-    { key: "story", label: "💬 Tâm sự" },
-    { key: "gaming", label: "🎮 Gaming" },
-  ];
-  const [style, setStyle] = useState("history");
-  const [topic, setTopic] = useState("");
-  const [copied, setCopied] = useState(false);
-
-  function copyPrompt() {
-    if (!topic.trim()) return;
-    navigator.clipboard.writeText(buildGenericPrompt(style, topic));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div style={{ maxWidth: 560 }}>
-      <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 24 }}>
-        <h2 style={{ margin: "0 0 20px", fontSize: 15, color: "#e0e0e0" }}>Ý Tưởng Kênh Mới</h2>
-
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: "#888", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Chọn style</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {styles.map(s => (
-              <button key={s.key} onClick={() => setStyle(s.key)}
-                style={{ padding: "6px 14px", background: style === s.key ? "#374151" : "#1f2937", color: "#e0e0e0", border: `1px solid ${style === s.key ? "#6b7280" : "#374151"}`, borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: "#888", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Ý tưởng / chủ đề</div>
-          <textarea value={topic} onChange={e => setTopic(e.target.value)}
-            placeholder="Mô tả ý tưởng video..."
-            style={{ ...inputStyle, width: "100%", height: 80, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit", display: "block" }}
-          />
-        </div>
-
-        <button onClick={copyPrompt} disabled={!topic.trim()}
-          style={btnStyle(topic.trim() ? (copied ? "#166534" : "#2563eb") : "#374151")}>
-          {copied ? "✓ Đã copy prompt" : "📋 Copy Prompt → Claude.ai Pro"}
-        </button>
-
-        <div style={{ marginTop: 20, padding: 12, background: "#111", borderRadius: 8, fontSize: 11, color: "#555", lineHeight: 1.8 }}>
-          <strong style={{ color: "#888" }}>Flow:</strong> Copy prompt → Claude.ai Pro → lấy JSON<br />→ Paste vào Horror hoặc Introvert tab → chạy pipeline
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main App ───────────────────────────────────────────────────────────────────
-export default function Page() {
-  const [tab, setTab] = useState<Tab>("horror");
-  const [horrorOpen, setHorrorOpen] = useState(true);
-  const [musicFiles, setMusicFiles] = useState<MusicFile[]>([]);
-
+  // ── Load styles ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch("/api/music").then(r => r.json()).then(d => setMusicFiles(d.files ?? [])).catch(() => {});
+    fetch(`/api/styles?channel=${channelId}`)
+      .then(r => r.json())
+      .then(d => {
+        setStyles(d.styles ?? []);
+        if (d.styles?.length > 0) setStyleId(d.styles[0].id);
+      })
+      .catch(() => setStyles([]));
+  }, [channelId]);
+
+  // ── Load providers ───────────────────────────────────────────────────────────
+  useEffect(() => {
+    fetch("/api/providers").then(r => r.json()).then(d => {
+      setProviders(d.providers ?? []);
+      setActiveProviderState(d.active ?? "auto");
+    }).catch(() => {});
   }, []);
 
+  async function selectProvider(key: string) {
+    setActiveProviderState(key);
+    await fetch("/api/providers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider: key }),
+    });
+  }
+
+  // ── Auto-scroll log ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [log]);
+
+  const addLog = useCallback((msg: string) => setLog(prev => [...prev.slice(-200), msg]), []);
+
+  // ── Style preview ────────────────────────────────────────────────────────────
+  async function loadPreview(style: StyleDNA) {
+    const key = `${channelId}/${style.id}`;
+    if (previewUrl[key] || previewLoading[key]) return;
+    setPreviewLoading(p => ({ ...p, [key]: true }));
+    try {
+      const previewPrompt = style.preview_prompt ?? `${style.prompt_prefix}. Example establishing shot.`;
+      const res = await fetch("/api/tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tool: "generate_image",
+          input: { prompt: previewPrompt, filename: `preview_${channelId}_${style.id}`, style: channelId },
+        }),
+      }).then(r => r.json());
+      if (res.success) {
+        const fileName = res.data.filePath.split(/[\\/]/).pop();
+        setPreviewUrl(p => ({ ...p, [key]: `/api/file?path=${encodeURIComponent(res.data.filePath)}` }));
+      }
+    } catch {}
+    setPreviewLoading(p => ({ ...p, [key]: false }));
+  }
+
+  // ── Generate script ──────────────────────────────────────────────────────────
+  async function generateScript() {
+    if (!topic.trim()) return;
+    setGenerating(true);
+    setJsonScript("Đang tạo kịch bản...");
+    try {
+      const prompt = channelId === "wansee"   ? buildWanseePrompt(topic, styleId)
+               : channelId === "psych2go" ? buildPsych2GoPrompt(topic, styleId)
+               : buildHuongNoiPrompt(topic, styleId);
+      const res = await fetch("/api/tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "generate_script", input: { prompt } }),
+      }).then(r => r.json());
+      if (res.success) setJsonScript(res.data.script ?? "");
+      else setJsonScript(`// Lỗi: ${res.error}\n// Paste JSON script thủ công vào đây`);
+    } catch (e) {
+      setJsonScript(`// Lỗi: ${e}\n// Paste JSON script thủ công`);
+    }
+    setGenerating(false);
+  }
+
+  // ── Upload music ─────────────────────────────────────────────────────────────
+  async function handleMusicUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/music", { method: "POST", body: formData }).then(r => r.json()).catch(() => null);
+    if (res?.path) {
+      setMusicFile({ name: file.name, path: res.path });
+      const dur = await fetch(`/api/music-analyze?path=${encodeURIComponent(res.path)}`).then(r => r.json()).catch(() => null);
+      if (dur?.duration) setMusicDuration(Math.round(dur.duration));
+      setSyncResult(null);
+    }
+  }
+
+  // ── Analyze music sync ───────────────────────────────────────────────────────
+  async function analyzeSync() {
+    if (!musicFile || syncMode === "fill") return;
+    const numScenes = parseScript()?.scenes.length ?? 15;
+    setAnalyzingMusic(true);
+    try {
+      const res = await fetch("/api/music-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: syncMode, musicPath: musicFile.path, numScenes, lrcText }),
+      }).then(r => r.json());
+      if (res.result) setSyncResult(res.result);
+      else addLog(`⚠ Phân tích nhạc lỗi: ${res.error}`);
+    } catch {}
+    setAnalyzingMusic(false);
+  }
+
+  // ── Parse script JSON ─────────────────────────────────────────────────────────
+  function parseScript(): ScriptJSON | null {
+    try {
+      const cleaned = jsonScript.replace(/^[^{]*/, "").replace(/[^}]*$/, "");
+      return JSON.parse(cleaned) as ScriptJSON;
+    } catch { return null; }
+  }
+
+  // ── Build music config ────────────────────────────────────────────────────────
+  function buildMusicConfig(): MusicConfig | undefined {
+    if (!musicFile) return undefined;
+    if (syncMode === "fill" || !syncResult) {
+      return { mode: "auto", auto: { musicPath: musicFile.path, startOffset: 0, volume: 0.4, fadeIn: 2, fadeOut: 3 } };
+    }
+    // Convert sync points to manual cues
+    const cues = syncResult.points.map((pt, i) => ({
+      musicPath: musicFile.path,
+      musicStart: pt.time,
+      videoStart: syncResult.points[i]?.time ?? 0,
+      videoEnd: syncResult.points[i + 1]?.time ?? (syncResult.points[i]?.time ?? 0) + (syncResult.sceneDurations[i] ?? 5),
+      volume: 0.5,
+    }));
+    return { mode: "manual", manual: cues };
+  }
+
+  // ── Calculate scene duration for fill mode ────────────────────────────────────
+  function getSceneDuration(): number {
+    if (syncMode === "fill" && musicDuration) {
+      const numScenes = parseScript()?.scenes.length ?? 15;
+      return parseFloat((musicDuration / numScenes).toFixed(1));
+    }
+    return sceneDuration;
+  }
+
+  // ── Run pipeline ──────────────────────────────────────────────────────────────
+  async function handleRun() {
+    const script = parseScript();
+    if (!script) { addLog("❌ JSON script không hợp lệ"); return; }
+    if (!script.channel) script.channel = channelId;
+    if (!script.style_id) script.style_id = styleId;
+
+    // Luôn dùng formats từ UI — override JSON (nút Shorts/TikTok mới có tác dụng)
+    script.formats = formats.length > 0 ? formats : ["youtube"];
+
+    // Apply sync durations if available
+    if (syncResult?.sceneDurations) {
+      script.scenes.forEach((scene, i) => {
+        scene.duration = syncResult.sceneDurations[i] ?? sceneDuration;
+      });
+    }
+
+    setRunning(true);
+    setLog([]);
+    setOutputFiles({});
+    setScenes(script.scenes.map(s => ({ n: s.n, img: "idle", voice: "idle" })));
+    abortRef.current = new AbortController();
+
+    const onEvent = (e: RunEvent) => {
+      switch (e.type) {
+        case "scene_start":  addLog(`▶ Scene ${e.n}/${e.total}`); break;
+        case "image_done":   setScenes(p => p.map(s => s.n === e.n ? { ...s, img: "ok" } : s)); break;
+        case "image_error":  setScenes(p => p.map(s => s.n === e.n ? { ...s, img: "err" } : s)); addLog(`✗ Scene ${e.n} ảnh lỗi: ${e.error}`); break;
+        case "voice_done":   setScenes(p => p.map(s => s.n === e.n ? { ...s, voice: e.path ? "ok" : "skip" } : s)); break;
+        case "voice_error":  setScenes(p => p.map(s => s.n === e.n ? { ...s, voice: "silent" } : s)); addLog(`⚠ Scene ${e.n} voice lỗi → dùng silent`); break;
+        case "assemble_start": addLog("🎬 Đang ghép video..."); break;
+        case "assemble_done":  setOutputFiles(e.files); addLog("✅ Hoàn thành!"); break;
+        case "assemble_error": addLog(`❌ Ghép video lỗi: ${e.error}`); break;
+        case "done": setRunning(false); break;
+      }
+    };
+
+    try {
+      await runFromJSON(
+        script,
+        onEvent,
+        abortRef.current.signal,
+        buildMusicConfig(),
+        styleId,
+        undefined,
+        getSceneDuration(),
+      );
+    } catch (e) {
+      addLog(`❌ ${e}`);
+    }
+    setRunning(false);
+  }
+
+  function handleStop() {
+    abortRef.current?.abort();
+    setRunning(false);
+    addLog("⏹ Đã dừng");
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────────
+  const scriptObj = parseScript();
+  const numScenes = scriptObj?.scenes.length ?? 0;
+  const fillDuration = syncMode === "fill" && musicDuration && numScenes > 0
+    ? parseFloat((musicDuration / numScenes).toFixed(1))
+    : null;
+
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#0a0a0a", color: "#e0e0e0", fontFamily: "'Inter', 'Segoe UI', sans-serif", overflow: "hidden" }}>
-      {/* Sidebar */}
-      <div style={{ width: 196, background: "#111", borderRight: "1px solid #1f1f1f", padding: "14px 0", display: "flex", flexDirection: "column", flexShrink: 0 }}>
-        <div style={{ padding: "0 14px 14px", borderBottom: "1px solid #1f1f1f", marginBottom: 6 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#e0e0e0" }}>Content Studio</div>
-          <div style={{ fontSize: 10, color: "#444", marginTop: 2 }}>CauChuyen30Dem</div>
+    <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+
+      {/* ── Top bar ── */}
+      <div style={{ borderBottom: `1px solid ${C.border}`, padding: "0 24px", display: "flex", alignItems: "center", height: 52, gap: 20 }}>
+        <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-0.02em" }}>◆ Claude Studio</span>
+
+        {/* Channel tabs */}
+        <div style={{ display: "flex", gap: 4, flex: 1 }}>
+          {CHANNELS.map(ch => (
+            <button key={ch.id} onClick={() => setChannelId(ch.id)}
+              style={{ ...s.btn(channelId === ch.id ? ch.accent : "#222"), padding: "5px 14px", fontSize: 13, fontWeight: channelId === ch.id ? 700 : 400 }}>
+              {ch.icon} {ch.name}
+            </button>
+          ))}
         </div>
 
-        {/* Horror folder */}
-        <div>
-          <div onClick={() => setHorrorOpen(!horrorOpen)}
-            style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 14px", cursor: "pointer", color: "#888", fontSize: 12, userSelect: "none" }}>
-            <span>👻 Horror Content</span>
-            <span style={{ color: "#444" }}>{horrorOpen ? "▾" : "▸"}</span>
-          </div>
-          {horrorOpen && (
-            <div onClick={() => setTab("horror")}
-              style={{
-                padding: "6px 14px 6px 26px", cursor: "pointer", fontSize: 12,
-                background: tab === "horror" ? "#1e3a5f" : "transparent",
-                color: tab === "horror" ? "#60a5fa" : "#666",
-                borderLeft: `2px solid ${tab === "horror" ? "#2563eb" : "transparent"}`,
-              }}>
-              📁 Wansee
-            </div>
-          )}
-        </div>
-
-        {/* Introvert */}
-        <div onClick={() => setTab("introvert")}
-          style={{
-            padding: "7px 14px", cursor: "pointer", fontSize: 12,
-            background: tab === "introvert" ? "#2d1b69" : "transparent",
-            color: tab === "introvert" ? "#a78bfa" : "#888",
-            borderLeft: `2px solid ${tab === "introvert" ? "#7c3aed" : "transparent"}`,
-          }}>
-          🌙 Hướng Nội
-        </div>
-
-        {/* Idea */}
-        <div onClick={() => setTab("idea")}
-          style={{
-            padding: "7px 14px", cursor: "pointer", fontSize: 12,
-            background: tab === "idea" ? "#1a1200" : "transparent",
-            color: tab === "idea" ? "#fbbf24" : "#888",
-            borderLeft: `2px solid ${tab === "idea" ? "#d97706" : "transparent"}`,
-          }}>
-          💡 Ý Tưởng Mới
+        {/* Active provider + balances */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12 }}>
+          <span style={{ color: C.sub }}>
+            Provider: <span style={{ color: channel.accent, fontWeight: 700 }}>
+              {activeProvider === "auto" ? "🤖 Auto" : providers.find(p=>p.key===activeProvider)?.name ?? activeProvider}
+            </span>
+          </span>
+          {providers.filter(p => p.balanceLabel && p.hasKey).map(p => (
+            <span key={p.key} style={{ color: C.sub }}>
+              {p.name}: <span style={{ fontWeight: 700,
+                color: p.unlimited ? "#3d8c40"
+                  : p.balance != null && p.balance <= 0 ? "#ef5350"
+                  : "#3d8c40" }}>
+                {p.balanceLabel}
+              </span>
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Main content */}
-      <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
-        <h1 style={{ margin: "0 0 16px", fontSize: 17, fontWeight: 700, color: "#e0e0e0" }}>
-          {tab === "horror" && "👻 Horror Content — Wansee"}
-          {tab === "introvert" && "🌙 Hướng Nội Content"}
-          {tab === "idea" && "💡 Ý Tưởng Mới"}
-        </h1>
+      {/* ── Main ── */}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20 }}>
 
-        {tab === "horror" && <HorrorTab musicFiles={musicFiles} />}
-        {tab === "introvert" && <IntrovertTab musicFiles={musicFiles} onMusicUploaded={() => fetch("/api/music").then(r => r.json()).then(d => setMusicFiles(d.files ?? []))} />}
-        {tab === "idea" && <IdeaTab />}
+          {/* Left column */}
+          <div>
+
+            {/* Style selector */}
+            <div style={{ ...s.section }}>
+              <div style={{ ...s.panel }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>🎨 Style</span>
+                  <button style={{ ...s.btn("#222"), padding: "4px 10px", fontSize: 12 }}
+                    onClick={() => { /* TODO: create style modal */ }}>
+                    + Thêm style
+                  </button>
+                </div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {styles.map(style => {
+                    const key = `${channelId}/${style.id}`;
+                    const active = style.id === styleId;
+                    return (
+                      <div key={style.id}
+                        onClick={() => { setStyleId(style.id); loadPreview(style); }}
+                        style={{
+                          width: 140, borderRadius: 8, overflow: "hidden", cursor: "pointer",
+                          border: `2px solid ${active ? channel.accent : C.border}`,
+                          transition: "border-color 0.15s",
+                        }}>
+                        <div style={{ height: 80, background: "#111", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                          {previewUrl[key]
+                            ? <img src={previewUrl[key]} alt={style.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            : <button onClick={e => { e.stopPropagation(); loadPreview(style); }}
+                                style={{ ...s.btn("#333"), padding: "4px 8px", fontSize: 11 }}>
+                                {previewLoading[key] ? "..." : "Preview"}
+                              </button>
+                          }
+                        </div>
+                        <div style={{ padding: "7px 10px", background: active ? "#1e1e1e" : C.card }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: active ? channel.accent : C.text }}>{style.name}</div>
+                          <div style={{ fontSize: 10, color: C.sub, marginTop: 2, lineHeight: 1.3 }}>{style.description}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Script */}
+            <div style={{ ...s.section }}>
+              <div style={{ ...s.panel }}>
+                <div style={{ display: "flex", gap: 10, marginBottom: 14, alignItems: "flex-end" }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={s.label}>Chủ đề / Ý tưởng</label>
+                    <input value={topic} onChange={e => setTopic(e.target.value)}
+                      placeholder={
+                        channelId === "wansee"    ? "VD: Tôi làm thêm giờ ở toà nhà bỏ hoang..." :
+                        channelId === "psych2go"  ? "VD: 7 dấu hiệu bạn là người hướng nội thực sự" :
+                                                    "VD: Khi hướng nội phải đi tiệc sinh nhật..."
+                      }
+                      style={s.input} onKeyDown={e => e.key === "Enter" && generateScript()} />
+                  </div>
+                  <button onClick={generateScript} disabled={generating || !topic.trim()}
+                    style={{ ...s.btn(channel.accent), opacity: generating ? 0.6 : 1, whiteSpace: "nowrap" }}>
+                    {generating ? "⏳ Tạo..." : "✦ Tạo kịch bản"}
+                  </button>
+                </div>
+
+                <label style={s.label}>JSON Script {numScenes > 0 && <span style={{ color: channel.accent, fontWeight: 700 }}>— {numScenes} scenes</span>}</label>
+                <textarea value={jsonScript} onChange={e => setJsonScript(e.target.value)}
+                  placeholder={`Paste JSON hoặc nhấn "Tạo kịch bản" ở trên`}
+                  style={{ ...s.input, minHeight: 200, resize: "vertical", fontFamily: "monospace", fontSize: 12, lineHeight: 1.5 }} />
+              </div>
+            </div>
+
+            {/* Music */}
+            <div style={{ ...s.section }}>
+              <div style={{ ...s.panel }}>
+                <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 14 }}>🎵 Nhạc nền</div>
+
+                {/* Upload */}
+                <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 14 }}>
+                  <label style={{ ...s.btn("#222"), cursor: "pointer" }}>
+                    📁 Upload nhạc
+                    <input type="file" accept="audio/*" onChange={handleMusicUpload} style={{ display: "none" }} />
+                  </label>
+                  {musicFile && (
+                    <span style={{ fontSize: 12, color: C.sub }}>
+                      {musicFile.name} {musicDuration && <span style={{ color: "#3d8c40" }}>({Math.floor(musicDuration/60)}:{String(musicDuration%60).padStart(2,"0")})</span>}
+                    </span>
+                  )}
+                </div>
+
+                {/* Sync mode */}
+                <label style={s.label}>Sync mode</label>
+                <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                  {(["fill", "lyric", "beat", "whisper"] as SyncMode[]).map(m => (
+                    <button key={m} onClick={() => setSyncMode(m)}
+                      style={{ ...s.btn(syncMode === m ? channel.accent : "#222"), padding: "6px 14px", fontSize: 12 }}>
+                      {m === "fill" ? "⏱ Fill" : m === "lyric" ? "📝 Lyric" : m === "beat" ? "🥁 Beat" : "🤖 Whisper"}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Fill mode info */}
+                {syncMode === "fill" && musicDuration && numScenes > 0 && (
+                  <div style={{ fontSize: 12, color: "#3d8c40", background: "#0d2010", padding: "8px 12px", borderRadius: 6 }}>
+                    ✓ {numScenes} scenes × {fillDuration}s = {(numScenes * (fillDuration??0)).toFixed(0)}s — khớp với nhạc {Math.floor(musicDuration/60)}:{String(musicDuration%60).padStart(2,"0")}
+                  </div>
+                )}
+
+                {syncMode === "fill" && !musicDuration && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <label style={{ fontSize: 12, color: C.sub }}>Giây/scene:</label>
+                    <input type="number" min={2} max={30} value={sceneDuration} onChange={e => setSceneDuration(Number(e.target.value))}
+                      style={{ ...s.input, width: 70 }} />
+                  </div>
+                )}
+
+                {/* Lyric input */}
+                {syncMode === "lyric" && (
+                  <div>
+                    <label style={s.label}>Paste LRC hoặc timestamp (format: [mm:ss] lyric text)</label>
+                    <textarea value={lrcText} onChange={e => setLrcText(e.target.value)}
+                      placeholder={"[00:10.50]Và em đã biết\n[00:15.20]Rằng anh không còn\n...\nHoặc: 10 - Scene mô tả"}
+                      style={{ ...s.input, minHeight: 100, fontFamily: "monospace", fontSize: 12 }} />
+                  </div>
+                )}
+
+                {syncMode === "whisper" && (
+                  <div style={{ fontSize: 12, color: C.sub, padding: "8px 12px", background: "#111", borderRadius: 6 }}>
+                    🤖 Sẽ dùng HuggingFace Whisper để tự nhận diện lời/timestamp trong file nhạc.
+                    {!process.env.NEXT_PUBLIC_HAS_HF_TOKEN && " (Cần HF_TOKEN trong .env.local)"}
+                  </div>
+                )}
+
+                {/* Analyze button */}
+                {syncMode !== "fill" && musicFile && (
+                  <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "center" }}>
+                    <button onClick={analyzeSync} disabled={analyzingMusic}
+                      style={{ ...s.btn("#2a5298"), opacity: analyzingMusic ? 0.6 : 1 }}>
+                      {analyzingMusic ? "⏳ Phân tích..." : "🔍 Phân tích nhạc"}
+                    </button>
+                    {syncResult && (
+                      <span style={{ fontSize: 12, color: "#3d8c40" }}>
+                        ✓ {syncResult.points.length} điểm sync
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Sync points preview */}
+                {syncResult && syncResult.points.length > 0 && (
+                  <div style={{ marginTop: 10, maxHeight: 100, overflowY: "auto", fontSize: 11, color: C.sub, fontFamily: "monospace", background: "#111", padding: "8px", borderRadius: 6 }}>
+                    {syncResult.points.slice(0, 20).map((pt, i) => (
+                      <div key={i}>{`[${pt.time.toFixed(1)}s → ${syncResult.sceneDurations[i]?.toFixed(1)}s] ${pt.label ?? `Scene ${i+1}`}`}</div>
+                    ))}
+                    {syncResult.points.length > 20 && <div>...+{syncResult.points.length - 20} điểm nữa</div>}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Formats + Run */}
+            <div style={{ ...s.panel, display: "flex", alignItems: "center", gap: 16 }}>
+              <div>
+                <label style={s.label}>Format</label>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["youtube", "shorts", "tiktok"].map(fmt => (
+                    <button key={fmt} onClick={() => setFormats(f => f.includes(fmt) ? f.filter(x=>x!==fmt) : [...f, fmt])}
+                      style={{ ...s.btn(formats.includes(fmt) ? channel.accent : "#222"), padding: "5px 12px", fontSize: 12 }}>
+                      {fmt === "youtube" ? "▶ YouTube" : fmt === "shorts" ? "📱 Shorts" : "🎵 TikTok"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ flex: 1 }} />
+
+              {running
+                ? <button onClick={handleStop} style={{ ...s.btn("#7a1010"), padding: "10px 24px" }}>⏹ Dừng</button>
+                : <button onClick={handleRun} disabled={!jsonScript.trim() || running}
+                    style={{ ...s.btn(channel.accent), padding: "10px 24px", fontSize: 14, fontWeight: 700, opacity: !jsonScript.trim() ? 0.4 : 1 }}>
+                    ▶ Chạy
+                  </button>
+              }
+            </div>
+          </div>
+
+          {/* Right column — progress + output */}
+          <div>
+
+            {/* Scene grid */}
+            {scenes.length > 0 && (
+              <div style={{ ...s.panel, marginBottom: 16 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10 }}>
+                  Tiến độ — {scenes.filter(s=>s.img==="ok").length}/{scenes.length} scenes
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4 }}>
+                  {scenes.map(sc => (
+                    <div key={sc.n} title={`Scene ${sc.n}`}
+                      style={{
+                        height: 34, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 11, fontWeight: 600,
+                        background: sc.img === "ok" ? "#0d2010" : sc.img === "err" ? "#2a0a0a" : "#1a1a1a",
+                        border: `1px solid ${sc.img === "ok" ? "#2d6130" : sc.img === "err" ? "#6b1a1a" : C.border}`,
+                        color: sc.img === "ok" ? "#4caf50" : sc.img === "err" ? "#ef5350" : C.muted,
+                      }}>
+                      {sc.n}
+                      {sc.voice === "silent" && <span title="Voice lỗi — dùng silent" style={{ color: "#ff9800", marginLeft: 2 }}>⚠</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Log */}
+            {log.length > 0 && (
+              <div style={{ ...s.panel, marginBottom: 16 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Log</div>
+                <div ref={logRef}
+                  style={{ maxHeight: 220, overflowY: "auto", fontSize: 11, fontFamily: "monospace", color: C.sub, lineHeight: 1.7 }}>
+                  {log.map((l, i) => (
+                    <div key={i} style={{ color: l.startsWith("✅") ? "#4caf50" : l.startsWith("❌") ? "#ef5350" : l.startsWith("⚠") ? "#ff9800" : C.sub }}>{l}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Output */}
+            {Object.keys(outputFiles).length > 0 && (
+              <div style={{ ...s.panel }}>
+                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10 }}>✅ Output</div>
+                {Object.entries(outputFiles).map(([fmt, filePath]) => (
+                  <div key={fmt} style={{ padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 12, color: channel.accent, fontWeight: 600, marginBottom: 4 }}>
+                      {fmt === "youtube" ? "▶ YouTube" : fmt === "shorts" ? "📱 Shorts" : "🎵 TikTok"}
+                    </div>
+                    <div style={{ fontSize: 11, color: C.sub, wordBreak: "break-all", marginBottom: 6 }}>{filePath}</div>
+                    <a href={`/api/file?path=${encodeURIComponent(filePath)}`} download
+                      style={{ ...s.btn("#2a5298"), padding: "4px 10px", fontSize: 11, textDecoration: "none" }}>
+                      ⬇ Tải xuống
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Provider selector */}
+            {providers.length > 0 && (
+              <div style={{ ...s.panel, marginTop: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ fontWeight: 600, fontSize: 13 }}>🔌 Image Provider</span>
+                  <button onClick={() => fetch("/api/providers").then(r=>r.json()).then(d=>{ setProviders(d.providers??[]); setActiveProviderState(d.active??"auto"); })}
+                    style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 12 }}>↺ Refresh</button>
+                </div>
+
+                {/* Auto option */}
+                <div onClick={() => selectProvider("auto")}
+                  style={{ padding: "8px 10px", borderRadius: 7, marginBottom: 6, cursor: "pointer",
+                    border: `2px solid ${activeProvider === "auto" ? channel.accent : C.border}`,
+                    background: activeProvider === "auto" ? "#1a1a1a" : "transparent" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontWeight: 700, fontSize: 12, color: activeProvider === "auto" ? channel.accent : C.text }}>
+                      🤖 Auto (khuyến nghị)
+                    </div>
+                    <span style={{ fontSize: 10, color: C.sub }}>fallback tự động</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
+                    Fal.ai → Pollinations → HuggingFace → Cloudflare
+                  </div>
+                </div>
+
+                {/* Individual providers */}
+                {providers.map(p => {
+                  const isActive = activeProvider === p.key;
+                  const dotColor = !p.hasKey ? "#444" : p.status.ok ? "#3d8c40" : "#c97a00";
+                  const disabled = !p.hasKey;
+                  const qualityColor = p.quality === "S" ? "#f0c040" : p.quality === "A" ? "#4a9eff" : "#888";
+                  return (
+                    <div key={p.key}
+                      onClick={() => !disabled && selectProvider(p.key)}
+                      style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 6, cursor: disabled ? "not-allowed" : "pointer",
+                        border: `2px solid ${isActive ? channel.accent : C.border}`,
+                        background: isActive ? "#1c1c1c" : "#111",
+                        opacity: disabled ? 0.4 : 1,
+                        transition: "border-color 0.15s" }}>
+
+                      {/* Row 1: name + tier badge + balance */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: dotColor, display: "inline-block", flexShrink: 0 }} />
+                          <span style={{ fontWeight: 700, fontSize: 13, color: isActive ? channel.accent : C.text }}>{p.name}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: qualityColor,
+                            background: `${qualityColor}22`, padding: "1px 6px", borderRadius: 4 }}>
+                            {p.quality}
+                          </span>
+                        </div>
+                        {/* Balance / quota display */}
+                        <div style={{ textAlign: "right" }}>
+                          {p.balanceLabel && (
+                            <span style={{ fontSize: 12, fontWeight: 700,
+                              color: p.unlimited ? "#3d8c40"
+                                : p.balance != null && p.balance <= 0 ? "#ef5350"
+                                : p.balance != null ? "#3d8c40"
+                                : "#4a9eff" }}>
+                              {p.balanceLabel}
+                            </span>
+                          )}
+                          {!p.hasKey && <span style={{ fontSize: 11, color: "#555" }}>Chưa có key</span>}
+                        </div>
+                      </div>
+
+                      {/* Row 2: model + free tag */}
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.muted, marginTop: 4 }}>
+                        <span style={{ fontFamily: "monospace" }}>{p.model}</span>
+                        {p.free && !p.unlimited && <span style={{ color: "#2a7" }}>free tier</span>}
+                        {!p.free && p.balance != null && p.balance <= 0 && (
+                          <span style={{ color: "#c97a00" }}>⚠ hết credit</span>
+                        )}
+                      </div>
+
+                      {/* Cloudflare progress bar */}
+                      {p.quota && (
+                        <div style={{ marginTop: 6 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: C.muted, marginBottom: 3 }}>
+                            <span>{p.quota.used.toLocaleString()} / {p.quota.limit.toLocaleString()} neurons hôm nay</span>
+                            <span>reset: {p.quota.resetIn}</span>
+                          </div>
+                          <div style={{ height: 4, background: "#222", borderRadius: 2, overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: `${p.quota.pct}%`,
+                              background: p.quota.pct > 80 ? "#c97a00" : p.quota.pct > 50 ? "#f0c040" : "#3d8c40",
+                              borderRadius: 2, transition: "width 0.3s" }} />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Last error */}
+                      {p.status.lastError && (
+                        <div style={{ fontSize: 10, color: "#c97a00", marginTop: 4, fontFamily: "monospace" }}>
+                          {p.status.lastError.slice(0, 60)}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

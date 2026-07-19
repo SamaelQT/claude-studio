@@ -1,0 +1,13 @@
+{
+  "id": "night-city",
+  "name": "Đêm Thành Phố",
+  "channel": "huong-noi",
+  "description": "Đêm khuya một mình — ánh đèn đường, mưa, cửa sổ, yên tĩnh",
+  "prompt_prefix": "flat 2D webtoon illustration, night urban scene, clean minimal linework with deep blue-navy shadows, Korean manhwa aesthetic, deep indigo and charcoal backgrounds with warm amber or neon accent lights from streetlamps and convenience store signs, simple round-faced character in oversized clothes — hoodie or coat, small figure against large empty cityscape, rain-slicked asphalt reflecting colored lights, lone figure on empty street or looking out rain-streaked window, cinematic wide shots mixed with tight emotional close-ups, very minimal background detail except light sources, mood: peaceful urban solitude not loneliness",
+  "scene_layer": "emphasize light sources: phone glow, street lamp cone, neon sign reflection on wet ground, window warmth vs cold outside air. Character body language: hunched slightly, hands in pockets, looking up at sky or at their phone. No horror, no tension — only quiet intimacy with the city at night",
+  "negative": "horror, daytime, crowded, busy, photorealistic, 3D render, chibi, moe, bright colors, saturated palette",
+  "guidance_scale": 3.2,
+  "voice": "banmai",
+  "voice_speed": 0,
+  "preview_prompt": "flat 2D webtoon illustration, young person in oversized hoodie standing at bus stop alone at 2am, deep navy blue sky with amber streetlamp glow, rain-wet asphalt reflecting warm light, small figure against tall dark buildings, minimal flat color style, Korean manhwa aesthetic, peaceful urban solitude, single warm light source against cold night"
+}

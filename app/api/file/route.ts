@@ -18,7 +18,11 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Not found", { status: 404 });
   }
   const ext = path.extname(resolved).toLowerCase();
-  const mime = ext === ".png" ? "image/png" : ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : "application/octet-stream";
+  const mime = ext === ".png" ? "image/png"
+    : ext === ".jpg" || ext === ".jpeg" ? "image/jpeg"
+    : ext === ".mp4" ? "video/mp4"
+    : ext === ".mp3" ? "audio/mpeg"
+    : "application/octet-stream";
   const buf = fs.readFileSync(resolved);
   return new NextResponse(buf, { headers: { "Content-Type": mime, "Cache-Control": "no-store" } });
 }

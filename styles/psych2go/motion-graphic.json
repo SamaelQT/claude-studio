@@ -1,0 +1,13 @@
+{
+  "id": "motion-graphic",
+  "name": "Motion Graphic",
+  "channel": "psych2go",
+  "description": "Infographic phẳng — icon, số liệu, màu sắc bold — không nhân vật",
+  "prompt_prefix": "flat 2D motion graphic illustration, bold clean vector art style, no characters — use icons, symbols, shapes, and typography as visual elements, bold saturated colors (deep purple #6B21A8, bright teal #0EA5E9, warm amber #F59E0B on dark #1E1B4B background), geometric composition, minimal text integrated into design, icons: brain, lightbulb, speech bubble, heart rate, magnifying glass, checkmark, scale/balance, clean sans-serif typography feel",
+  "scene_layer": "visualize the concept with icons and abstract shapes — e.g. 'social anxiety' = person silhouette surrounded by magnifying glass icons, 'overthinking' = brain with spiral arrows, 'introvert energy' = battery draining vs charging. No literal scenes, only symbolic visual metaphors",
+  "negative": "character faces, photorealistic, 3D render, complex illustration, cluttered, more than 3 colors, gradient heavy",
+  "guidance_scale": 3.5,
+  "voice": "thuminh",
+  "voice_speed": 0,
+  "preview_prompt": "flat 2D motion graphic, bold vector style, deep purple background #1E1B4B, large glowing brain icon in center with small lightning bolt icons around it, teal and amber accent colors, geometric minimal composition, infographic feel, clean professional psychology visual"
+}
