@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
   {
     name: "get_youtube_transcript",
-    description: "Lấy transcript (phụ đề/lời thoại) của một video YouTube theo video ID. Dùng để clone nội dung video gốc sang tiếng Việt.",
+    description: "Lấy transcript (phụ đề/lời thoại) của một video YouTube theo video ID. CHỈ dùng để tham khảo tone, nhịp kể, độ dài câu, kiểu hook mở đầu — KHÔNG dùng để dịch/sao chép plot hay tình tiết cụ thể của video gốc (vi phạm bản quyền).",
     input_schema: {
       type: "object" as const,
       properties: {

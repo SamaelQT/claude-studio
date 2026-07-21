@@ -15,11 +15,16 @@ const TOOL_ICONS: Record<string, string> = {
   assemble_video: "🎬",
 };
 
+const bubble = {
+  base: { padding: "10px 14px", borderRadius: 14, fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word" } as React.CSSProperties,
+  row: (justify: "flex-end" | "flex-start"): React.CSSProperties => ({ display: "flex", justifyContent: justify, marginBottom: 10 }),
+};
+
 export default function ChatMessage({ msg }: { msg: Message }) {
   if (msg.role === "user") {
     return (
-      <div className="flex justify-end mb-4">
-        <div className="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[75%] whitespace-pre-wrap text-sm">
+      <div style={bubble.row("flex-end")}>
+        <div style={{ ...bubble.base, background: "#2563eb", color: "#fff", maxWidth: "75%", borderTopRightRadius: 4 }}>
           {msg.content}
         </div>
       </div>
@@ -28,8 +33,8 @@ export default function ChatMessage({ msg }: { msg: Message }) {
 
   if (msg.role === "assistant") {
     return (
-      <div className="flex justify-start mb-4">
-        <div className="bg-zinc-800 text-zinc-100 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%] whitespace-pre-wrap text-sm">
+      <div style={bubble.row("flex-start")}>
+        <div style={{ ...bubble.base, background: "#1e1e1e", color: "#e8e8e8", maxWidth: "85%", borderTopLeftRadius: 4 }}>
           {msg.content}
         </div>
       </div>
@@ -38,11 +43,11 @@ export default function ChatMessage({ msg }: { msg: Message }) {
 
   if (msg.role === "tool_start") {
     return (
-      <div className="flex justify-start mb-2">
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2 text-sm text-zinc-400">
-          <span className="mr-2">{TOOL_ICONS[msg.tool] ?? "⚙️"}</span>
-          <span className="text-zinc-300 font-medium">{msg.tool}</span>
-          <span className="ml-2 text-zinc-500">đang chạy...</span>
+      <div style={bubble.row("flex-start")}>
+        <div style={{ ...bubble.base, background: "#141414", border: "1px solid #2a2a2a", color: "#888" }}>
+          <span style={{ marginRight: 8 }}>{TOOL_ICONS[msg.tool] ?? "⚙️"}</span>
+          <span style={{ color: "#ccc", fontWeight: 600 }}>{msg.tool}</span>
+          <span style={{ marginLeft: 8, color: "#666" }}>đang chạy...</span>
         </div>
       </div>
     );
@@ -51,8 +56,8 @@ export default function ChatMessage({ msg }: { msg: Message }) {
   if (msg.role === "tool_result") {
     if (!msg.success) {
       return (
-        <div className="flex justify-start mb-2">
-          <div className="bg-red-950 border border-red-800 rounded-xl px-4 py-2 max-w-[85%] text-sm text-red-300">
+        <div style={bubble.row("flex-start")}>
+          <div style={{ ...bubble.base, background: "#2a1414", border: "1px solid #5c2323", color: "#f0a0a0", maxWidth: "85%" }}>
             ❌ {msg.tool}: {msg.error}
           </div>
         </div>
@@ -64,11 +69,11 @@ export default function ChatMessage({ msg }: { msg: Message }) {
 
     if (msg.tool === "assemble_video" && files) {
       return (
-        <div className="flex justify-start mb-4">
-          <div className="bg-green-950 border border-green-800 rounded-2xl p-4 max-w-[90%]">
-            <p className="text-green-300 text-sm font-medium mb-2">🎬 Video hoàn chỉnh!</p>
+        <div style={bubble.row("flex-start")}>
+          <div style={{ ...bubble.base, background: "#0f2318", border: "1px solid #1f4a30", maxWidth: "90%" }}>
+            <p style={{ color: "#4ade80", fontWeight: 600, marginBottom: 6 }}>🎬 Video hoàn chỉnh!</p>
             {Object.entries(files).map(([fmt, filePath]) => (
-              <p key={fmt} className="text-xs text-zinc-400 font-mono break-all">{filePath}</p>
+              <p key={fmt} style={{ fontSize: 11, color: "#888", fontFamily: "monospace", wordBreak: "break-all" }}>{filePath}</p>
             ))}
           </div>
         </div>
@@ -77,8 +82,8 @@ export default function ChatMessage({ msg }: { msg: Message }) {
 
     const message = data?.message as string | undefined;
     return (
-      <div className="flex justify-start mb-2">
-        <div className="bg-green-950 border border-green-800 rounded-xl px-4 py-2 max-w-[85%] text-sm text-green-300">
+      <div style={bubble.row("flex-start")}>
+        <div style={{ ...bubble.base, background: "#0f2318", border: "1px solid #1f4a30", color: "#4ade80", maxWidth: "85%" }}>
           ✅ {message ?? `${msg.tool} hoàn thành`}
         </div>
       </div>

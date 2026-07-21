@@ -32,6 +32,7 @@ export interface ScriptJSON {
   character_sheet?: string;
   scenes: SceneInput[];
   formats?: string[];
+  has_voice?: boolean;
 }
 
 export type RunEvent =
@@ -75,7 +76,7 @@ export async function runFromJSON(
     }
   } catch {}
 
-  const isNoVoice = channel === "huong-noi";
+  const isNoVoice = channel === "huong-noi" || script.has_voice === false;
   const defaultDuration = sceneDuration ?? 5;
   const total = scenes.length;
 

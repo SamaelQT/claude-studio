@@ -15,7 +15,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## DỰ ÁN LÀ GÌ
 
 Next.js 15 localhost app (App Router, TypeScript) để tự động tạo video YouTube.
-**Không phải chat UI** — là pipeline tạo video: JSON script → ảnh → voice → ghép video ffmpeg.
+**Chủ yếu KHÔNG phải chat UI** — là pipeline tạo video: JSON script → ảnh → voice → ghép video ffmpeg.
+Có thêm 1 trang chat phụ (`/chat`) chạy agent tool-use tự động cho use case "clone video" (xem mục CHAT AGENT bên dưới).
 
 **Owner:** Samael QT (Hồ Hữu Quang) — IT tại Đồng Nai, VN.
 **Ngân sách:** Âm — **KHÔNG thêm bất kỳ service trả phí nào**. Chỉ dùng những gì đã có.
@@ -32,7 +33,20 @@ Next.js 15 localhost app (App Router, TypeScript) để tự động tạo video
 | **HuggingFace** | Fallback ảnh | `HF_TOKEN` |
 | **Cloudflare AI** | Fallback ảnh | `CF_ACCOUNT_ID`, `CF_API_TOKEN` |
 | **FPT.AI TTS v5** | Text-to-speech tiếng Việt | `FPT_API_KEY` |
+| **YouTube Data API** | Lấy transcript/mô tả video tham khảo (chat agent + nút "URL tham khảo") | `YOUTUBE_API_KEY` |
 | **ffmpeg-static** | Ghép video local | *(bundled)* |
+
+---
+
+## KÊNH TUỲ CHỈNH (ngoài 3 kênh mặc định)
+
+Nút "+ Kênh mới" trên UI cho tạo thêm kênh động, lưu ở `data/channels.json` (không phải hardcode trong `page.tsx`):
+- Mỗi kênh custom có: `name`, `icon`, `accent`, `genreDescription` (mô tả thể loại/phong cách — dùng để build prompt AI), `hasVoice`, `sceneCountHint`, `formats`.
+- Tạo kênh → tự động tạo `styles/{id}/default.json` (1 style DNA cơ bản từ `genreDescription`).
+- `generateScript()` trong `page.tsx` dùng `buildCustomPrompt()` (generic) cho các kênh này, khác với 3 hàm build riêng của Wansee/Hướng Nội/Psych2Go.
+- `has_voice` được nhúng vào JSON script (`ScriptJSON.has_voice`) — `runner-types.ts` đọc field này để quyết định có tạo voice hay không (thay vì chỉ check `channel === "huong-noi"` như cũ).
+- Xoá kênh: 3 kênh mặc định (`wansee`, `huong-noi`, `psych2go`) KHÔNG thể xoá (chặn ở API). Xoá kênh custom chỉ xoá config + folder `styles/{id}/`, KHÔNG xoá video đã tạo trong `output/{id}/`.
+- UI xác nhận xoá dùng state 2-bước trong app (✕ → ✓/✕), KHÔNG dùng `window.confirm()` — dialog native từng làm treo tab khi test tự động.
 
 ---
 
@@ -81,8 +95,11 @@ User nhập topic → generateScript() → /api/tools {generate_script} → Clau
 ```
 app/
   page.tsx              ← UI chính — CSS-in-JS (KHÔNG dùng Tailwind), 3 channel
+  chat/page.tsx          ← UI chat phụ — gọi agent tool-use qua /api/chat (xem CHAT AGENT)
   api/
     tools/route.ts      ← Gateway tất cả tool calls từ client
+    chat/route.ts        ← Server-side agent loop (giữ ANTHROPIC_API_KEY), stream NDJSON cho /chat
+    channels/route.ts    ← CRUD kênh tuỳ chỉnh (data/channels.json) — GET/POST/DELETE
     styles/route.ts     ← CRUD style DNA JSON files
     providers/route.ts  ← Image provider list + balance check
     music/route.ts      ← Upload nhạc nền
@@ -94,12 +111,15 @@ lib/
     runner-types.ts     ← Types + runFromJSON() — import ở CLIENT (không dùng fs/path)
     executor.ts         ← Server-side: thực thi từng tool
     json-runner.ts      ← listStyles(), loadStyle() — server only
+    browser-agent.ts    ← Client transport: POST /api/chat, đọc NDJSON stream → onEvent
+    tools-definition.ts ← Tool schema dùng chung cho agent chat (Anthropic.Tool[])
   tools/
     image.ts            ← generateImage() — 4 providers, auto fallback
     voice.ts            ← generateVoice() + preprocessText() — FPT AI TTS
     video.ts            ← assembleVideo() — ffmpeg, hỗ trợ youtube/shorts/tiktok
     videoclip.ts        ← generateVideoClip() — Fal.ai Wan image-to-video
     music-sync.ts       ← parseLyricSync(), detectBeatSync(), detectWhisperSync()
+    transcript.ts        ← getYoutubeTranscript() — cần YOUTUBE_API_KEY, fallback title+description
 
 styles/
   wansee/               ← Style DNA JSON per channel
@@ -203,7 +223,22 @@ ANTHROPIC_API_KEY=...
 FAL_KEY=...
 FPT_API_KEY=...
 NODE_TLS_REJECT_UNAUTHORIZED=0
-HF_TOKEN=...       # optional fallback
-CF_ACCOUNT_ID=...  # optional fallback
-CF_API_TOKEN=...   # optional fallback
+HF_TOKEN=...          # optional fallback
+CF_ACCOUNT_ID=...     # optional fallback
+CF_API_TOKEN=...      # optional fallback
+YOUTUBE_API_KEY=...   # optional — cần cho tính năng "URL tham khảo" + chat agent clone video
 ```
+
+---
+
+## CHAT AGENT (`/chat`) — "clone video"
+
+Trang phụ dùng agent tool-use (Claude + `get_youtube_transcript` + các tool tạo ảnh/voice/video) để tự động hoá quy trình "làm video kiểu Wansee lấy cảm hứng từ video X".
+
+**QUAN TRỌNG — ranh giới bản quyền (đã cố ý thiết kế lại so với bản gốc):**
+- `get_youtube_transcript` chỉ được dùng để bắt **tone/nhịp kể/format**, KHÔNG bao giờ để dịch nguyên văn hay giữ nguyên plot/tình tiết của video gốc.
+- System prompt trong `app/api/chat/route.ts` bắt buộc AI tự sáng tác plot, nhân vật, tình huống hoàn toàn mới — chỉ giữ chung thể loại horror + văn phong.
+- Nút "URL YouTube tham khảo" trong pipeline JSON chính (`app/page.tsx`) hoạt động theo nguyên tắc tương tự — transcript được nhét vào prompt kèm cảnh báo rõ ràng không được sao chép plot.
+- KHÔNG nới lỏng ràng buộc này khi sửa prompt — đây là để tránh Content ID / copyright strike cho kênh, không phải giới hạn kỹ thuật.
+
+**Kiến trúc:** `ANTHROPIC_API_KEY` chỉ nằm server-side trong `app/api/chat/route.ts` (không expose ra client như bản gốc dùng `NEXT_PUBLIC_ANTHROPIC_API_KEY`). Route stream kết quả dạng NDJSON; `lib/agent/browser-agent.ts` chỉ là transport đọc stream, không gọi Anthropic trực tiếp.

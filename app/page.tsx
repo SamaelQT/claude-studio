@@ -1,10 +1,24 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { runFromJSON, ScriptJSON, RunEvent, MusicConfig, StyleDNA } from "@/lib/agent/runner-types";
+
+// Trích video ID từ URL YouTube (watch?v=, youtu.be/, /shorts/, /embed/)
+function extractVideoId(url: string): string | null {
+  const m = url.match(/(?:v=|youtu\.be\/|\/shorts\/|\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Channel = { id: string; name: string; accent: string; icon: string };
+type CustomChannel = Channel & {
+  genreDescription: string;
+  hasVoice: boolean;
+  sceneCountHint: string;
+  formats: string[];
+  createdAt: number;
+};
 type SceneState = { n: number; img: "idle"|"ok"|"err"; voice: "idle"|"ok"|"err"|"skip"|"silent" };
 type ProviderInfo = {
   key: string; name: string; model: string; quality: string;
@@ -15,11 +29,13 @@ type ProviderInfo = {
 };
 type SyncMode = "fill" | "lyric" | "beat" | "whisper";
 
-const CHANNELS: Channel[] = [
+const BUILTIN_CHANNELS: Channel[] = [
   { id: "wansee",    name: "Wansee",      accent: "#c0392b", icon: "💀" },
   { id: "huong-noi", name: "Hướng Nội",  accent: "#4a7fb5", icon: "🌙" },
   { id: "psych2go",  name: "Tâm Lý Trẻ", accent: "#8a4bc7", icon: "🧠" },
 ];
+
+const ACCENT_PRESETS = ["#e67e22", "#16a085", "#2980b9", "#c0392b", "#8e44ad", "#f39c12"];
 
 // ── CSS-in-JS tokens ──────────────────────────────────────────────────────────
 const C = {
@@ -41,7 +57,21 @@ const s = {
 };
 
 // ── Prompt builders ───────────────────────────────────────────────────────────
-function buildWanseePrompt(topic: string, styleId: string): string {
+// referenceContext: trích từ transcript video tham khảo — CHỈ dùng để bắt tone/nhịp kể,
+// AI phải tự sáng tác plot mới hoàn toàn, không dịch/sao chép tình tiết gốc.
+function referenceSection(referenceContext?: string): string {
+  if (!referenceContext) return "";
+  return `
+
+## THAM KHẢO TONE (từ video gốc — KHÔNG dịch nguyên văn, KHÔNG giữ plot/tình tiết cụ thể)
+Chỉ dùng đoạn dưới đây để cảm nhận tone kể chuyện, nhịp câu, độ dài, kiểu hook mở đầu.
+Câu chuyện bạn viết PHẢI là plot hoàn toàn mới, nhân vật mới, tình huống mới — chỉ giữ chung không khí/thể loại.
+"""
+${referenceContext.slice(0, 3000)}
+"""`;
+}
+
+function buildWanseePrompt(topic: string, styleId: string, referenceContext?: string): string {
   const styleNote = styleId === "manga-horror"
     ? "Junji Ito manga style — B&W ink, hidden wrong details, spiral motifs, dense crosshatch"
     : styleId === "webtoon-horror"
@@ -70,10 +100,10 @@ Trả về JSON THUẦN (không markdown, không giải thích):
 }
 
 CẤU TRÚC 20-22 scenes: Scene 1-3 bình thường → 4-7 dấu hiệu bất thường đầu tiên → 8-13 leo thang căng thẳng → 14-18 cao trào → 19-22 kết thúc ám ảnh không giải thích.
-image_prompt: luôn có chi tiết sai CỤ THỂ, không mơ hồ.`;
+image_prompt: luôn có chi tiết sai CỤ THỂ, không mơ hồ.${referenceSection(referenceContext)}`;
 }
 
-function buildPsych2GoPrompt(topic: string, styleId: string): string {
+function buildPsych2GoPrompt(topic: string, styleId: string, referenceContext?: string): string {
   return `Bạn là AI viết kịch bản video tâm lý học tiếng Việt theo style Psych2Go — súc tích, dễ hiểu, relatable.
 Style ảnh: ${styleId === "motion-graphic" ? "flat 2D motion graphic, bold colors, simple icons, minimalist infographic style" : "flat 2D animated character, simple round face, Korean webtoon style, expressive body language, clean background with accent color"}.
 
@@ -105,10 +135,10 @@ CẤU TRÚC 8-12 scenes:
 QUY TẮC:
 - voice_text: ngắn gọn, conversational, dùng "bạn" — như nói chuyện với bạn bè
 - main_text: label cho điểm đó, VD "Bạn thích ở một mình", "Nghe nhiều hơn nói"
-- image_prompt: CHỈ mô tả visual, không kể chuyện — màu sắc, nhân vật, biểu tượng, mood`;
+- image_prompt: CHỈ mô tả visual, không kể chuyện — màu sắc, nhân vật, biểu tượng, mood${referenceSection(referenceContext)}`;
 }
 
-function buildHuongNoiPrompt(topic: string, styleId: string): string {
+function buildHuongNoiPrompt(topic: string, styleId: string, referenceContext?: string): string {
   const styleHint =
     styleId === "night-city"   ? "setting: đêm khuya, ngoài trời, thành phố, ánh đèn, mưa, một mình" :
     styleId === "quiet-room"   ? "setting: trong phòng, cozy, đồ vật quen thuộc, ánh đèn ấm" :
@@ -142,13 +172,49 @@ QUY TẮC QUAN TRỌNG:
 - punchline: twist nhỏ, self-aware humor, hoặc sự thật đau lòng thứ 2 — dùng tối đa 60% scenes
 - image_prompt: aesthetic và cụ thể — góc máy rõ, ánh sáng rõ, mood rõ. KHÔNG chung chung.
 - Cấu trúc: Scene 1-2 setup context → 3-10 chuỗi khoảnh khắc relatable (peak ở giữa) → 11-13 kết thúc ấm hoặc bittersweet
-- duration: 6 cho scene thường, 8 cho scene có chữ dài, 4 cho scene punchline nhanh`;
+- duration: 6 cho scene thường, 8 cho scene có chữ dài, 4 cho scene punchline nhanh${referenceSection(referenceContext)}`;
+}
+
+function buildCustomPrompt(topic: string, ch: CustomChannel, styleId: string, referenceContext?: string): string {
+  return `Bạn là AI viết kịch bản video YouTube tiếng Việt cho kênh "${ch.name}".
+Thể loại / phong cách kênh: ${ch.genreDescription || "tự do sáng tạo theo chủ đề"}
+
+Chủ đề video: "${topic}"
+
+Trả về JSON THUẦN (không markdown, không giải thích):
+{
+  "project_name": "ten_a_z_0_9_gach_duoi",
+  "channel": "${ch.id}",
+  "style_id": "${styleId}",
+  "has_voice": ${ch.hasVoice},
+  "scenes": [
+    {
+      "n": 1,
+      "image_prompt": "mô tả cảnh cụ thể (tiếng Anh) đúng phong cách/thể loại đã mô tả ở trên",${ch.hasVoice ? `
+      "voice_text": "lời dẫn tiếng Việt, độ dài phù hợp với thời lượng scene",` : ""}
+      "main_text": "chữ hiển thị trên màn hình (tuỳ chọn, để trống nếu không cần)",
+      "duration": 6
+    }
+  ],
+  "formats": ${JSON.stringify(ch.formats)}
+}
+
+Viết khoảng ${ch.sceneCountHint} scenes, bám đúng phong cách/thể loại đã mô tả ở trên.${referenceSection(referenceContext)}`;
 }
 
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
   // Channel & style
   const [channelId, setChannelId]     = useState("wansee");
+  const [customChannels, setCustomChannels] = useState<CustomChannel[]>([]);
+  const [showNewChannel, setShowNewChannel] = useState(false);
+  const [newCh, setNewCh] = useState({
+    name: "", icon: "✨", accent: ACCENT_PRESETS[0],
+    genreDescription: "", hasVoice: true, sceneCountHint: "10-15",
+    formats: ["youtube"] as string[],
+  });
+  const [creatingChannel, setCreatingChannel] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [styles, setStyles]           = useState<StyleDNA[]>([]);
   const [styleId, setStyleId]         = useState("manga-horror");
   const [previewUrl, setPreviewUrl]   = useState<Record<string, string>>({});
@@ -156,8 +222,14 @@ export default function App() {
 
   // Script
   const [topic, setTopic]         = useState("");
+  const [refUrl, setRefUrl]       = useState("");
   const [jsonScript, setJsonScript] = useState("");
   const [generating, setGenerating] = useState(false);
+
+  // Research kênh cùng thể loại
+  const [channelQuery, setChannelQuery] = useState("");
+  const [channelResults, setChannelResults] = useState<{ title: string; url: string; content: string }[]>([]);
+  const [searchingChannels, setSearchingChannels] = useState(false);
 
   // Music
   const [syncMode, setSyncMode]     = useState<SyncMode>("fill");
@@ -183,7 +255,48 @@ export default function App() {
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [activeProvider, setActiveProviderState] = useState<string>("auto");
 
-  const channel = CHANNELS.find(c => c.id === channelId)!;
+  const channels = [...BUILTIN_CHANNELS, ...customChannels];
+  const channel = channels.find(c => c.id === channelId) ?? BUILTIN_CHANNELS[0];
+  const activeCustomChannel = customChannels.find(c => c.id === channelId);
+
+  // ── Load custom channels ─────────────────────────────────────────────────────
+  useEffect(() => {
+    fetch("/api/channels").then(r => r.json()).then(d => setCustomChannels(d.channels ?? [])).catch(() => {});
+  }, []);
+
+  async function createChannel() {
+    if (!newCh.name.trim()) return;
+    setCreatingChannel(true);
+    try {
+      const res = await fetch("/api/channels", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCh),
+      }).then(r => r.json());
+      if (res.ok) {
+        setCustomChannels(prev => [...prev, res.channel]);
+        setChannelId(res.channel.id);
+        setShowNewChannel(false);
+        setNewCh({ name: "", icon: "✨", accent: ACCENT_PRESETS[0], genreDescription: "", hasVoice: true, sceneCountHint: "10-15", formats: ["youtube"] });
+      } else {
+        addLog(`⚠ Tạo kênh lỗi: ${res.error}`);
+      }
+    } catch (e) {
+      addLog(`⚠ Tạo kênh lỗi: ${e}`);
+    }
+    setCreatingChannel(false);
+  }
+
+  async function deleteChannel(id: string) {
+    const res = await fetch(`/api/channels?id=${encodeURIComponent(id)}`, { method: "DELETE" }).then(r => r.json());
+    if (res.ok) {
+      setCustomChannels(prev => prev.filter(c => c.id !== id));
+      if (channelId === id) setChannelId("wansee");
+    } else {
+      addLog(`⚠ Xoá kênh lỗi: ${res.error}`);
+    }
+    setConfirmDeleteId(null);
+  }
 
   // ── Load styles ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -249,9 +362,30 @@ export default function App() {
     setGenerating(true);
     setJsonScript("Đang tạo kịch bản...");
     try {
-      const prompt = channelId === "wansee"   ? buildWanseePrompt(topic, styleId)
-               : channelId === "psych2go" ? buildPsych2GoPrompt(topic, styleId)
-               : buildHuongNoiPrompt(topic, styleId);
+      let referenceContext: string | undefined;
+      const videoId = refUrl.trim() ? extractVideoId(refUrl.trim()) : null;
+      if (refUrl.trim() && !videoId) {
+        setJsonScript(`// Lỗi: URL YouTube không hợp lệ: ${refUrl}\n// Xoá URL tham khảo hoặc sửa lại rồi thử lại`);
+        setGenerating(false);
+        return;
+      }
+      if (videoId) {
+        setJsonScript("Đang lấy transcript video tham khảo...");
+        const tRes = await fetch("/api/tools", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tool: "get_youtube_transcript", input: { video_id: videoId } }),
+        }).then(r => r.json());
+        if (tRes.success) referenceContext = tRes.data.transcript as string;
+        else addLog(`⚠ Không lấy được transcript (${tRes.error}) — tạo kịch bản không có tham khảo`);
+        setJsonScript("Đang tạo kịch bản...");
+      }
+
+      const prompt = channelId === "wansee"   ? buildWanseePrompt(topic, styleId, referenceContext)
+               : channelId === "psych2go" ? buildPsych2GoPrompt(topic, styleId, referenceContext)
+               : channelId === "huong-noi" ? buildHuongNoiPrompt(topic, styleId, referenceContext)
+               : activeCustomChannel ? buildCustomPrompt(topic, activeCustomChannel, styleId, referenceContext)
+               : buildHuongNoiPrompt(topic, styleId, referenceContext);
       const res = await fetch("/api/tools", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -263,6 +397,32 @@ export default function App() {
       setJsonScript(`// Lỗi: ${e}\n// Paste JSON script thủ công`);
     }
     setGenerating(false);
+  }
+
+  // ── Research kênh cùng thể loại ──────────────────────────────────────────────
+  function defaultChannelQuery(): string {
+    return channelId === "wansee"
+      ? "kênh youtube kể chuyện kinh dị animation phong cách giống Wansee Entertainment"
+      : channelId === "psych2go"
+      ? "kênh youtube giải thích tâm lý học animation phong cách giống Psych2Go"
+      : "kênh youtube webtoon slice of life hướng nội introvert";
+  }
+
+  async function searchSimilarChannels() {
+    setSearchingChannels(true);
+    try {
+      const query = channelQuery.trim() || defaultChannelQuery();
+      const res = await fetch("/api/tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "search_web", input: { query, max_results: 8 } }),
+      }).then(r => r.json());
+      if (res.success) setChannelResults(res.data ?? []);
+      else addLog(`⚠ Tìm kênh lỗi: ${res.error}`);
+    } catch (e) {
+      addLog(`⚠ Tìm kênh lỗi: ${e}`);
+    }
+    setSearchingChannels(false);
   }
 
   // ── Upload music ─────────────────────────────────────────────────────────────
@@ -405,17 +565,45 @@ export default function App() {
         <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-0.02em" }}>◆ Claude Studio</span>
 
         {/* Channel tabs */}
-        <div style={{ display: "flex", gap: 4, flex: 1 }}>
-          {CHANNELS.map(ch => (
-            <button key={ch.id} onClick={() => setChannelId(ch.id)}
-              style={{ ...s.btn(channelId === ch.id ? ch.accent : "#222"), padding: "5px 14px", fontSize: 13, fontWeight: channelId === ch.id ? 700 : 400 }}>
-              {ch.icon} {ch.name}
-            </button>
-          ))}
+        <div style={{ display: "flex", gap: 4, flex: 1, alignItems: "center", flexWrap: "wrap" }}>
+          {channels.map(ch => {
+            const isCustom = customChannels.some(c => c.id === ch.id);
+            const confirming = confirmDeleteId === ch.id;
+            return (
+              <div key={ch.id} style={{ position: "relative", display: "inline-flex" }}>
+                <button onClick={() => { setChannelId(ch.id); if (confirming) setConfirmDeleteId(null); }}
+                  style={{ ...s.btn(channelId === ch.id ? ch.accent : "#222"), padding: isCustom ? "5px 26px 5px 14px" : "5px 14px", fontSize: 13, fontWeight: channelId === ch.id ? 700 : 400 }}>
+                  {ch.icon} {ch.name}
+                </button>
+                {isCustom && !confirming && (
+                  <span onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(ch.id); }}
+                    title="Xoá kênh"
+                    style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "#ccc", cursor: "pointer", opacity: 0.8 }}>
+                    ✕
+                  </span>
+                )}
+                {isCustom && confirming && (
+                  <div style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", display: "flex", gap: 4 }}>
+                    <span onClick={(e) => { e.stopPropagation(); deleteChannel(ch.id); }}
+                      title="Xác nhận xoá" style={{ fontSize: 11, color: "#4ade80", cursor: "pointer", fontWeight: 700 }}>✓</span>
+                    <span onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                      title="Huỷ" style={{ fontSize: 11, color: "#f0a0a0", cursor: "pointer", fontWeight: 700 }}>✕</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <button onClick={() => setShowNewChannel(true)}
+            style={{ ...s.btn("#222"), padding: "5px 12px", fontSize: 13 }}>
+            + Kênh mới
+          </button>
         </div>
 
         {/* Active provider + balances */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12 }}>
+          <Link href="/chat" style={{ color: C.sub, textDecoration: "none", border: `1px solid ${C.border}`, borderRadius: 7, padding: "4px 10px" }}>
+            💬 Chat Agent
+          </Link>
           <span style={{ color: C.sub }}>
             Provider: <span style={{ color: channel.accent, fontWeight: 700 }}>
               {activeProvider === "auto" ? "🤖 Auto" : providers.find(p=>p.key===activeProvider)?.name ?? activeProvider}
@@ -493,7 +681,8 @@ export default function App() {
                       placeholder={
                         channelId === "wansee"    ? "VD: Tôi làm thêm giờ ở toà nhà bỏ hoang..." :
                         channelId === "psych2go"  ? "VD: 7 dấu hiệu bạn là người hướng nội thực sự" :
-                                                    "VD: Khi hướng nội phải đi tiệc sinh nhật..."
+                        channelId === "huong-noi" ? "VD: Khi hướng nội phải đi tiệc sinh nhật..." :
+                                                    "VD: chủ đề video cho kênh này..."
                       }
                       style={s.input} onKeyDown={e => e.key === "Enter" && generateScript()} />
                   </div>
@@ -501,6 +690,39 @@ export default function App() {
                     style={{ ...s.btn(channel.accent), opacity: generating ? 0.6 : 1, whiteSpace: "nowrap" }}>
                     {generating ? "⏳ Tạo..." : "✦ Tạo kịch bản"}
                   </button>
+                </div>
+
+                <div style={{ marginBottom: 14 }}>
+                  <label style={s.label}>URL YouTube tham khảo (tuỳ chọn — chỉ lấy tone/nhịp kể, plot luôn viết mới)</label>
+                  <input value={refUrl} onChange={e => setRefUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    style={s.input} onKeyDown={e => e.key === "Enter" && generateScript()} />
+                </div>
+
+                {/* Research kênh cùng thể loại */}
+                <div style={{ marginBottom: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                  <label style={s.label}>🔎 Tìm kênh cùng thể loại (kết quả tìm kiếm web trực tiếp — không phải bảng xếp hạng cố định)</label>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <input value={channelQuery} onChange={e => setChannelQuery(e.target.value)}
+                      placeholder={defaultChannelQuery()}
+                      style={s.input} onKeyDown={e => e.key === "Enter" && searchSimilarChannels()} />
+                    <button onClick={searchSimilarChannels} disabled={searchingChannels}
+                      style={{ ...s.btn("#333"), opacity: searchingChannels ? 0.6 : 1, whiteSpace: "nowrap" }}>
+                      {searchingChannels ? "⏳ Đang tìm..." : "🔎 Tìm"}
+                    </button>
+                  </div>
+                  {channelResults.length > 0 && (
+                    <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+                      {channelResults.map((r, i) => (
+                        <a key={i} href={r.url} target="_blank" rel="noopener noreferrer"
+                          style={{ display: "block", background: "#111", border: `1px solid ${C.border}`, borderRadius: 7, padding: "9px 12px", textDecoration: "none" }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: channel.accent }}>{i + 1}. {r.title}</div>
+                          <div style={{ fontSize: 10, color: C.sub, margin: "2px 0" }}>{r.url}</div>
+                          <div style={{ fontSize: 11, color: C.text, lineHeight: 1.4 }}>{r.content?.slice(0, 180)}{(r.content?.length ?? 0) > 180 ? "…" : ""}</div>
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <label style={s.label}>JSON Script {numScenes > 0 && <span style={{ color: channel.accent, fontWeight: 700 }}>— {numScenes} scenes</span>}</label>
@@ -786,6 +1008,84 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {/* Modal: Tạo kênh mới */}
+      {showNewChannel && (
+        <div onClick={() => setShowNewChannel(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ ...s.panel, width: 460, maxHeight: "85vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <span style={{ fontWeight: 700, fontSize: 15 }}>+ Tạo kênh mới</span>
+              <span onClick={() => setShowNewChannel(false)} style={{ cursor: "pointer", color: C.sub }}>✕</span>
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+              <div style={{ flex: 1 }}>
+                <label style={s.label}>Tên kênh</label>
+                <input value={newCh.name} onChange={e => setNewCh({ ...newCh, name: e.target.value })}
+                  placeholder="VD: Gaming Facts" style={s.input} />
+              </div>
+              <div style={{ width: 70 }}>
+                <label style={s.label}>Icon</label>
+                <input value={newCh.icon} onChange={e => setNewCh({ ...newCh, icon: e.target.value })}
+                  style={{ ...s.input, textAlign: "center" }} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={s.label}>Màu accent</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {ACCENT_PRESETS.map(c => (
+                  <div key={c} onClick={() => setNewCh({ ...newCh, accent: c })}
+                    style={{ width: 26, height: 26, borderRadius: "50%", background: c, cursor: "pointer", border: newCh.accent === c ? "2px solid #fff" : "2px solid transparent" }} />
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={s.label}>Thể loại / phong cách (dùng để AI tự viết kịch bản + ảnh)</label>
+              <textarea value={newCh.genreDescription} onChange={e => setNewCh({ ...newCh, genreDescription: e.target.value })}
+                placeholder="VD: video giải thích fact ngắn về game, hoạt hình flat 2D vui nhộn, màu sắc tươi sáng"
+                style={{ ...s.input, minHeight: 70, resize: "vertical" }} />
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+              <div style={{ flex: 1 }}>
+                <label style={s.label}>Số scene</label>
+                <input value={newCh.sceneCountHint} onChange={e => setNewCh({ ...newCh, sceneCountHint: e.target.value })}
+                  placeholder="10-15" style={s.input} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={s.label}>Có giọng đọc?</label>
+                <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                  <button onClick={() => setNewCh({ ...newCh, hasVoice: true })}
+                    style={{ ...s.btn(newCh.hasVoice ? newCh.accent : "#222"), fontSize: 12, padding: "6px 12px" }}>Có voice</button>
+                  <button onClick={() => setNewCh({ ...newCh, hasVoice: false })}
+                    style={{ ...s.btn(!newCh.hasVoice ? newCh.accent : "#222"), fontSize: 12, padding: "6px 12px" }}>Chỉ text</button>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={s.label}>Format mặc định</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {["youtube", "shorts", "tiktok"].map(f => (
+                  <button key={f} onClick={() => setNewCh({ ...newCh, formats: newCh.formats.includes(f) ? newCh.formats.filter(x => x !== f) : [...newCh.formats, f] })}
+                    style={{ ...s.btn(newCh.formats.includes(f) ? newCh.accent : "#222"), fontSize: 12, padding: "6px 12px" }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={createChannel} disabled={creatingChannel || !newCh.name.trim()}
+              style={{ ...s.btn(newCh.accent), width: "100%", justifyContent: "center", opacity: creatingChannel || !newCh.name.trim() ? 0.6 : 1 }}>
+              {creatingChannel ? "⏳ Đang tạo..." : "✦ Tạo kênh"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
