@@ -13,6 +13,15 @@
   ],
   "scenes": [
     {
+      "type": "cover",
+      "tag": "MẸO AI #1",
+      "line1": "Tin nhắn Zalo",
+      "line2": "→ Bảng Excel",
+      "hook": "Dán 1 lần là xong",
+      "dur": 1.3,
+      "vo": ""
+    },
+    {
       "type": "hook",
       "kicker": "Mẹo AI #1",
       "big": "Tin nhắn đặt hàng mỗi sáng",

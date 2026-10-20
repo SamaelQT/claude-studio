@@ -349,7 +349,50 @@ export const Outro: React.FC<SP> = ({ sc, script }) => {
   );
 };
 
+/** Bìa: khung đầu tiên người xem thấy khi lướt (và ảnh bia.png). Toàn màn hình, nền xanh đậm cho khác phần nội dung. */
+export const Cover: React.FC<SP> = ({ sc, script }) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  // Khung 0 phải đẹp sẵn (nhiều nền tảng lấy khung đầu làm ảnh đại diện) → không cho hiện dần từ 0.
+  const nhip = spring({ frame: f, fps, config: { damping: 12 } });
+  const rows = [["ĐL Minh Phát", "HT01", "20"], ["Bảy Hiền", "HT01", "5"], ["Hồng Nhung", "VT03", "15"], ["Tư Long", "[?]", "30"]];
+  return (
+    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(165deg, ${C.greenDark} 0%, ${C.green} 100%)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 60px 120px", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.10) 2px, transparent 2px)", backgroundSize: "44px 44px" }} />
+      <div style={{ position: "relative", fontSize: 32, fontWeight: 800, letterSpacing: 4, color: "#fff", border: "3px solid rgba(255,255,255,0.55)", padding: "12px 30px", borderRadius: 999 }}>{script.series}</div>
+      <div style={{ position: "relative", marginTop: 70, background: C.yellow, color: C.ink, fontSize: 44, fontWeight: 900, padding: "10px 30px", borderRadius: 16, transform: "rotate(-3deg)" }}>{String(sc.tag ?? "MẸO AI")}</div>
+      <div style={{ position: "relative", marginTop: 50, fontSize: 132, fontWeight: 900, color: "#fff", textAlign: "center", lineHeight: 1.02, textShadow: "0 8px 30px rgba(0,0,0,0.25)" }}>
+        {String(sc.line1)}<br /><span style={{ color: C.yellow }}>{String(sc.line2)}</span>
+      </div>
+      <div style={{ position: "relative", marginTop: 46, fontSize: 56, fontWeight: 800, color: C.ink, background: "#fff", padding: "14px 40px", borderRadius: 999 }}>{String(sc.hook)}</div>
+      {/* minh hoạ: tin nhắn → bảng */}
+      <div style={{ position: "relative", marginTop: 120, display: "flex", alignItems: "center", gap: 30, transform: `scale(${1.12 + 0.04 * nhip})` }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {["20 bao HT01, chiều mai", "5bao ht01 thứ 6", "như hôm trước 30 bao"].map((t, i) => (
+            <div key={i} style={{ background: "#fff", color: C.ink, fontSize: 30, padding: "16px 24px", borderRadius: 24, borderTopLeftRadius: 6, boxShadow: shadow, marginLeft: i % 2 ? 30 : 0 }}>{t}</div>
+          ))}
+        </div>
+        <div style={{ fontSize: 90, fontWeight: 900, color: C.yellow }}>→</div>
+        <div style={{ background: "#fff", borderRadius: 24, overflow: "hidden", boxShadow: shadow }}>
+          {rows.map((r, i) => (
+            <div key={i} style={{ display: "flex", borderTop: i ? `2px solid ${C.line}` : "none" }}>
+              {r.map((v, k) => (
+                <div key={k} style={{ width: [190, 100, 70][k], padding: "14px 12px", fontSize: 26, fontWeight: 600, color: C.ink, background: v === "[?]" ? C.yellow : i === 0 && k === 0 ? "transparent" : "transparent", boxSizing: "border-box", borderRight: k < 2 ? `2px solid ${C.line}` : "none" }}>{v}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ position: "absolute", bottom: 100, left: 0, right: 0, textAlign: "center" }}>
+        <div style={{ fontSize: 30, color: C.yellow, fontWeight: 800, letterSpacing: 2 }}>AI SHARING TIPS CHALLENGE 2026</div>
+        <div style={{ fontSize: 38, color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 12 }}>{script.author}</div>
+      </div>
+    </div>
+  );
+};
+
 export const SCENES: Record<string, React.FC<SP>> = {
+  cover: Cover,
   hook: Hook, chat: Chat, typing: Typing, tips: Tips, prompt: Prompt, table: Table,
   total: Total, paste: Paste, result: Result, safety: Safety, outro: Outro,
 };

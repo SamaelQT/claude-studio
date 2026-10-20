@@ -30,6 +30,14 @@ console.log("Đóng gói…");
 const serveUrl = await bundle({ entryPoint: path.join(HERE, "src", "index.ts"), publicDir: path.join(HERE, "public") });
 const composition = await selectComposition({ serveUrl, id: "AiTip", inputProps, port: PORT });
 
+// Ảnh bìa (bia.png) — luôn xuất kèm, dùng làm ảnh đại diện khi đăng. Lấy giữa cảnh bìa nếu có, không thì khung đầu.
+{
+  const s0 = timeline.scenes[0];
+  const frame = script.scenes[0]?.type === "cover" ? Math.round(((s0.start + s0.end) / 2) * timeline.fps) : 0;
+  await renderStill({ serveUrl, composition, inputProps, frame, output: path.join(outDir, "bia.png"), port: PORT });
+  console.log("  bia.png");
+}
+
 if (stillOnly) {
   for (const [i, s] of timeline.scenes.entries()) {
     const frame = Math.min(composition.durationInFrames - 1, Math.round(((s.start + s.end) / 2) * timeline.fps));

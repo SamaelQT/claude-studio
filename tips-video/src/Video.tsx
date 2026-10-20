@@ -54,7 +54,10 @@ export const AiTipVideo: React.FC<Props> = (props) => {
       {/* chấm nền nhẹ cho đỡ trống */}
       <AbsoluteFill style={{ backgroundImage: `radial-gradient(${C.line} 2px, transparent 2px)`, backgroundSize: "44px 44px", opacity: 0.55 }} />
       <Audio src={staticFile(`${script.id}/voice.mp3`)} />
-      <Header {...props} />
+      {/* Header chỉ hiện sau bìa (bìa tự có tên loạt + tiêu đề) */}
+      <Sequence from={script.scenes[0]?.type === "cover" ? starts[1] : 0} layout="none">
+        <Header {...props} />
+      </Sequence>
       {script.scenes.map((sc, i) => {
         const from = starts[i];
         const to = i + 1 < starts.length ? starts[i + 1] : durationInFrames;
@@ -62,9 +65,13 @@ export const AiTipVideo: React.FC<Props> = (props) => {
         if (!Comp) return null;
         return (
           <Sequence key={i} from={from} durationInFrames={to - from} layout="none">
-            <SceneFrame dur={to - from}>
+            {sc.type === "cover" ? (
               <Comp sc={sc} script={script} dur={to - from} />
-            </SceneFrame>
+            ) : (
+              <SceneFrame dur={to - from}>
+                <Comp sc={sc} script={script} dur={to - from} />
+              </SceneFrame>
+            )}
           </Sequence>
         );
       })}

@@ -83,6 +83,14 @@ let t = DAU;
 for (const [i, sc] of kb.scenes.entries()) {
   const start = t;
   const caus = [];
+  if (!sc.vo) {
+    // Cảnh không lời (VD bìa): giữ đúng `dur` giây, chèn khoảng lặng tương ứng vào file giọng.
+    const d = Number(sc.dur ?? 1.2);
+    ghep.push([null, d]);
+    t += d;
+    timeline.scenes.push({ index: i, start, end: t, caus });
+    continue;
+  }
   for (const [j, text] of chiaCau(sc.vo).entries()) {
     const key = crypto.createHash("sha1").update(`${voice}|${rate}|${text}`).digest("hex").slice(0, 16);
     const raw = path.join(cacheDir, `${key}.mp3`);
@@ -105,10 +113,12 @@ timeline.total = t + DUOI;
 
 // Ghép: khoảng lặng đầu + từng câu + khoảng lặng sau mỗi câu (filter concat, đổi về 48 kHz stereo)
 const args = ["-y", "-v", "error", "-f", "lavfi", "-t", String(DAU), "-i", "anullsrc=r=48000:cl=stereo"];
+let n = 1;
 for (const [f, nghi] of ghep) {
-  args.push("-i", f, "-f", "lavfi", "-t", String(nghi), "-i", "anullsrc=r=48000:cl=stereo");
+  if (f) { args.push("-i", f); n++; }   // f = null: cảnh không lời, chỉ có khoảng lặng
+  args.push("-f", "lavfi", "-t", String(nghi), "-i", "anullsrc=r=48000:cl=stereo");
+  n++;
 }
-const n = 1 + ghep.length * 2;
 const chuan = Array.from({ length: n }, (_, k) => `[${k}:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a${k}]`);
 const noi = Array.from({ length: n }, (_, k) => `[a${k}]`).join("");
 const filter = `${chuan.join(";")};${noi}concat=n=${n}:v=0:a=1,loudnorm=I=-16:TP=-1.5:LRA=11[out]`;
@@ -116,4 +126,4 @@ args.push("-filter_complex", filter, "-map", "[out]", "-ar", "48000", "-c:a", "l
 execFileSync(FFMPEG, args);
 
 fs.writeFileSync(path.join(outDir, "timeline.json"), JSON.stringify(timeline, null, 2));
-console.log(`Xong: ${kb.scenes.length} cảnh, ${ghep.length} câu, ${timeline.total.toFixed(1)}s → public/${kb.id}/`);
+console.log(`Xong: ${kb.scenes.length} cảnh, ${ghep.filter(([f]) => f).length} câu, ${timeline.total.toFixed(1)}s → public/${kb.id}/`);
