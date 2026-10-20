@@ -4,7 +4,7 @@
   "title": "Tin nhắn Zalo → Bảng đơn hàng",
   "author": "Quang · IT Application",
   "voice": "vi-VN-HoaiMyNeural",
-  "rate": "+4%",
+  "rate": "+30%",
   "tips": [
     { "t": "Biến chat thành máy chuyển đổi", "d": "“Từ giờ, mỗi khi tôi dán tin nhắn…”" },
     { "t": "Cho AI biết hôm nay ngày mấy", "d": "AI tự đổi “mai”, “thứ 6” ra ngày" },
@@ -35,7 +35,7 @@
       "type": "typing",
       "heading": "Chép tay từng ô",
       "notes": ["Tự đổi “mai”, “thứ 6” ra ngày", "Tự dò mã hàng", "Tự cộng tổng số bao"],
-      "vo": "Chép tay thì phải tự đổi ngày, tự dò mã, tự cộng số bao. Một buổi sáng trôi qua."
+      "vo": "Chép tay thì phải tự đổi ngày, tự dò mã, tự cộng số bao."
     },
     {
       "type": "tips",
@@ -104,7 +104,7 @@
     {
       "type": "paste",
       "heading": "Dán vào Excel",
-      "vo": "Copy bảng rồi dán vào Excel, các cột tự vào đúng chỗ. Tin mới đến, cứ dán tiếp vào cùng cuộc trò chuyện."
+      "vo": "Copy bảng, dán vào Excel là các cột tự vào đúng chỗ. Tin mới đến cứ dán tiếp."
     },
     {
       "type": "result",

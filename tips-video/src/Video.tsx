@@ -76,8 +76,8 @@ export const AiTipVideo: React.FC<Props> = (props) => {
 /** Khung nội dung giữa header và phụ đề; hiện dần + trượt nhẹ khi vào cảnh, mờ dần khi ra. */
 const SceneFrame: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
   const f = useCurrentFrame();
-  const vao = interpolate(f, [0, 9], [0, 1], { extrapolateRight: "clamp" });
-  const ra = interpolate(f, [dur - 6, dur], [1, 0], { extrapolateLeft: "clamp" });
+  const vao = interpolate(f, [0, 6], [0, 1], { extrapolateRight: "clamp" });
+  const ra = interpolate(f, [dur - 4, dur], [1, 0], { extrapolateLeft: "clamp" });
   return (
     <div style={{ position: "absolute", top: 250, left: 0, right: 0, height: 1250, display: "flex", flexDirection: "column", justifyContent: "center", opacity: Math.min(vao, ra), transform: `translateY(${(1 - vao) * 30}px)` }}>
       <div style={{ transform: "scale(1.05)", transformOrigin: "center center" }}>{children}</div>

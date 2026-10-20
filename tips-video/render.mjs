@@ -13,6 +13,8 @@ import { renderMedia, renderStill, selectComposition } from "@remotion/renderer"
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const scriptPath = path.resolve(process.argv[2] ?? "");
 const stillOnly = process.argv.includes("--still");
+// Cổng riêng: 3000 hay bị app Next.js của studio chiếm → Remotion mở nhầm trang (ERR_EMPTY_RESPONSE).
+const PORT = Number(process.env.REMOTION_PORT || 3456);
 if (!fs.existsSync(scriptPath)) { console.error("Cách dùng: node render.mjs scripts/<file>.json [--still]"); process.exit(1); }
 
 const script = JSON.parse(fs.readFileSync(scriptPath, "utf8"));
@@ -26,20 +28,20 @@ fs.mkdirSync(outDir, { recursive: true });
 
 console.log("Đóng gói…");
 const serveUrl = await bundle({ entryPoint: path.join(HERE, "src", "index.ts"), publicDir: path.join(HERE, "public") });
-const composition = await selectComposition({ serveUrl, id: "AiTip", inputProps });
+const composition = await selectComposition({ serveUrl, id: "AiTip", inputProps, port: PORT });
 
 if (stillOnly) {
   for (const [i, s] of timeline.scenes.entries()) {
     const frame = Math.min(composition.durationInFrames - 1, Math.round(((s.start + s.end) / 2) * timeline.fps));
     const out = path.join(outDir, `khung-${String(i + 1).padStart(2, "0")}-${script.scenes[i].type}.png`);
-    await renderStill({ serveUrl, composition, inputProps, frame, output: out });
+    await renderStill({ serveUrl, composition, inputProps, frame, output: out, port: PORT });
     console.log(`  ${path.basename(out)}`);
   }
 } else {
   const out = path.join(outDir, `${script.id}.mp4`);
   let last = -1;
   await renderMedia({
-    serveUrl, composition, inputProps, codec: "h264", outputLocation: out, crf: 20, audioBitrate: "192k",
+    serveUrl, composition, inputProps, port: PORT, codec: "h264", outputLocation: out, crf: 20, audioBitrate: "192k",
     onProgress: ({ progress }) => { const p = Math.floor(progress * 20); if (p !== last) { last = p; process.stdout.write(`  ${p * 5}%\n`); } },
   });
   console.log(`Xong: ${out}`);

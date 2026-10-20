@@ -17,10 +17,10 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const FFMPEG = process.env.FFMPEG || "ffmpeg";
 const FFPROBE = process.env.FFPROBE || "ffprobe";
-const GAP_CAU = 0.18;   // nghỉ giữa 2 câu trong cùng cảnh (giây)
-const GAP_CANH = 0.45;  // nghỉ khi sang cảnh mới
-const DAU = 0.6;        // khoảng lặng đầu video
-const DUOI = 1.6;       // giữ cảnh kết sau câu cuối
+const GAP_CAU = 0.2;    // nghỉ giữa 2 câu (đã cắt lặng sẵn của Edge nên đây là toàn bộ khoảng nghỉ)
+const GAP_CANH = 0.3;   // nghỉ khi sang cảnh mới
+const DAU = 0.3;        // khoảng lặng đầu video
+const DUOI = 1.4;       // giữ cảnh kết sau câu cuối
 
 /** Chia lời thoại thành câu phụ đề ≤ ~14 từ: tách theo . ? ! rồi theo dấu phẩy nếu còn dài. */
 export function chiaCau(vo) {
@@ -85,8 +85,14 @@ for (const [i, sc] of kb.scenes.entries()) {
   const caus = [];
   for (const [j, text] of chiaCau(sc.vo).entries()) {
     const key = crypto.createHash("sha1").update(`${voice}|${rate}|${text}`).digest("hex").slice(0, 16);
-    const f = path.join(cacheDir, `${key}.mp3`);
-    if (!fs.existsSync(f)) { process.stdout.write(`  đọc: ${text.slice(0, 50)}…\n`); await doc(text, f, voice, rate); }
+    const raw = path.join(cacheDir, `${key}.mp3`);
+    const f = path.join(cacheDir, `${key}.cat.wav`);   // bản đã cắt lặng đầu/cuối
+    if (!fs.existsSync(raw)) { process.stdout.write(`  đọc: ${text.slice(0, 50)}…\n`); await doc(text, raw, voice, rate); }
+    if (!fs.existsSync(f)) {
+      // Edge TTS chèn sẵn ~0,1–0,2s lặng ở đầu và cuối mỗi câu → cộng dồn thành cảm giác "delay" (Quang 20/10).
+      const cat = "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.03";
+      execFileSync(FFMPEG, ["-y", "-v", "error", "-i", raw, "-af", `${cat},areverse,${cat},areverse`, "-ar", "48000", f]);
+    }
     const d = doDai(f);
     caus.push({ text, start: t, end: t + d });
     const nghi = j === chiaCau(sc.vo).length - 1 ? GAP_CANH : GAP_CAU;
