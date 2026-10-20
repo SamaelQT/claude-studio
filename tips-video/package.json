@@ -1,0 +1,19 @@
+{
+  "name": "claude-studio-tips-video",
+  "private": true,
+  "type": "module",
+  "description": "Kênh AI Tips của claude-studio: dựng video dọc kiểu motion graphics (Remotion) từ kịch bản JSON",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.537",
+    "@remotion/cli": "^4.0.537",
+    "@remotion/renderer": "^4.0.537",
+    "msedge-tts": "^2.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.537"
+  }
+}

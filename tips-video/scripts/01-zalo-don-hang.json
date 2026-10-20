@@ -1,0 +1,131 @@
+{
+  "id": "01-zalo-don-hang",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Tin nhắn Zalo → Bảng đơn hàng",
+  "author": "Quang · IT Application",
+  "voice": "vi-VN-HoaiMyNeural",
+  "rate": "+4%",
+  "tips": [
+    { "t": "Biến chat thành máy chuyển đổi", "d": "“Từ giờ, mỗi khi tôi dán tin nhắn…”" },
+    { "t": "Cho AI biết hôm nay ngày mấy", "d": "AI tự đổi “mai”, “thứ 6” ra ngày" },
+    { "t": "Đưa danh mục mã hàng", "d": "Mã lạ, thiếu thông tin → ghi [?]" },
+    { "t": "Thêm dòng TỔNG", "d": "Đối chiếu, không sót đơn" }
+  ],
+  "scenes": [
+    {
+      "type": "hook",
+      "kicker": "Mẹo AI #1",
+      "big": "Tin nhắn đặt hàng mỗi sáng",
+      "sub": "chép tay vào Excel?",
+      "vo": "Mỗi sáng đại lý nhắn đặt hàng đủ kiểu. Chép từng tin vào Excel vừa lâu, vừa dễ sót. Giờ mình chỉ dán một lần."
+    },
+    {
+      "type": "chat",
+      "heading": "Tin nhắn thật mỗi sáng",
+      "messages": [
+        { "from": "ĐL Minh Phát", "text": "Chiều mai giao em 20 bao HT01 với 10 bao GA02 nha" },
+        { "from": "Tạp hoá Bảy Hiền", "text": "e lấy thêm 5bao ht01, thứ 6 giao" },
+        { "from": "ĐL Hồng Nhung", "text": "Cho chị 15 bao VT03 + 8 bao GA02, giao sáng thứ 7" },
+        { "from": "Trại Tư Long", "text": "như hôm trước 30 bao, giao thứ 5 nhé" },
+        { "from": "CH Út Mai", "text": "12 bao HT10, càng sớm càng tốt" }
+      ],
+      "vo": "Tin thì viết tắt, tin thì chiều mai, thứ sáu. Có tin còn quên ghi mã hàng."
+    },
+    {
+      "type": "typing",
+      "heading": "Chép tay từng ô",
+      "notes": ["Tự đổi “mai”, “thứ 6” ra ngày", "Tự dò mã hàng", "Tự cộng tổng số bao"],
+      "vo": "Chép tay thì phải tự đổi ngày, tự dò mã, tự cộng số bao. Một buổi sáng trôi qua."
+    },
+    {
+      "type": "tips",
+      "heading": "AI TIP: 4 dòng trong câu lệnh",
+      "active": -1,
+      "vo": "Mẹo của mình là biến khung chat AI thành một máy chuyển đổi, chỉ với bốn dòng trong câu lệnh."
+    },
+    {
+      "type": "tips",
+      "heading": "1. Biến chat thành máy chuyển đổi",
+      "active": 0,
+      "vo": "Một: dặn AI, từ giờ mỗi khi tôi dán tin nhắn, chỉ trả về các dòng bảng. Cả ngày bạn chỉ việc dán."
+    },
+    {
+      "type": "tips",
+      "heading": "2. Cho AI biết hôm nay ngày mấy",
+      "active": 1,
+      "vo": "Hai: cho AI biết hôm nay là thứ ba, hai mươi tháng mười. Nó sẽ tự đổi mai, thứ sáu thành ngày cụ thể."
+    },
+    {
+      "type": "tips",
+      "heading": "3. Đưa danh mục mã hàng",
+      "active": 2,
+      "vo": "Ba: đưa danh mục mã hàng. Mã lạ hoặc thiếu thông tin thì AI ghi dấu hỏi, không tự đoán."
+    },
+    {
+      "type": "tips",
+      "heading": "4. Thêm dòng TỔNG",
+      "active": 3,
+      "vo": "Bốn: thêm một dòng tổng số bao, để đối chiếu với số của bạn."
+    },
+    {
+      "type": "prompt",
+      "heading": "Câu lệnh mẫu",
+      "lines": [
+        "Từ giờ, mỗi khi tôi dán tin nhắn đặt hàng, chỉ trả về bảng: Khách | Mã hàng | Số bao | Ngày giao.",
+        "Hôm nay là thứ Ba 20/10 — đổi “mai”, “thứ 6”… ra ngày dd/mm.",
+        "Mã hợp lệ: HT01, GA02, VT03. Mã lạ hoặc thiếu thông tin ghi [?], không đoán.",
+        "Cuối bảng thêm dòng TỔNG số bao. Không giải thích."
+      ],
+      "vo": "Câu lệnh đầy đủ đây, chỉ bốn dòng. Dán một lần vào đầu cuộc trò chuyện."
+    },
+    {
+      "type": "table",
+      "heading": "AI trả về",
+      "columns": ["Khách", "Mã", "Số bao", "Giao"],
+      "rows": [
+        ["ĐL Minh Phát", "HT01", "20", "21/10"],
+        ["ĐL Minh Phát", "GA02", "10", "21/10"],
+        ["Tạp hoá Bảy Hiền", "HT01", "5", "23/10"],
+        ["ĐL Hồng Nhung", "VT03", "15", "24/10"],
+        ["ĐL Hồng Nhung", "GA02", "8", "24/10"],
+        ["Trại Tư Long", "[?]", "30", "22/10"],
+        ["CH Út Mai", "[?] HT10", "12", "[?]"]
+      ],
+      "total": "100",
+      "vo": "Dán năm tin nhắn, AI trả về bảng bảy dòng, ngày giao đã đổi đúng. Ba ô dấu hỏi là chỗ cần hỏi lại: trại Tư Long quên mã, còn HT10 không có trong danh mục."
+    },
+    {
+      "type": "total",
+      "heading": "Đối chiếu dòng TỔNG",
+      "parts": ["20", "10", "5", "15", "8", "30", "12"],
+      "total": "100",
+      "vo": "Dòng tổng một trăm bao, khớp với số mình cộng. Không lo sót đơn."
+    },
+    {
+      "type": "paste",
+      "heading": "Dán vào Excel",
+      "vo": "Copy bảng rồi dán vào Excel, các cột tự vào đúng chỗ. Tin mới đến, cứ dán tiếp vào cùng cuộc trò chuyện."
+    },
+    {
+      "type": "result",
+      "heading": "RESULT",
+      "pairs": [
+        ["Cách làm", "Chép từng tin", "Dán 1 lần"],
+        ["Ngày giao", "Tự đổi “mai”, “thứ 6”", "AI đổi sẵn"],
+        ["Phải soát", "Cả bảng", "Vài ô [?]"]
+      ],
+      "vo": "Kết quả: không chép tay từng tin, ngày và mã đã chuẩn, chỉ cần soát vài ô dấu hỏi."
+    },
+    {
+      "type": "safety",
+      "heading": "Dùng AI an toàn",
+      "items": ["Chỉ dùng công cụ AI công ty cho phép", "Không dán số điện thoại, công nợ của khách", "Dữ liệu trong clip là minh hoạ"],
+      "vo": "Lưu ý: chỉ dùng công cụ AI công ty cho phép, không dán số điện thoại hay công nợ của khách. Dữ liệu trong clip là minh hoạ."
+    },
+    {
+      "type": "outro",
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Câu lệnh mẫu mình để trong bài viết. Bạn copy, đổi danh mục mã hàng là dùng được ngay."
+    }
+  ]
+}
