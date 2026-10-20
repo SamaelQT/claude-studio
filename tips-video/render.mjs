@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
+import { execFileSync } from "node:child_process";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const scriptPath = path.resolve(process.argv[2] ?? "");
@@ -52,5 +53,11 @@ if (stillOnly) {
     serveUrl, composition, inputProps, port: PORT, codec: "h264", outputLocation: out, crf: 20, audioBitrate: "192k",
     onProgress: ({ progress }) => { const p = Math.floor(progress * 20); if (p !== last) { last = p; process.stdout.write(`  ${p * 5}%\n`); } },
   });
+  // Gắn bia.png làm ảnh bìa nhúng trong MP4 (attached_pic): Windows Explorer / trình phát lấy ảnh này làm hình
+  // thu nhỏ, thay vì tự chọn một khung giữa video (Quang 20/10: "sao bìa vẫn chưa đổi").
+  const tam = out.replace(/\.mp4$/, ".tam.mp4");
+  execFileSync(process.env.FFMPEG || "ffmpeg", ["-y", "-v", "error", "-i", out, "-i", path.join(outDir, "bia.png"),
+    "-map", "0", "-map", "1", "-c", "copy", "-c:v:1", "png", "-disposition:v:1", "attached_pic", tam]);
+  fs.renameSync(tam, out);
   console.log(`Xong: ${out}`);
 }
