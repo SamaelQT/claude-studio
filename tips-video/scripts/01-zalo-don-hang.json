@@ -3,8 +3,10 @@
   "series": "HỎI IT KHÔNG BẰNG HỎI AI",
   "title": "Tin nhắn Zalo → Bảng đơn hàng",
   "author": "Quang · IT Application",
-  "voice": "vi-VN-HoaiMyNeural",
-  "rate": "+30%",
+  "nop": "10690930_Chuyển tin nhắn Zalo thành bảng đơn hàng Excel",
+  "voice": "fr-FR-VivienneMultilingualNeural",
+  "rate": "+15%",
+  "pitch": "+8%",
   "tips": [
     { "t": "Biến chat thành máy chuyển đổi", "d": "“Từ giờ, mỗi khi tôi dán tin nhắn…”" },
     { "t": "Cho AI biết hôm nay ngày mấy", "d": "AI tự đổi “mai”, “thứ 6” ra ngày" },

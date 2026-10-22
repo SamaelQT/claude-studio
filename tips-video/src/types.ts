@@ -12,6 +12,10 @@ export type Script = {
   author: string;
   voice?: string;
   rate?: string;
+  pitch?: string;
+  theme?: string;
+  music?: string;
+  nop?: string;
   tips?: { t: string; d: string }[];
   scenes: Scene[];
 };

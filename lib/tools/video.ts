@@ -2,6 +2,7 @@ import ffmpeg from "fluent-ffmpeg";
 import ffmpegStatic from "ffmpeg-static";
 import path from "path";
 import fs from "fs";
+import { buildSceneVideoFilter, hasMotion, MOTION_FPS, type SceneMotion } from "./motion";
 
 ffmpeg.setFfmpegPath((ffmpegStatic as string).replace(/\\/g, "/"));
 const fwd = (p: string) => p.replace(/\\/g, "/");
@@ -15,7 +16,32 @@ export interface Scene {
   punchline?: string;       // dòng nhỏ phía dưới mainText
   duration?: number;        // giây hiển thị nếu không có voice (mặc định 5)
   isVideoClip?: boolean;
+  motion?: SceneMotion;     // chuyển động camera cho ảnh tĩnh
+  // ── Hậu kỳ audio ──
+  padBefore?: number;       // giây lặng trước lời thoại
+  padAfter?: number;        // giây lặng sau lời thoại
+  space?: SpaceKey;         // không gian vang của cảnh
+  volumeDb?: number;        // chỉnh to/nhỏ theo cảm xúc, áp SAU loudnorm
 }
+
+// Không gian quyết định độ vang — cùng một giọng, đứng ở hành lang khác trong phòng ngủ
+export type SpaceKey = "dry" | "room" | "hallway" | "outdoor" | "phone";
+
+// Đã giảm mạnh so với bản đầu: vang cũ (decay 0.22) nghe "ướt" và giả.
+// Giờ chỉ đủ để tai cảm nhận có không gian, không nghe ra là hiệu ứng.
+const SPACE_FILTERS: Record<SpaceKey, string> = {
+  // Bỏ makeup gain: nén rồi khuếch đại lại cộng với loudnorm phía sau dễ làm vỡ tiếng.
+  // khô hoàn toàn, chỉ nén rất nhẹ
+  dry:      "acompressor=threshold=0.125:ratio=2:attack=15:release=250",
+  // phòng nhỏ: vang cực ngắn, gần như không nhận ra
+  room:     "acompressor=threshold=0.125:ratio=2:attack=15:release=250,aecho=0.9:0.2:20:0.05",
+  // hành lang/kho: đuôi vang dài hơn chút nhưng vẫn nhẹ
+  hallway:  "acompressor=threshold=0.125:ratio=2:attack=15:release=260,aecho=0.9:0.25:50:0.07",
+  // ngoài trời: không vang, cắt trầm cho thoáng
+  outdoor:  "acompressor=threshold=0.125:ratio=2:attack=15:release=220,highpass=f=100",
+  // qua điện thoại/bộ đàm: băng hẹp (cố tình nghe ra hiệu ứng)
+  phone:    "highpass=f=380,lowpass=f=3200,acompressor=threshold=0.06:ratio=5:attack=5:release=120:makeup=1.8",
+};
 
 export type VideoFormat = "youtube" | "shorts" | "tiktok";
 export interface AssembleResult { youtube?: string; shorts?: string; tiktok?: string }
@@ -53,8 +79,15 @@ function buildASS(text: string, duration: number, w: number, h: number): string 
   return `[Script Info]\nScriptType: v4.00+\nPlayResX: ${w}\nPlayResY: ${h}\nWrapStyle: 1\n\n[V4+ Styles]\nFormat: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding\nStyle: Default,Arial,${fs2},&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,0,0,0,0,100,100,0.5,0,3,2.5,0,2,40,40,${mv},0\n\n[Events]\nFormat: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text\nDialogue: 0,${toT(0)},${toT(duration - 0.1)},Default,,0,0,0,,${wrapped}\n`;
 }
 
+// Đường dẫn nằm trong complexFilter → ffmpeg parse 2 tầng (filtergraph rồi filter option),
+// nên ':' phải escape 2 lần. Escape 1 lần sẽ khiến ffmpeg hiểu phần sau ':' là option
+// positional và báo lỗi "Error applying option 'original_size' to filter 'subtitles'".
 function escapeSubtitlePath(p: string) {
-  return fwd(p).replace(/^([A-Z]):/, "$1\\:").replace(/'/g, "\\'").replace(/ /g, "\\ ");
+  return fwd(p)
+    .replace(/\\/g, "/")
+    .replace(/:/g, "\\\\:")
+    .replace(/'/g, "\\\\'")
+    .replace(/ /g, "\\\\ ");
 }
 
 // ── Assemble ──────────────────────────────────────────────────────────────────
@@ -71,9 +104,7 @@ export async function assembleVideo(
 
   const clipPaths: string[] = [];
   for (let i = 0; i < scenes.length; i++) {
-    const clip = scenes[i].isVideoClip
-      ? await createClipFromVideo(scenes[i], path.join(tempDir, `clip_${i}.mp4`))
-      : await createSceneClip(scenes[i], path.join(tempDir, `clip_${i}.mp4`), "16:9", tempDir);
+    const clip = await createSceneClip(scenes[i], path.join(tempDir, `clip_${i}.mp4`), "16:9", tempDir);
     clipPaths.push(clip);
   }
 
@@ -109,7 +140,14 @@ async function createSceneClip(scene: Scene, outputClip: string, aspect: "16:9" 
   const [w, h] = aspect === "16:9" ? [1920, 1080] : [1080, 1920];
   const is916 = aspect === "9:16";
   const hasV = !!scene.voicePath && fs.existsSync(scene.voicePath);
-  const duration = hasV ? await getAudioDuration(scene.voicePath) : (scene.duration ?? 5);
+  // Đầu vào có thể là ảnh tĩnh HOẶC clip i2v đã animate — clip thì không Ken Burns nữa
+  const isClip = !!scene.isVideoClip;
+  // Khoảng lặng trước/sau lời thoại — Edge chặn thẻ <break> nên nhịp nghỉ làm ở đây
+  const padBefore = Math.max(0, scene.padBefore ?? 0);
+  const padAfter = Math.max(0, scene.padAfter ?? 0);
+  const duration = hasV
+    ? (await getAudioDuration(scene.voicePath)) + padBefore + padAfter
+    : (scene.duration ?? 5);
   const base = path.basename(outputClip, ".mp4");
 
   // ASS subtitle
@@ -130,11 +168,11 @@ async function createSceneClip(scene: Scene, outputClip: string, aspect: "16:9" 
     fs.writeFileSync(punchlineFile, scene.punchline, "utf8");
   }
 
+  const moving = !isClip && hasMotion(scene.motion);
+
   return new Promise((resolve, reject) => {
-    // Base scale filter
-    let complexF = is916
-      ? `[0:v]scale=${w}:${h},boxblur=20:5[bg];[0:v]scale=${w}:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v]`
-      : `[0:v]scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h}[v]`;
+    // Base: scale/crop + chuyển động camera (scene không motion → y hệt hành vi cũ)
+    let complexF = buildSceneVideoFilter(w, h, is916, isClip ? undefined : scene.motion, duration);
 
     // Subtitle burn
     if (assPath) {
@@ -169,22 +207,50 @@ async function createSceneClip(scene: Scene, outputClip: string, aspect: "16:9" 
         `:borderw=0:x=(w-text_w)/2:y=${yPos}[v]`;
     }
 
-    let cmd = ffmpeg().input(fwd(scene.imagePath)).inputOptions(["-loop 1"]);
+    // -framerate ép nguồn ảnh phát đúng fps để zoompan (d=1) chạy mượt theo thời gian thật
+    // clip video: lặp lại cho đủ độ dài lời thoại; ảnh tĩnh: -loop 1 + framerate cho zoompan
+    let cmd = isClip
+      ? ffmpeg().input(fwd(scene.imagePath)).inputOptions(["-stream_loop -1"])
+      : ffmpeg().input(fwd(scene.imagePath)).inputOptions(["-loop 1", `-framerate ${MOTION_FPS}`]);
     if (hasV) cmd = cmd.input(fwd(scene.voicePath));
 
     // silent audio input for no-voice scenes
     if (!hasV) cmd = cmd.input("anullsrc=r=44100:cl=stereo").inputOptions(["-f lavfi"]);
 
-    const audioInputIdx = hasV ? 1 : 1; // always index 1
+    // ── Hậu kỳ giọng: khoảng lặng + nén + vang theo không gian ──
+    let audioMap = "1:a";
+    if (hasV) {
+      // THỨ TỰ QUAN TRỌNG: chuẩn hoá TRƯỚC rồi mới chỉnh âm lượng.
+      // Làm ngược lại (hạ volume rồi loudnorm) sẽ kéo ngược nhiễu nền lên → nghe rè.
+      const chain: string[] = [];
+      if (padBefore > 0) {
+        const ms = Math.round(padBefore * 1000);
+        chain.push(`adelay=${ms}|${ms}`);
+      }
+      chain.push(SPACE_FILTERS[scene.space ?? "dry"]);
+      chain.push("loudnorm=I=-16:TP=-1.5:LRA=11");
+      // volume của cảm xúc áp sau chuẩn hoá → giữ được sắc thái to/nhỏ mà không rè
+      if (scene.volumeDb && scene.volumeDb !== 0) chain.push(`volume=${scene.volumeDb}dB`);
+      if (padAfter > 0) chain.push(`apad=pad_dur=${padAfter}`);
+      // loudnorm tự đẩy sample rate lên 192k → ép về 48k cho khỏi phình file
+      chain.push("aresample=48000");
+
+      complexF += `;[1:a]${chain.join(",")}[aout]`;
+      audioMap = "[aout]";
+    }
 
     cmd.complexFilter(complexF)
       .outputOptions([
         "-map [v]",
-        `-map ${audioInputIdx}:a`,
-        "-c:v libx264", "-tune stillimage",
-        "-c:a aac", "-b:a 128k",
+        `-map ${audioMap}`,
+        "-c:v libx264",
+        // -tune stillimage tối ưu cho khung đứng yên; bật khi có motion sẽ bệt chuyển động
+        ...(moving ? ["-crf 18", "-preset faster"] : ["-tune stillimage"]),
+        "-c:a aac", "-b:a 192k",
         "-pix_fmt yuv420p",
-        hasV ? "-shortest" : `-t ${duration}`,
+        // fps cố định cho MỌI clip — concat dùng -c copy nên lệch fps là hỏng ghép
+        `-r ${MOTION_FPS}`,
+        `-t ${duration}`,
       ])
       .output(fwd(outputClip))
       .on("end", () => resolve(outputClip))
@@ -197,14 +263,6 @@ function buildVerticalComplexFilter(w: number, h: number): string {
   return `[0:v]scale=${w}:${h},boxblur=20:5[bg];[0:v]scale=${w}:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v]`;
 }
 
-function createClipFromVideo(scene: Scene, outputClip: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    ffmpeg().input(fwd(scene.imagePath)).inputOptions(["-stream_loop -1"])
-      .input(fwd(scene.voicePath))
-      .outputOptions(["-map 0:v", "-map 1:a", "-c:v libx264", "-c:a aac", "-b:a 192k", "-pix_fmt yuv420p", "-shortest"])
-      .output(fwd(outputClip)).on("end", () => resolve(outputClip)).on("error", reject).run();
-  });
-}
 
 // ── Music ─────────────────────────────────────────────────────────────────────
 async function applyMusic(videoPath: string, outputPath: string, music: MusicConfig, withVoice: boolean) {

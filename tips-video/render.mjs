@@ -34,7 +34,7 @@ const composition = await selectComposition({ serveUrl, id: "AiTip", inputProps,
 // Ảnh bìa (bia.png) — luôn xuất kèm, dùng làm ảnh đại diện khi đăng. Lấy giữa cảnh bìa nếu có, không thì khung đầu.
 {
   const s0 = timeline.scenes[0];
-  const frame = script.scenes[0]?.type === "cover" ? Math.round(((s0.start + s0.end) / 2) * timeline.fps) : 0;
+  const frame = /cover$/.test(script.scenes[0]?.type ?? "") ? Math.round(((s0.start + s0.end) / 2) * timeline.fps) : 0;
   await renderStill({ serveUrl, composition, inputProps, frame, output: path.join(outDir, "bia.png"), port: PORT });
   console.log("  bia.png");
 }
@@ -60,4 +60,10 @@ if (stillOnly) {
     "-map", "0", "-map", "1", "-c", "copy", "-c:v:1", "png", "-disposition:v:1", "attached_pic", tam]);
   fs.renameSync(tam, out);
   console.log(`Xong: ${out}`);
+  // Bản nộp cuộc thi đặt tên theo cú pháp BTC: "Mã nhân viên_Chủ đề ứng dụng AI" (trường `nop` trong kịch bản).
+  if (script.nop) {
+    const nop = path.join(outDir, `${script.nop}.mp4`);
+    fs.copyFileSync(out, nop);
+    console.log(`Bản nộp: ${nop}`);
+  }
 }

@@ -1,0 +1,183 @@
+{
+  "id": "02-tro-ly-nhap-don",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Câu lệnh dài → Trợ lý riêng",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Tạo trợ lý AI nhập đơn hàng dùng chung cho cả team",
+  "voice": "fr-FR-VivienneMultilingualNeural",
+  "rate": "+15%",
+  "pitch": "+8%",
+  "tips": [
+    {
+      "t": "Mở mục tạo trợ lý",
+      "d": "Gem · GPT tuỳ chỉnh · Copilot Agent"
+    },
+    {
+      "t": "Dán câu lệnh vào ô Hướng dẫn",
+      "d": "Viết 1 lần, không dán lại nữa"
+    },
+    {
+      "t": "Đính kèm danh mục mã hàng",
+      "d": "File Excel → AI tự dò mã"
+    },
+    {
+      "t": "Chia sẻ cho cả team",
+      "d": "Ai mở cũng ra cùng 1 bảng"
+    }
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "art": "assistant",
+      "tag": "MẸO AI #2",
+      "line1": "Câu lệnh dài",
+      "line2": "→ Trợ lý riêng",
+      "hook": "Cài 1 lần, cả team dùng",
+      "dur": 1.3,
+      "vo": ""
+    },
+    {
+      "type": "hook",
+      "kicker": "Mẹo AI #2",
+      "big": "Mở chat mới lại dán câu lệnh?",
+      "sub": "mỗi người hỏi 1 kiểu?",
+      "foot": "Cài 1 lần, cả team dùng chung",
+      "vo": "Mẹo số một giúp bạn biến tin nhắn thành bảng. Nhưng mỗi lần mở chat mới lại phải dán lại câu lệnh, còn mỗi người trong team lại hỏi một kiểu."
+    },
+    {
+      "type": "chat",
+      "heading": "Cả team, mỗi người 1 kiểu",
+      "mark": [
+        "làm bảng giùm",
+        "tổng hợp",
+        "qua excel",
+        "cột gì cũng được"
+      ],
+      "messages": [
+        {
+          "from": "Chị Lan · gõ cho AI",
+          "text": "làm bảng giùm chị mấy đơn này"
+        },
+        {
+          "from": "Anh Hùng · gõ cho AI",
+          "text": "tổng hợp đơn hàng hôm nay"
+        },
+        {
+          "from": "Mai · gõ cho AI",
+          "text": "chuyển qua excel, cột gì cũng được"
+        }
+      ],
+      "vo": "Người thì gõ làm bảng giùm, người thì tổng hợp đơn. Kết quả mỗi người một kiểu cột, gộp lại mất công làm lại."
+    },
+    {
+      "type": "tips",
+      "heading": "AI TIP: Đóng gói thành trợ lý riêng",
+      "active": -1,
+      "vo": "Mẹo hôm nay: đóng gói câu lệnh thành một trợ lý riêng. Cài một lần, cả team dùng chung."
+    },
+    {
+      "type": "tips",
+      "heading": "1. Mở mục tạo trợ lý",
+      "active": 0,
+      "vo": "Một: mở mục tạo trợ lý. Gemini gọi là Gem, ChatGPT là GPT tuỳ chỉnh, Copilot là Agent."
+    },
+    {
+      "type": "tips",
+      "heading": "2. Dán câu lệnh vào ô Hướng dẫn",
+      "active": 1,
+      "vo": "Hai: dán câu lệnh vào ô hướng dẫn. Trợ lý nhớ luôn, không phải dán lại nữa."
+    },
+    {
+      "type": "tips",
+      "heading": "3. Đính kèm danh mục mã hàng",
+      "active": 2,
+      "vo": "Ba: đính kèm file danh mục mã hàng. Trợ lý tự dò mã, mã lạ thì đánh dấu hỏi."
+    },
+    {
+      "type": "tips",
+      "heading": "4. Chia sẻ cho cả team",
+      "active": 3,
+      "vo": "Bốn: chia sẻ cho cả team. Ai mở ra cũng ra cùng một kiểu bảng."
+    },
+    {
+      "type": "setup",
+      "heading": "Tạo trợ lý trong 5 phút",
+      "name": "Trợ lý nhập đơn",
+      "guide": "Bạn là trợ lý nhập đơn hàng. Người dùng chỉ dán tin nhắn, bạn chỉ trả về bảng: Khách | Mã hàng | Số bao | Ngày giao…",
+      "file": "Danh_muc_ma_hang.xlsx",
+      "button": "Lưu & chia sẻ",
+      "vo": "Trông như thế này: đặt tên, dán hướng dẫn, đính kèm file mã hàng, rồi bấm lưu. Năm phút là xong."
+    },
+    {
+      "type": "prompt",
+      "heading": "Hướng dẫn mẫu",
+      "label": "✦ Dán vào ô Hướng dẫn của trợ lý",
+      "lines": [
+        "Bạn là trợ lý nhập đơn hàng. Người dùng chỉ dán tin nhắn, bạn trả về bảng: Khách | Mã hàng | Số bao | Ngày giao.",
+        "Đổi “mai”, “thứ 6” ra ngày dd/mm. Không chắc hôm nay ngày mấy thì hỏi lại trước.",
+        "Chỉ dùng mã trong file danh mục đính kèm. Mã lạ hoặc thiếu thông tin ghi [?], không đoán.",
+        "Cuối bảng thêm dòng TỔNG. Không chào hỏi, không giải thích."
+      ],
+      "vo": "Hướng dẫn mẫu đây. Điểm khác mẹo một: không chắc hôm nay ngày mấy thì trợ lý phải hỏi lại, không tự đoán."
+    },
+    {
+      "type": "team",
+      "heading": "Ai dán cũng ra cùng 1 bảng",
+      "name": "Trợ lý nhập đơn",
+      "people": [
+        "Chị Lan",
+        "Anh Hùng",
+        "Mai"
+      ],
+      "columns": [
+        "Khách",
+        "Mã",
+        "Số bao",
+        "Giao"
+      ],
+      "vo": "Từ giờ ai trong team mở trợ lý ra, chỉ việc dán tin nhắn. Không cần nhớ câu lệnh, bảng ra cùng một kiểu cột, gộp lại là xong."
+    },
+    {
+      "type": "benefits",
+      "heading": "Lợi ích: 1 việc = 1 trợ lý",
+      "items": [
+        {
+          "icon": "T",
+          "t": "Tiết kiệm token",
+          "d": "Không dán lại câu lệnh dài, không giữ 1 khung chat dài ngoằng"
+        },
+        {
+          "icon": "1",
+          "t": "Chuyên 1 việc",
+          "d": "Nhập đơn, báo giá, email… mỗi việc 1 trợ lý, không lẫn"
+        },
+        {
+          "icon": "≡",
+          "t": "Gọn, dễ tìm",
+          "d": "Lịch sử chat xếp theo từng việc, tìm lại trong vài giây"
+        },
+        {
+          "icon": "⚡",
+          "t": "Nhanh & đồng nhất",
+          "d": "Mở ra là dán, cả team cùng một chuẩn bảng"
+        }
+      ],
+      "vo": "Lợi ích lớn nhất: tiết kiệm token, vì không phải dán lại câu lệnh dài hay giữ một khung chat dài ngoằng. Mỗi trợ lý chuyên một việc: nhập đơn, báo giá, viết email, không lẫn vào nhau. Lịch sử chat gọn theo từng việc, dễ tìm lại. Và nhanh: mở ra là dán, cả team cùng một chuẩn."
+    },
+    {
+      "type": "safety",
+      "heading": "Dùng AI an toàn",
+      "items": [
+        "Chỉ dùng công cụ AI công ty cho phép",
+        "Chỉ chia sẻ trợ lý trong nội bộ",
+        "File đính kèm: không có giá vốn, công nợ"
+      ],
+      "vo": "Lưu ý: chỉ dùng công cụ AI công ty cho phép, chỉ chia sẻ trợ lý trong nội bộ, và file đính kèm không chứa giá vốn hay công nợ."
+    },
+    {
+      "type": "outro",
+      "cta": "Hướng dẫn mẫu ở bài viết",
+      "vo": "Hướng dẫn mẫu mình để trong bài viết. Copy vào trợ lý của bạn, đổi danh mục là dùng được ngay."
+    }
+  ]
+}

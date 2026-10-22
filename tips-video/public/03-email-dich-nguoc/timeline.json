@@ -1,0 +1,264 @@
+{
+  "fps": 30,
+  "scenes": [
+    {
+      "index": 0,
+      "start": 0.3,
+      "end": 1.7,
+      "caus": []
+    },
+    {
+      "index": 1,
+      "start": 1.7,
+      "end": 7.6515177,
+      "caus": [
+        {
+          "text": "Cần gửi sếp một email tiếng Anh.",
+          "start": 1.73,
+          "end": 3.6777678
+        },
+        {
+          "text": "Gõ rồi xoá, tra từ điển, nửa tiếng vẫn chưa dám bấm gửi.",
+          "start": 3.6777678,
+          "end": 7.2715177
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "start": 7.6515177,
+      "end": 15.8128569,
+      "caus": [
+        {
+          "text": "Tự viết thì chậm và sợ sai.",
+          "start": 7.681517700000001,
+          "end": 9.2944641
+        },
+        {
+          "text": "Dùng máy dịch thì câu cứng, có khi sai ý.",
+          "start": 9.2944641,
+          "end": 11.324093977419356
+        },
+        {
+          "text": "Còn nhờ AI viết, mình không giỏi tiếng Anh,",
+          "start": 11.373597145161291,
+          "end": 13.502233358064517
+        },
+        {
+          "text": "thì làm sao biết nó viết đúng hay sai?",
+          "start": 13.551736525806453,
+          "end": 15.4328569
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "start": 15.8128569,
+      "end": 23.7858032,
+      "caus": [
+        {
+          "text": "Mẹo của mình là một vòng bốn bước: ghi ý bằng tiếng Việt,",
+          "start": 15.8428569,
+          "end": 18.64212923181818
+        },
+        {
+          "text": "nhờ AI viết email tiếng Anh, bắt AI dịch ngược lại sang tiếng Việt,",
+          "start": 18.691239272727273,
+          "end": 21.981612013636365
+        },
+        {
+          "text": "rồi đối chiếu trước khi gửi.",
+          "start": 22.030722054545453,
+          "end": 23.4058032
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "start": 23.7858032,
+      "end": 32.7283923,
+      "caus": [
+        {
+          "text": "Bước một: ghi ý bằng tiếng Việt, gạch đầu dòng là đủ.",
+          "start": 23.8158032,
+          "end": 27.0358924
+        },
+        {
+          "text": "Ví dụ báo sếp lô thức ăn hai mươi tấn bị trễ ba ngày,",
+          "start": 27.0358924,
+          "end": 29.71743996857143
+        },
+        {
+          "text": "đề xuất chia hai đợt, và xin duyệt chi phí thuê xe.",
+          "start": 29.768035205714284,
+          "end": 32.3483923
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "start": 32.7283923,
+      "end": 38.9477672,
+      "caus": [
+        {
+          "text": "Câu lệnh mẫu đây.",
+          "start": 32.758392300000004,
+          "end": 33.7463387
+        },
+        {
+          "text": "Hai dòng quan trọng nhất: giữ nguyên mọi con số,",
+          "start": 33.7463387,
+          "end": 36.015246229411765
+        },
+        {
+          "text": "và dịch ngược email sang tiếng Việt để mình kiểm tra.",
+          "start": 36.06251513627451,
+          "end": 38.567767200000006
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "start": 38.9477672,
+      "end": 46.0711599,
+      "caus": [
+        {
+          "text": "Vài giây sau, AI trả về email tiếng Anh: câu ngắn, từ đơn giản,",
+          "start": 38.9777672,
+          "end": 42.801169117045454
+        },
+        {
+          "text": "người nước ngoài đọc dễ.",
+          "start": 42.861858036363635,
+          "end": 44.318392100000004
+        },
+        {
+          "text": "Nhìn qua thì rất ổn.",
+          "start": 44.318392100000004,
+          "end": 45.6911599
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "start": 46.0711599,
+      "end": 54.0204455,
+      "caus": [
+        {
+          "text": "Giờ mới là mánh chính: đọc bản dịch ngược.",
+          "start": 46.1011599,
+          "end": 48.4841956
+        },
+        {
+          "text": "Ghi chú gốc là trễ ba ngày,",
+          "start": 48.4841956,
+          "end": 49.85114044782608
+        },
+        {
+          "text": "nhưng email lại viết thành chậm một chút.",
+          "start": 49.901768034782606,
+          "end": 51.977499099999996
+        },
+        {
+          "text": "Sếp đọc sẽ hiểu sai mức độ.",
+          "start": 51.977499099999996,
+          "end": 53.6404455
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "start": 54.0204455,
+      "end": 62.170624000000004,
+      "caus": [
+        {
+          "text": "Chỉ cần nhắc AI sửa đúng câu đó,",
+          "start": 54.0504455,
+          "end": 55.83171799747899
+        },
+        {
+          "text": "rồi soát lại từng con số: hai mươi tấn, ngày giao từng đợt,",
+          "start": 55.88738276302521,
+          "end": 59.171603930252104
+        },
+        {
+          "text": "chi phí, và giờ cần duyệt.",
+          "start": 59.22726869579832,
+          "end": 60.6745526
+        },
+        {
+          "text": "Khớp hết thì gửi.",
+          "start": 60.6745526,
+          "end": 61.790624
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "start": 62.170624000000004,
+      "end": 68.5797311,
+      "caus": [
+        {
+          "text": "Kết quả: không cần giỏi tiếng Anh,",
+          "start": 62.200624000000005,
+          "end": 63.9477366961039
+        },
+        {
+          "text": "mình vẫn tự kiểm được email trước khi gửi.",
+          "start": 63.99912236363637,
+          "end": 66.1573204
+        },
+        {
+          "text": "Số liệu đúng, câu chữ dễ đọc.",
+          "start": 66.1573204,
+          "end": 68.19973110000001
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "start": 68.5797311,
+      "end": 78.3928559,
+      "caus": [
+        {
+          "text": "Mẹo này dùng được cả khi gửi sếp bằng tiếng Thái: đổi chữ tiếng Anh thành tiếng Thái,",
+          "start": 68.6097311,
+          "end": 72.46111946697248
+        },
+        {
+          "text": "vẫn dịch ngược để kiểm.",
+          "start": 72.50642991834863,
+          "end": 73.54857030000001
+        },
+        {
+          "text": "Nhận email tiếng Anh dài,",
+          "start": 73.54857030000001,
+          "end": 74.83141098965518
+        },
+        {
+          "text": "thì nhờ AI tóm tắt bằng tiếng Việt và gợi ý hai cách trả lời.",
+          "start": 74.88272461724138,
+          "end": 78.0128559
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "start": 78.3928559,
+      "end": 83.9314272,
+      "caus": [
+        {
+          "text": "Câu lệnh mẫu mình để trong bài viết.",
+          "start": 78.4228559,
+          "end": 80.1027666
+        },
+        {
+          "text": "Lần tới viết email tiếng Anh, nhớ dịch ngược trước khi gửi nhé.",
+          "start": 80.1027666,
+          "end": 83.5514272
+        }
+      ]
+    }
+  ],
+  "total": 85.33142720000001
+}

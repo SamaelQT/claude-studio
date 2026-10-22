@@ -6,8 +6,9 @@ import { generateVoice } from "@/lib/tools/voice";
 import { assembleVideo } from "@/lib/tools/video";
 import { getYoutubeTranscript } from "@/lib/tools/transcript";
 import { generateVideoClip } from "@/lib/tools/videoclip";
+import { animateScene, type AnimateProvider } from "@/lib/tools/animate";
 
-export type ToolName = "get_youtube_transcript" | "search_web" | "generate_image" | "generate_video_clip" | "generate_voice" | "assemble_video" | "generate_script";
+export type ToolName = "get_youtube_transcript" | "search_web" | "generate_image" | "generate_video_clip" | "animate_scene" | "generate_voice" | "assemble_video" | "generate_script";
 
 export interface ToolResult {
   success: boolean;
@@ -55,6 +56,33 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
         return { success: true, data: { filePath, message: `Clip da tao: ${filePath}` } };
       }
 
+      // Ảnh tĩnh → clip có nhân vật cử động. Trả filePath rỗng nghĩa là không animate
+      // được (provider off / ComfyUI lỗi) — runner tự lùi về ảnh tĩnh + Ken Burns.
+      case "animate_scene": {
+        const filename = input.filename as string;
+        const project = getProjectDir(filename);
+        const styleDir = (input.style as string) || "misc";
+        const outDir = path.join(process.cwd(), "output", styleDir, project, "clips");
+        const clipPath = await animateScene({
+          imagePath: input.image_path as string,
+          filename,
+          outDir,
+          durationSec: (input.duration as number) ?? 5,
+          motion: input.motion as import("@/lib/tools/motion").SceneMotion | undefined,
+          sceneHint: input.scene_hint as string | undefined,
+          provider: input.provider as AnimateProvider | undefined,
+          workflow: input.workflow as string | undefined,
+        });
+        return {
+          success: true,
+          data: {
+            filePath: clipPath ?? "",
+            animated: !!clipPath,
+            message: clipPath ? `Clip animate: ${clipPath}` : "Khong animate - dung anh tinh",
+          },
+        };
+      }
+
       case "generate_image": {
         const filename = input.filename as string;
         const project = getProjectDir(filename);
@@ -65,7 +93,12 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
         if (fs.existsSync(cached)) {
           return { success: true, data: { filePath: cached, message: `Anh da co (cache): ${cached}` } };
         }
-        const result = await generateImage(input.prompt as string, filename, outDir, styleDir, (input.provider as import("@/lib/tools/image").ProviderKey | "auto") ?? undefined);
+        const result = await generateImage(
+          input.prompt as string, filename, outDir, styleDir,
+          (input.provider as import("@/lib/tools/image").ProviderKey | "auto") ?? undefined,
+          input.guidanceScale as number | undefined,
+          input.negativePrompt as string | undefined,
+        );
         return { success: true, data: { filePath: result.path, usedProvider: result.usedProvider, message: `Anh da tao (${result.usedProvider}): ${result.path}` } };
       }
 
@@ -83,7 +116,12 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
           input.text as string,
           filename,
           (input.style as string) ?? "default",
-          outDir
+          outDir,
+          {
+            voice: input.voice as string | undefined,
+            speed: input.speed as number | undefined,
+            emotion: input.emotion as string | undefined,
+          }
         );
         return { success: true, data: { filePath, message: `Voice da tao: ${filePath}` } };
       }
@@ -121,7 +159,13 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
           return inStyleProject;
         };
 
-        type SceneIn = { imagePath?: string; clipPath?: string; voicePath: string; voiceText?: string; mainText?: string; punchline?: string; duration?: number };
+        type SceneIn = {
+          imagePath?: string; clipPath?: string; voicePath: string; voiceText?: string;
+          mainText?: string; punchline?: string; duration?: number;
+          padBefore?: number; padAfter?: number; volumeDb?: number;
+          space?: import("@/lib/tools/video").SpaceKey;
+          motion?: import("@/lib/tools/motion").SceneMotion;
+        };
         const scenes = (input.scenes as SceneIn[]).map((s) => ({
           imagePath: s.clipPath ? resolveAsset(s.clipPath, "clips", ".mp4") : resolveAsset(s.imagePath ?? "", "images", ".png"),
           voicePath: s.voicePath ? resolveAsset(s.voicePath, "voices", ".mp3") : "",
@@ -130,6 +174,11 @@ export async function executeTool(name: ToolName, input: Record<string, unknown>
           punchline: s.punchline,
           duration: s.duration,
           isVideoClip: !!s.clipPath,
+          padBefore: s.padBefore,
+          padAfter: s.padAfter,
+          volumeDb: s.volumeDb,
+          space: s.space,
+          motion: s.motion,
         }));
 
         const missing: string[] = [];

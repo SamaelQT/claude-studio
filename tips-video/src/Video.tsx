@@ -3,9 +3,21 @@ import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame
 import { C, FONT } from "./theme";
 import type { Props } from "./types";
 import { SCENES } from "./scenes";
+import { P, PAPER_SCENES } from "./paper";
+import { M, MAIL_SCENES } from "./mail";
+
+const ALL = { ...SCENES, ...PAPER_SCENES, ...MAIL_SCENES };
+const isCover = (t?: string) => /(^|-)cover$/.test(t ?? "");
+/** Màu khung chung (nền, header, phụ đề) theo `script.theme`: mỗi video một tone (Quang 20/10). */
+function theme(name?: string) {
+  if (name === "mail") return { bg1: M.bg1, bg2: M.bg2, dot: "rgba(120,160,220,0.14)", bar: M.teal, pillFg: M.bg1, pillBg: M.teal, title: M.ink, subBg: "rgba(6,12,24,0.92)", hi: M.amber };
+  if (name === "paper") return { bg1: P.bg1, bg2: P.bg2, dot: "rgba(120,100,60,0.18)", bar: P.red, pillFg: "#fff", pillBg: P.dark, title: P.ink, subBg: "rgba(34,32,28,0.94)", hi: "#FF9B8F" };
+  return { bg1: C.bg1, bg2: C.bg2, dot: C.line, bar: C.green, pillFg: C.green, pillBg: C.greenSoft, title: C.ink, subBg: "rgba(10, 40, 24, 0.92)", hi: C.yellow };
+}
 
 /** Phụ đề: câu đang đọc, phần đã đọc tô vàng dần theo thời gian (ước lượng theo số ký tự). */
-const Subtitle: React.FC<Props> = ({ timeline }) => {
+const Subtitle: React.FC<Props> = ({ script, timeline }) => {
+  const T = theme(script.theme);
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = f / fps;
@@ -19,11 +31,11 @@ const Subtitle: React.FC<Props> = ({ timeline }) => {
   const appear = interpolate(t, [cau.start - 0.05, cau.start + 0.12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <div style={{ position: "absolute", left: 60, right: 60, bottom: 150, display: "flex", justifyContent: "center", opacity: appear }}>
-      <div style={{ background: "rgba(10, 40, 24, 0.92)", borderRadius: 28, padding: "26px 40px", maxWidth: 960, textAlign: "center", fontSize: 50, fontWeight: 700, lineHeight: 1.3, color: "#fff" }}>
+      <div style={{ background: T.subBg, borderRadius: 28, padding: "26px 40px", maxWidth: 960, textAlign: "center", fontSize: 50, fontWeight: 700, lineHeight: 1.3, color: "#fff" }}>
         {words.map((w, i) => {
           const on = acc + w.length / 2 <= done;
           acc += w.length + 1;
-          return <span key={i} style={{ color: on ? C.yellow : "#fff" }}>{w}{i < words.length - 1 ? " " : ""}</span>;
+          return <span key={i} style={{ color: on ? T.hi : "#fff" }}>{w}{i < words.length - 1 ? " " : ""}</span>;
         })}
       </div>
     </div>
@@ -34,12 +46,13 @@ const Header: React.FC<Props> = ({ script, timeline }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const p = f / (timeline.total * fps);
+  const T = theme(script.theme);
   return (
     <>
-      <div style={{ position: "absolute", top: 0, left: 0, height: 10, width: `${p * 100}%`, background: C.green }} />
+      <div style={{ position: "absolute", top: 0, left: 0, height: 10, width: `${p * 100}%`, background: T.bar }} />
       <div style={{ position: "absolute", top: 70, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
-        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: 3, color: C.green, background: C.greenSoft, padding: "10px 28px", borderRadius: 999 }}>{script.series}</div>
-        <div style={{ fontSize: 44, fontWeight: 800, color: C.ink }}>{script.title}</div>
+        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: 3, color: T.pillFg, background: T.pillBg, padding: "10px 28px", borderRadius: 999 }}>{script.series}</div>
+        <div style={{ fontSize: 44, fontWeight: 800, color: T.title }}>{script.title}</div>
       </div>
     </>
   );
@@ -48,24 +61,25 @@ const Header: React.FC<Props> = ({ script, timeline }) => {
 export const AiTipVideo: React.FC<Props> = (props) => {
   const { script, timeline } = props;
   const { fps, durationInFrames } = useVideoConfig();
+  const T = theme(script.theme);
   const starts = timeline.scenes.map((s, i) => (i === 0 ? 0 : Math.round(s.start * fps)));
   return (
-    <AbsoluteFill style={{ background: `linear-gradient(170deg, ${C.bg1} 0%, ${C.bg2} 100%)`, fontFamily: FONT }}>
+    <AbsoluteFill style={{ background: `linear-gradient(170deg, ${T.bg1} 0%, ${T.bg2} 100%)`, fontFamily: FONT }}>
       {/* chấm nền nhẹ cho đỡ trống */}
-      <AbsoluteFill style={{ backgroundImage: `radial-gradient(${C.line} 2px, transparent 2px)`, backgroundSize: "44px 44px", opacity: 0.55 }} />
+      <AbsoluteFill style={{ backgroundImage: `radial-gradient(${T.dot} 2px, transparent 2px)`, backgroundSize: "44px 44px", opacity: 0.55 }} />
       <Audio src={staticFile(`${script.id}/voice.mp3`)} />
       {/* Header chỉ hiện sau bìa (bìa tự có tên loạt + tiêu đề) */}
-      <Sequence from={script.scenes[0]?.type === "cover" ? starts[1] : 0} layout="none">
+      <Sequence from={isCover(script.scenes[0]?.type) ? starts[1] : 0} layout="none">
         <Header {...props} />
       </Sequence>
       {script.scenes.map((sc, i) => {
         const from = starts[i];
         const to = i + 1 < starts.length ? starts[i + 1] : durationInFrames;
-        const Comp = SCENES[sc.type];
+        const Comp = ALL[sc.type];
         if (!Comp) return null;
         return (
           <Sequence key={i} from={from} durationInFrames={to - from} layout="none">
-            {sc.type === "cover" ? (
+            {isCover(sc.type) ? (
               <Comp sc={sc} script={script} dur={to - from} />
             ) : (
               <SceneFrame dur={to - from}>

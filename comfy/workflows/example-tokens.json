@@ -1,0 +1,8 @@
+{
+  "_comment": "CHỈ LÀ VÍ DỤ MINH HOẠ CÁCH ĐẶT TOKEN — KHÔNG chạy được trên ComfyUI thật. Xem README.md cùng thư mục.",
+  "10": { "class_type": "LoadImage", "inputs": { "image": "__IMAGE__" } },
+  "11": { "class_type": "CLIPTextEncode", "inputs": { "text": "__PROMPT__", "clip": ["12", 0] } },
+  "12": { "class_type": "CLIPTextEncode", "inputs": { "text": "__NEGATIVE__", "clip": ["12", 0] } },
+  "13": { "class_type": "WanImageToVideo", "inputs": { "length": __FRAMES__, "seed": __SEED__ } },
+  "14": { "class_type": "VHS_VideoCombine", "inputs": { "frame_rate": __FPS__, "format": "video/h264-mp4" } }
+}

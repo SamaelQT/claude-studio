@@ -35,11 +35,16 @@ export function getActiveProvider() { return activeProvider; }
 
 // ── Provider implementations ──────────────────────────────────────────────────
 
-async function tryFal(prompt: string, seed: number, style?: string): Promise<Buffer> {
+async function tryFal(
+  prompt: string, seed: number, style?: string,
+  guidanceOverride?: number, negativePrompt?: string,
+): Promise<Buffer> {
   const key = process.env.FAL_KEY;
   if (!key) throw new Error("FAL_KEY not set");
 
-  const guidanceScale = style?.startsWith("wansee") ? 4.5 : style === "huong-noi" ? 3.0 : 3.5;
+  // Ưu tiên guidance_scale khai báo trong style JSON; không có mới rơi về mặc định của kênh
+  const guidanceScale = guidanceOverride
+    ?? (style?.startsWith("wansee") ? 4.5 : style === "huong-noi" ? 3.0 : style === "virus" ? 6.5 : 3.5);
 
   const result = await fal.subscribe("fal-ai/flux/dev", {
     input: {
@@ -49,6 +54,8 @@ async function tryFal(prompt: string, seed: number, style?: string): Promise<Buf
       num_inference_steps: 35,
       guidance_scale: guidanceScale,
       seed,
+      // Chỉ Fal hỗ trợ; các provider free khác không có tham số này
+      ...(negativePrompt ? { negative_prompt: negativePrompt } : {}),
     },
   }) as { data: { images: Array<{ url: string }> } };
 
@@ -119,6 +126,8 @@ export async function generateImage(
   outDir?: string,
   style?: string,
   providerOverride?: ProviderKey | "auto",
+  guidanceScale?: number,
+  negativePrompt?: string,
 ): Promise<{ path: string; usedProvider: ProviderKey }> {
   const seed = seedFromFilename(filename);
   const dir = outDir ?? path.join(process.cwd(), "output", "images");
@@ -146,7 +155,7 @@ export async function generateImage(
   for (const key of tryList) {
     try {
       let buf: Buffer;
-      if (key === "fal")          buf = await tryFal(prompt, seed, style);
+      if (key === "fal")          buf = await tryFal(prompt, seed, style, guidanceScale, negativePrompt);
       else if (key === "pollinations") buf = await tryPollinations(prompt, seed);
       else if (key === "huggingface")  buf = await tryHuggingFace(prompt);
       else                             buf = await tryCloudflare(prompt);

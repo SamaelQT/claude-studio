@@ -1,0 +1,138 @@
+{
+  "id": "02-soat-loi-van-ban",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Soát lỗi văn bản trước khi gửi",
+  "author": "Quang · IT Application",
+  "nop": "10690930_AI soát lỗi văn bản trước khi gửi",
+  "theme": "paper",
+  "music": "pad",
+  "voice": "fr-FR-VivienneMultilingualNeural",
+  "rate": "+12%",
+  "pitch": "+8%",
+  "scenes": [
+    {
+      "type": "p-cover",
+      "tag": "MẸO AI #2",
+      "line1": "Văn bản trông đúng",
+      "line2": "AI soi ra 5 lỗi",
+      "hook": "Soát trước khi gửi",
+      "dur": 1.4,
+      "vo": ""
+    },
+    {
+      "type": "p-hook",
+      "big": "Bạn thấy lỗi nào không?",
+      "sub": "Gợi ý: có tới 5 lỗi…",
+      "vo": "Tờ đề nghị thanh toán này nhìn qua rất bình thường. Thử dừng năm giây, xem bạn tìm được mấy lỗi."
+    },
+    {
+      "type": "p-problem",
+      "heading": "Lướt mắt thì thấy đúng",
+      "items": ["Số tiền bằng chữ sai 1 chữ", "Thứ không khớp với ngày", "Tổng không khớp các dòng chi tiết"],
+      "after": "Gửi đi rồi mới phát hiện → làm lại, ký lại",
+      "vo": "Văn bản soạn xong thường chỉ đọc lướt rồi gửi. Mà lỗi số tiền, lỗi ngày tháng lại là loại mắt người hay bỏ qua, vì nhìn qua thấy đúng. Gửi đi rồi mới phát hiện, là phải làm lại, ký lại."
+    },
+    {
+      "type": "p-steps",
+      "heading": "Giao AI vai người soát lỗi",
+      "steps": [
+        { "t": "Dán văn bản + câu lệnh", "d": "không cho AI viết lại" },
+        { "t": "Chỉ định 5 nhóm lỗi", "d": "tiền, ngày, tổng, tên, mâu thuẫn" },
+        { "t": "Nhận bảng lỗi", "d": "vị trí · đang ghi · đề xuất" },
+        { "t": "Tự bấm máy lỗi về tiền", "d": "AI tính số lớn có thể sai" }
+      ],
+      "vo": "Mẹo của mình: giao cho AI đúng một vai, người soát lỗi, không cho viết lại. Bốn bước: dán văn bản kèm câu lệnh, chỉ rõ năm nhóm lỗi cần tìm, nhận về một bảng lỗi, rồi tự bấm máy kiểm lại các lỗi về tiền."
+    },
+    {
+      "type": "p-prompt",
+      "heading": "Câu lệnh mẫu",
+      "hot": [4, 6],
+      "lines": [
+        "Dưới đây là văn bản sắp gửi. Hãy SOÁT LỖI,",
+        "KHÔNG sửa văn phong, chỉ tìm:",
+        "1. Số tiền bằng số và bằng chữ không khớp.",
+        "2. Ngày và thứ không khớp.",
+        "3. Tổng, thuế không khớp chi tiết — tính lại TỪNG BƯỚC.",
+        "4. Cùng một tên / mã nhưng viết khác nhau.",
+        "5. Thông tin mâu thuẫn giữa các đoạn. Không chắc ghi [?].",
+        "Trả về bảng: Vị trí | Đang ghi | Lỗi | Đề xuất sửa."
+      ],
+      "vo": "Đây là câu lệnh mẫu. Hai chỗ quan trọng nhất: bắt AI tính lại từng bước, và chỗ nào không chắc thì ghi dấu hỏi, không được đoán."
+    },
+    {
+      "type": "p-scan",
+      "scan": true,
+      "ids": [1],
+      "zoom": [80, 14, 1.15],
+      "vo": "Dán vào, AI soi từng dòng. Lỗi thứ nhất: ngày hai mươi ba tháng mười năm nay là thứ sáu, không phải thứ năm."
+    },
+    {
+      "type": "p-scan",
+      "ids": [2],
+      "done": [1],
+      "zoom": [85, 52, 1.15],
+      "vo": "Lỗi thứ hai: cộng ba dòng chi tiết ra mười ba triệu năm trăm năm mươi nghìn, văn bản lại ghi mười ba triệu bảy trăm năm mươi nghìn. Kéo theo tiền thuế và tổng cộng đều sai."
+    },
+    {
+      "type": "p-scan",
+      "ids": [3],
+      "done": [1, 2],
+      "zoom": [30, 68, 1.15],
+      "vo": "Lỗi thứ ba: số tiền bằng chữ không khớp với số."
+    },
+    {
+      "type": "p-scan",
+      "ids": [4, 5],
+      "done": [1, 2, 3],
+      "zoom": [30, 78, 1.12],
+      "vo": "Lỗi thứ tư: tên đơn vị nhận tiền khác với tên trong phần nội dung. Lỗi thứ năm: bảng ghi mười thùng giấy, phần ghi chú lại ghi mười hai thùng."
+    },
+    {
+      "type": "p-table",
+      "heading": "AI trả về bảng lỗi",
+      "rows": [
+        ["Ngày", "Thứ Năm, 23/10", "23/10/2026 là thứ Sáu → sửa \"Thứ Sáu\""],
+        ["Cộng", "13.750.000", "3 dòng = 13.550.000 → thuế 1.084.000, tổng 14.634.000"],
+        ["Bằng chữ", "…năm trăm tám mươi…", "Không khớp số → viết lại theo tổng đúng"],
+        ["Thụ hưởng", "Minh Phát Lộc", "[?] Khác \"Minh Phát\" ở phần nội dung → kiểm tra hoá đơn"],
+        ["Ghi chú", "12 thùng giấy", "[?] Bảng ghi 10 thùng → đối chiếu biên bản giao nhận"]
+      ],
+      "vo": "AI trả về một bảng: vị trí, đang ghi, lỗi gì, đề xuất sửa. Hai chỗ không chắc, AI ghi dấu hỏi, để mình tự kiểm tra lại với hoá đơn và biên bản."
+    },
+    {
+      "type": "p-calc",
+      "heading": "Lỗi về tiền: tự bấm máy",
+      "parts": ["6.500.000", "4.800.000", "2.250.000"],
+      "total": "13.550.000",
+      "ok": "AI tính đúng",
+      "vo": "Bước cuối, lỗi nào về tiền thì tự bấm máy. Sáu triệu rưỡi, cộng bốn triệu tám, cộng hai triệu hai trăm năm mươi. Đúng mười ba triệu năm trăm năm mươi nghìn, AI tính đúng."
+    },
+    {
+      "type": "p-cross",
+      "heading": "Dán thêm văn bản gốc để soát chéo",
+      "left": "Báo giá gốc",
+      "right": "Đề nghị thanh toán",
+      "pairs": [
+        ["Giấy A4", "650.000", "650.000", true],
+        ["Mực in", "1.150.000", "1.200.000", false],
+        ["Bìa hồ sơ", "25 xấp", "25 xấp", true]
+      ],
+      "note": "Thêm 1 dòng: \"đối chiếu với văn bản gốc bên dưới\"",
+      "vo": "Mẹo nhỏ: dán thêm báo giá hoặc đơn đặt hàng gốc, rồi bảo AI đối chiếu. Nó sẽ soát chéo giữa hai văn bản: đơn giá, số lượng, tên hàng."
+    },
+    {
+      "type": "p-result",
+      "heading": "Bắt đủ lỗi trước khi gửi",
+      "big": "5/5",
+      "bigLabel": "lỗi cài sẵn đều bị bắt",
+      "items": ["Chỉ bấm máy kiểm 1 phép cộng", "2 chỗ [?] → biết ngay cần hỏi ai", "Không phải làm lại, ký lại"],
+      "vo": "Kết quả: năm trên năm lỗi cài sẵn đều bị bắt. Mình chỉ bấm máy kiểm một phép cộng, và biết ngay hai chỗ cần hỏi lại."
+    },
+    {
+      "type": "p-outro",
+      "uses": ["Báo giá", "Biên bản giao nhận", "Thông báo nội bộ", "Bảng kê thanh toán"],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Dùng được cho báo giá, biên bản giao nhận, thông báo nội bộ, bảng kê thanh toán. Câu lệnh mẫu mình để trong bài viết."
+    }
+  ]
+}

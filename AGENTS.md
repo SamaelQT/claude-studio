@@ -117,6 +117,8 @@ lib/
     image.ts            ← generateImage() — 4 providers, auto fallback
     voice.ts            ← generateVoice() + preprocessText() — FPT AI TTS
     video.ts            ← assembleVideo() — ffmpeg, hỗ trợ youtube/shorts/tiktok
+    motion.ts           ← buildSceneVideoFilter() — chuyển động CAMERA trên ảnh tĩnh (ffmpeg zoompan)
+    animate.ts          ← animateScene() — chuyển động NHÂN VẬT (i2v qua ComfyUI/Fal)
     videoclip.ts        ← generateVideoClip() — Fal.ai Wan image-to-video
     music-sync.ts       ← parseLyricSync(), detectBeatSync(), detectWhisperSync()
     transcript.ts        ← getYoutubeTranscript() — cần YOUTUBE_API_KEY, fallback title+description
@@ -206,6 +208,31 @@ Speed: -3 chậm nhất → 0 bình thường → +3 nhanh nhất
 6. **NODE_TLS_REJECT_UNAUTHORIZED=0**: trong `.env.local` — bỏ SSL check cho Tavily.
 7. **Music sync**: upload nhạc → chọn fill/lyric/beat/whisper → scenes tự adjust duration theo nhạc.
 8. **Psych2Go clone**: channel `psych2go` có cả voice_text lẫn main_text — runner tự xử lý cả 2.
+
+---
+
+## CHUYỂN ĐỘNG — 2 TẦNG, ĐỪNG NHẦM
+
+| | `motion.ts` | `animate.ts` |
+|---|---|---|
+| Làm gì | di chuyển khung hình trên ảnh chết (Ken Burns) | sinh lại từng khung hình |
+| Nhân vật cử động? | **KHÔNG** | **CÓ** |
+| Cần GPU | không | có (ComfyUI) |
+| Trạng thái | xong, đã test bằng ffmpeg thật | code xong, chờ GPU test thật |
+
+Cả hai đọc chung field `motion` trong mỗi scene (`SceneMotion`: `type`, `intensity`, `anchor`, `shake`).
+AI tự sinh field này khi viết kịch bản — xem `motionSection()` trong `app/page.tsx`, đó là tầng
+"đạo diễn": nó chọn chuyển động theo Ý NGHĨA của lời thoại chứ không ngẫu nhiên.
+
+**Quy tắc bất biến:**
+1. Scene không có `motion` → render y hệt hành vi cũ. Không được phá video đã có.
+2. `animateScene()` KHÔNG BAO GIỜ ném lỗi lên trên — mọi thất bại trả `null` và scene
+   rơi về ảnh tĩnh + Ken Burns. Bật `animate: true` khi chưa có ComfyUI là vô hại.
+3. Scene đã có clip i2v thì KHÔNG áp Ken Burns nữa (`isClip` trong `createSceneClip`) —
+   nếu không sẽ chồng 2 lớp chuyển động.
+4. Mọi clip phải xuất `-r 30`. `concatClips()` dùng `-c copy`, lệch fps là hỏng ghép.
+
+Dựng ComfyUI trên PC có GPU: xem [ANIMATE_SETUP.md](ANIMATE_SETUP.md).
 
 ---
 

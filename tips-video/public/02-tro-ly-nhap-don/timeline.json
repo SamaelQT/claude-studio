@@ -1,0 +1,278 @@
+{
+  "fps": 30,
+  "scenes": [
+    {
+      "index": 0,
+      "start": 0.3,
+      "end": 1.6,
+      "caus": []
+    },
+    {
+      "index": 1,
+      "start": 1.6,
+      "end": 8.3078261,
+      "caus": [
+        {
+          "text": "Mẹo số một giúp bạn biến tin nhắn thành bảng.",
+          "start": 1.6300000000000001,
+          "end": 3.8626087
+        },
+        {
+          "text": "Nhưng mỗi lần mở chat mới lại phải dán lại câu lệnh,",
+          "start": 3.8626087,
+          "end": 6.087780329473684
+        },
+        {
+          "text": "còn mỗi người trong team lại hỏi một kiểu.",
+          "start": 6.130572091578948,
+          "end": 7.927826100000001
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "start": 8.3078261,
+      "end": 14.156956600000001,
+      "caus": [
+        {
+          "text": "Người thì gõ làm bảng giùm, người thì tổng hợp đơn.",
+          "start": 8.3378261,
+          "end": 10.9182609
+        },
+        {
+          "text": "Kết quả mỗi người một kiểu cột, gộp lại mất công làm lại.",
+          "start": 10.9182609,
+          "end": 13.7769566
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "start": 14.156956600000001,
+      "end": 19.1800001,
+      "caus": [
+        {
+          "text": "Mẹo hôm nay: đóng gói câu lệnh thành một trợ lý riêng.",
+          "start": 14.1869566,
+          "end": 16.8978262
+        },
+        {
+          "text": "Cài một lần, cả team dùng chung.",
+          "start": 16.8978262,
+          "end": 18.800000100000002
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "start": 19.1800001,
+      "end": 25.8986958,
+      "caus": [
+        {
+          "text": "Một: mở mục tạo trợ lý.",
+          "start": 19.210000100000002,
+          "end": 21.0078262
+        },
+        {
+          "text": "Gemini gọi là Gem, ChatGPT là GPT tuỳ chỉnh, Copilot là Agent.",
+          "start": 21.0078262,
+          "end": 25.5186958
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "start": 25.8986958,
+      "end": 30.8347828,
+      "caus": [
+        {
+          "text": "Hai: dán câu lệnh vào ô hướng dẫn.",
+          "start": 25.9286958,
+          "end": 28.1286958
+        },
+        {
+          "text": "Trợ lý nhớ luôn, không phải dán lại nữa.",
+          "start": 28.1286958,
+          "end": 30.454782799999997
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "start": 30.8347828,
+      "end": 36.0208698,
+      "caus": [
+        {
+          "text": "Ba: đính kèm file danh mục mã hàng.",
+          "start": 30.8647828,
+          "end": 32.9778263
+        },
+        {
+          "text": "Trợ lý tự dò mã, mã lạ thì đánh dấu hỏi.",
+          "start": 32.9778263,
+          "end": 35.6408698
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "start": 36.0208698,
+      "end": 40.174348,
+      "caus": [
+        {
+          "text": "Bốn: chia sẻ cho cả team.",
+          "start": 36.0508698,
+          "end": 37.882935
+        },
+        {
+          "text": "Ai mở ra cũng ra cùng một kiểu bảng.",
+          "start": 37.882935,
+          "end": 39.794348
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "start": 40.174348,
+      "end": 46.436522000000004,
+      "caus": [
+        {
+          "text": "Trông như thế này: đặt tên, dán hướng dẫn, đính kèm file mã hàng,",
+          "start": 40.204348,
+          "end": 44.13913066666667
+        },
+        {
+          "text": "rồi bấm lưu.",
+          "start": 44.19966578461539,
+          "end": 44.926087200000005
+        },
+        {
+          "text": "Năm phút là xong.",
+          "start": 44.926087200000005,
+          "end": 46.056522
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "start": 46.436522000000004,
+      "end": 51.959565500000004,
+      "caus": [
+        {
+          "text": "Hướng dẫn mẫu đây.",
+          "start": 46.466522000000005,
+          "end": 47.4926089
+        },
+        {
+          "text": "Điểm khác mẹo một: không chắc hôm nay ngày mấy thì trợ lý phải hỏi lại,",
+          "start": 47.4926089,
+          "end": 50.86672423255814
+        },
+        {
+          "text": "không tự đoán.",
+          "start": 50.914246983720936,
+          "end": 51.5795655
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "start": 51.959565500000004,
+      "end": 58.9282612,
+      "caus": [
+        {
+          "text": "Từ giờ ai trong team mở trợ lý ra, chỉ việc dán tin nhắn.",
+          "start": 51.989565500000005,
+          "end": 54.885217700000005
+        },
+        {
+          "text": "Không cần nhớ câu lệnh, bảng ra cùng một kiểu cột,",
+          "start": 54.885217700000005,
+          "end": 57.61883225223881
+        },
+        {
+          "text": "gộp lại là xong.",
+          "start": 57.673504543283585,
+          "end": 58.548261200000006
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "start": 58.9282612,
+      "end": 74.07087010000001,
+      "caus": [
+        {
+          "text": "Lợi ích lớn nhất: tiết kiệm token,",
+          "start": 58.9582612,
+          "end": 60.50190670769231
+        },
+        {
+          "text": "vì không phải dán lại câu lệnh dài hay giữ một khung chat dài ngoằng.",
+          "start": 60.547308046153844,
+          "end": 63.680000400000004
+        },
+        {
+          "text": "Mỗi trợ lý chuyên một việc: nhập đơn, báo giá, viết email,",
+          "start": 63.680000400000004,
+          "end": 67.05848426410256
+        },
+        {
+          "text": "không lẫn vào nhau.",
+          "start": 67.11673398589744,
+          "end": 68.2234787
+        },
+        {
+          "text": "Lịch sử chat gọn theo từng việc, dễ tìm lại.",
+          "start": 68.2234787,
+          "end": 70.70337
+        },
+        {
+          "text": "Và nhanh: mở ra là dán, cả team cùng một chuẩn.",
+          "start": 70.7033701,
+          "end": 73.6908701
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "start": 74.07087010000001,
+      "end": 80.58304410000001,
+      "caus": [
+        {
+          "text": "Lưu ý: chỉ dùng công cụ AI công ty cho phép,",
+          "start": 74.10087010000001,
+          "end": 76.23178800476191
+        },
+        {
+          "text": "chỉ chia sẻ trợ lý trong nội bộ,",
+          "start": 76.28021795714287,
+          "end": 77.82997643333334
+        },
+        {
+          "text": "và file đính kèm không chứa giá vốn hay công nợ.",
+          "start": 77.8784063857143,
+          "end": 80.20304410000001
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "start": 80.58304410000001,
+      "end": 85.6386963,
+      "caus": [
+        {
+          "text": "Hướng dẫn mẫu mình để trong bài viết.",
+          "start": 80.61304410000001,
+          "end": 82.3021745
+        },
+        {
+          "text": "Copy vào trợ lý của bạn, đổi danh mục là dùng được ngay.",
+          "start": 82.3021745,
+          "end": 85.25869630000001
+        }
+      ]
+    }
+  ],
+  "total": 87.03869630000001
+}

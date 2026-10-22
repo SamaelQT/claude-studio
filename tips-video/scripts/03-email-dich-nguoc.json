@@ -1,0 +1,129 @@
+{
+  "id": "03-email-dich-nguoc",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Email tiếng Anh, kiểm bằng tiếng Việt",
+  "author": "Quang · IT Application",
+  "nop": "10690930_AI viết email tiếng Anh và dịch ngược để kiểm tra",
+  "theme": "mail",
+  "music": "pad",
+  "voice": "fr-FR-VivienneMultilingualNeural",
+  "rate": "+12%",
+  "pitch": "+8%",
+  "phatAm": { "email": "i-meo" },
+  "scenes": [
+    {
+      "type": "m-cover",
+      "tag": "MẸO AI #3",
+      "line1": "Email tiếng Anh",
+      "line2": "kiểm bằng tiếng Việt",
+      "hook": "Không giỏi tiếng Anh vẫn gửi chuẩn",
+      "dur": 1.4,
+      "vo": ""
+    },
+    {
+      "type": "m-hook",
+      "big": "Viết email tiếng Anh cho sếp?",
+      "sub": "nửa tiếng vẫn chưa dám bấm Gửi",
+      "vo": "Cần gửi sếp một email tiếng Anh. Gõ rồi xoá, tra từ điển, nửa tiếng vẫn chưa dám bấm gửi."
+    },
+    {
+      "type": "m-problem",
+      "heading": "Viết kiểu nào cũng lo",
+      "items": [
+        { "k": "1", "t": "Tự viết", "d": "Chậm, sợ sai ngữ pháp" },
+        { "k": "2", "t": "Máy dịch", "d": "Câu cứng, có khi sai ý" },
+        { "k": "?", "t": "Nhờ AI viết", "d": "Không giỏi tiếng Anh → sao biết đúng hay sai?" }
+      ],
+      "vo": "Tự viết thì chậm và sợ sai. Dùng máy dịch thì câu cứng, có khi sai ý. Còn nhờ AI viết, mình không giỏi tiếng Anh, thì làm sao biết nó viết đúng hay sai?"
+    },
+    {
+      "type": "m-loop",
+      "heading": "Viết xong, dịch ngược lại",
+      "steps": ["Ghi ý bằng tiếng Việt", "AI viết email tiếng Anh", "AI dịch ngược sang Việt", "Đối chiếu rồi gửi"],
+      "vo": "Mẹo của mình là một vòng bốn bước: ghi ý bằng tiếng Việt, nhờ AI viết email tiếng Anh, bắt AI dịch ngược lại sang tiếng Việt, rồi đối chiếu trước khi gửi."
+    },
+    {
+      "type": "m-notes",
+      "heading": "1. Ghi ý bằng tiếng Việt",
+      "label": "Ý cần báo sếp",
+      "to": "Gửi: anh Somchai — Giám đốc vùng",
+      "notes": [
+        "Lô thức ăn 20 tấn cho trại Bình Phước trễ 3 ngày (xe hỏng)",
+        "Đề xuất chia 2 đợt: 12 tấn ngày 24/10, 8 tấn ngày 27/10",
+        "Xin anh duyệt thuê xe ngoài 4.500.000đ trước 15h hôm nay"
+      ],
+      "vo": "Bước một: ghi ý bằng tiếng Việt, gạch đầu dòng là đủ. Ví dụ báo sếp lô thức ăn hai mươi tấn bị trễ ba ngày, đề xuất chia hai đợt, và xin duyệt chi phí thuê xe."
+    },
+    {
+      "type": "m-prompt",
+      "heading": "Câu lệnh mẫu",
+      "hot": [2, 3],
+      "lines": [
+        "Viết email tiếng Anh gửi sếp từ các ý tiếng Việt dưới đây.",
+        "Câu ngắn, từ đơn giản — người đọc không phải người bản xứ.",
+        "GIỮ NGUYÊN mọi con số, ngày, tên. Không thêm lời hứa, không làm nhẹ ý.",
+        "Viết xong, DỊCH NGƯỢC email sang tiếng Việt để tôi kiểm tra.",
+        "[dán các ý tiếng Việt]"
+      ],
+      "vo": "Câu lệnh mẫu đây. Hai dòng quan trọng nhất: giữ nguyên mọi con số, và dịch ngược email sang tiếng Việt để mình kiểm tra."
+    },
+    {
+      "type": "m-email",
+      "heading": "AI trả về email",
+      "subject": "Feed delivery to Binh Phuoc farm – approval needed today",
+      "body": [
+        "Dear Mr. Somchai,",
+        "There will be a slight delay in the 20-ton feed delivery to Binh Phuoc farm because our truck broke down.",
+        "We suggest 2 shipments: 12 tons on 24/10 and 8 tons on 27/10.",
+        "Please approve the cost of renting an outside truck: 4,500,000 VND, before 3:00 PM today.",
+        "Best regards,",
+        "Quang"
+      ],
+      "vo": "Vài giây sau, AI trả về email tiếng Anh: câu ngắn, từ đơn giản, người nước ngoài đọc dễ. Nhìn qua thì rất ổn."
+    },
+    {
+      "type": "m-mirror",
+      "heading": "Mánh chính: đọc bản dịch ngược",
+      "flag": 0,
+      "pairs": [
+        ["There will be a slight delay in the 20-ton feed delivery to Binh Phuoc farm because our truck broke down.", "Lô thức ăn 20 tấn giao trại Bình Phước sẽ bị chậm một chút vì xe bị hỏng."],
+        ["We suggest 2 shipments: 12 tons on 24/10 and 8 tons on 27/10.", "Đề xuất giao 2 đợt: 12 tấn ngày 24/10 và 8 tấn ngày 27/10."],
+        ["Please approve the cost of renting an outside truck: 4,500,000 VND, before 3:00 PM today.", "Anh vui lòng duyệt chi phí thuê xe ngoài 4.500.000 đồng trước 15h hôm nay."]
+      ],
+      "original": "Trễ 3 ngày",
+      "verdict": "Sai mức độ!",
+      "vo": "Giờ mới là mánh chính: đọc bản dịch ngược. Ghi chú gốc là trễ ba ngày, nhưng email lại viết thành chậm một chút. Sếp đọc sẽ hiểu sai mức độ."
+    },
+    {
+      "type": "m-fix",
+      "heading": "Sửa đúng câu đó, soát từng số",
+      "ask": "Câu đầu: ghi rõ là trễ 3 ngày.",
+      "before": "There will be a slight delay in the 20-ton feed delivery…",
+      "after": "The 20-ton feed delivery to Binh Phuoc farm will be 3 days late because our truck broke down.",
+      "facts": ["20 tấn", "Trễ 3 ngày", "12 tấn · 24/10", "8 tấn · 27/10", "4.500.000đ", "Trước 15h hôm nay"],
+      "vo": "Chỉ cần nhắc AI sửa đúng câu đó, rồi soát lại từng con số: hai mươi tấn, ngày giao từng đợt, chi phí, và giờ cần duyệt. Khớp hết thì gửi."
+    },
+    {
+      "type": "m-send",
+      "heading": "Gửi đi, không còn lo",
+      "items": ["Không giỏi tiếng Anh vẫn tự kiểm được", "Số liệu, ngày giờ soát từng cái", "Câu ngắn, sếp nước ngoài đọc dễ"],
+      "vo": "Kết quả: không cần giỏi tiếng Anh, mình vẫn tự kiểm được email trước khi gửi. Số liệu đúng, câu chữ dễ đọc."
+    },
+    {
+      "type": "m-variants",
+      "heading": "Một mẹo, nhiều chỗ dùng",
+      "items": [
+        { "tag": "TIẾNG THÁI", "t": "Gửi sếp người Thái", "d": "Đổi \"tiếng Anh\" thành \"tiếng Thái\" — vẫn dịch ngược để kiểm" },
+        { "tag": "NHẬN THƯ", "t": "Nhận email tiếng Anh dài", "d": "AI tóm tắt tiếng Việt + gợi ý 2 cách trả lời" },
+        { "tag": "KHÁCH HÀNG", "t": "Gửi khách, đối tác", "d": "Thêm 1 dòng: \"giọng lịch sự, trang trọng\"" }
+      ],
+      "vo": "Mẹo này dùng được cả khi gửi sếp bằng tiếng Thái: đổi chữ tiếng Anh thành tiếng Thái, vẫn dịch ngược để kiểm. Nhận email tiếng Anh dài, thì nhờ AI tóm tắt bằng tiếng Việt và gợi ý hai cách trả lời."
+    },
+    {
+      "type": "m-outro",
+      "line": "Viết xong, nhớ dịch ngược rồi mới gửi",
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Câu lệnh mẫu mình để trong bài viết. Lần tới viết email tiếng Anh, nhớ dịch ngược trước khi gửi nhé."
+    }
+  ]
+}

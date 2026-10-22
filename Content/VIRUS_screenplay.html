@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIRUS — Kịch Bản Series</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --bg2: #111118; --bg3: #1a1a24;
+    --border: #2a2a3a; --red: #c0392b; --red2: #e74c3c;
+    --text: #ddd; --muted: #666;
+  }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+  .sidebar { width: 240px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+  .sidebar-header { padding: 20px 16px 14px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h1 { font-size: 20px; font-weight: 900; color: var(--red2); letter-spacing: 3px; }
+  .sidebar-header p { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .nav-section { padding: 10px 0 4px; }
+  .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 0 16px 6px; }
+  .nav-item { width: 100%; text-align: left; background: none; border: none; border-left: 3px solid transparent; color: #999; padding: 9px 16px; cursor: pointer; font-size: 13px; line-height: 1.4; transition: all 0.15s; }
+  .nav-item:hover { background: var(--bg3); color: #fff; }
+  .nav-item.active { background: #1e0a0a; color: #fff; border-left-color: var(--red); }
+  .nav-item .sub { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .nav-item.active .sub { color: #e74c3c88; }
+  .badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: var(--border); color: var(--muted); margin-left: 4px; }
+
+  .main { flex: 1; overflow-y: auto; padding: 32px 40px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .ep-header { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .ep-tag { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--red); margin-bottom: 6px; }
+  .ep-title { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+  .ep-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+
+  .info-box { background: #1a0a0a; border: 1px solid #3a1a1a; border-radius: 8px; padding: 16px 20px; margin-bottom: 22px; font-size: 13px; line-height: 1.75; color: #ccc; }
+  .info-box strong { color: var(--red2); }
+
+  .scene { margin-bottom: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .scene-header { display: flex; align-items: center; gap: 12px; padding: 11px 16px; background: var(--bg3); border-bottom: 1px solid var(--border); }
+  .scene-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 1px; min-width: 64px; }
+  .scene-title { font-size: 14px; font-weight: 600; color: #fff; flex: 1; }
+  .scene-dur { font-size: 11px; color: var(--muted); }
+  .scene-body { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .scene-body.full { grid-template-columns: 1fr; }
+
+  .field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .field-text { font-size: 13px; line-height: 1.7; color: var(--text); }
+  .voice-box { background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 6px; padding: 12px; font-size: 13px; line-height: 1.8; color: #c8c8e8; font-style: italic; }
+  .img-prompt { background: #0a0f0a; border: 1px solid #2a3a2a; border-radius: 6px; padding: 12px; font-size: 12px; line-height: 1.7; color: #a0c8a0; font-family: monospace; }
+
+  .divider { display: flex; align-items: center; gap: 12px; margin: 28px 0 18px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .divider-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--red); white-space: nowrap; }
+
+  .quote { border-left: 3px solid var(--red); padding: 10px 16px; margin: 12px 0; font-style: italic; color: #bbb; font-size: 14px; line-height: 1.7; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+  th { text-align: left; padding: 10px 14px; background: var(--bg3); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--red); font-weight: 600; white-space: nowrap; }
+
+  .tl-row { display: grid; grid-template-columns: 80px 1fr 160px; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; align-items: start; }
+  .tl-row:last-child { border-bottom: none; }
+  .tl-time { color: var(--red); font-weight: 600; font-size: 12px; }
+  .tl-sound { color: var(--muted); font-size: 12px; font-style: italic; }
+  .tl-wrap { padding: 16px; }
+
+  .pen-box { background: #0f0f18; border: 1px solid #3a3a5a; border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.75; color: #c0c0e0; }
+  .pen-box strong { color: #9b8fd4; }
+
+  .shotlist { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .shot { background: #0d0d14; border: 1px solid #26263a; border-radius: 8px; padding: 12px 14px; }
+  .shot-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .shot-tag { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #fff; background: var(--red); padding: 2px 7px; border-radius: 4px; }
+  .shot-type { font-size: 11px; color: #9b8fd4; font-weight: 600; letter-spacing: .5px; }
+  .shot-dur { font-size: 11px; color: var(--muted); margin-left: auto; }
+  .shot-desc { font-size: 13px; line-height: 1.65; color: var(--text); margin-bottom: 8px; }
+  .shot .img-prompt { margin: 0; }
+  .shot-vo { font-size: 12px; color: #c8c8e8; font-style: italic; border-left: 2px solid #3a3a5a; padding-left: 10px; margin-top: 8px; }
+  .char-ref { background: #14140f; border: 1px solid #3a3a2a; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; font-size: 12px; line-height: 1.7; color: #d4d0b8; }
+  .char-ref strong { color: #e0c068; }
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h1>VIRUS</h1>
+    <p>Dream Narrative Series — Dream Vault</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Tổng quan</div>
+    <button class="nav-item active" onclick="show('overview',this)">Tổng quan series<span class="sub">Nhân vật · Cơ chế · Thời lượng</span></button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Kịch bản</div>
+    <button class="nav-item" onclick="show('short',this)">Short Hook <span class="badge">60s</span><span class="sub">Video đầu tiên của kênh</span></button>
+    <button class="nav-item" onclick="show('ep1',this)">Tập 1 — Điềm Báo<span class="sub">~5 phút · 7 scene</span></button>
+    <button class="nav-item" onclick="show('ep2',this)">Tập 2 — Bị Bắt<span class="sub">~7 phút · 7 scene</span></button>
+    <button class="nav-item" onclick="show('ep3',this)">Tập 3 — Thế Giới Vỡ Vụn<span class="sub">~6 phút · 6 scene</span></button>
+    <button class="nav-item" onclick="show('ep4',this)">Tập 4 — Bốn Lần Hồi Sinh<span class="sub">~26 phút · 30 scene</span></button>
+    <button class="nav-item" onclick="show('ep5',this)">Tập 5 — Lần Cuối<span class="sub">~11 phút · 12 scene</span></button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- OVERVIEW -->
+<div class="panel active" id="panel-overview">
+  <div class="ep-header">
+    <div class="ep-tag">Dream Vault — Series 1</div>
+    <div class="ep-title">VIRUS</div>
+    <div class="ep-meta"><span>🎬 5 tập + 1 Short</span><span>⏱ ~59 phút tổng (ước tính)</span><span>🌏 Tiếng Việt · FPT Voice</span></div>
+  </div>
+  <div class="info-box"><strong>Thông điệp:</strong> Virus không tạo ra quái vật — nó chỉ mở cái cửa mà xã hội đã khóa lại. 90% thế giới nhiễm không phải vì virus mạnh, mà vì bên trong họ đã sẵn sàng từ lâu. Và người duy nhất còn lại là những ai chưa bao giờ có gì cần che giấu.</div>
+  <table>
+    <tr><th>Tập</th><th>Tên</th><th>Nội dung</th><th>Scene</th><th>Thời lượng</th></tr>
+    <tr><td>Short</td><td>Hook</td><td>Flash scenes, câu thoại bạn gái, cliffhanger</td><td>—</td><td>60 giây</td></tr>
+    <tr><td>Tập 1</td><td>Điềm Báo</td><td>Chi nhánh sinh học, xe đen, hóa chất, bỏ chạy, bị đánh</td><td>8</td><td>~6.5 phút</td></tr>
+    <tr><td>Tập 2</td><td>Bị Bắt</td><td>Đối mặt phản diện, bị tiêm trước mặt, 9 ngày nhốt, ra ngoài, người lạ đưa bút</td><td>8</td><td>~8 phút</td></tr>
+    <tr><td>Tập 3</td><td>Thế Giới Vỡ Vụn</td><td>Bạn gái biến đổi, bút kích hoạt lần đầu, quay về 10 ngày trước</td><td>4</td><td>~4 phút</td></tr>
+    <tr><td>Tập 4</td><td>Bốn Lần Hồi Sinh <em>(tạm)</em></td><td>4 vòng lặp chi tiết từng ngày, hậu phương nghiên cứu Oxytocin, 3 lần bút tự động</td><td>30</td><td>~29 phút</td></tr>
+    <tr><td>Tập 5</td><td>Lần Cuối</td><td>Đột nhập, 3 lá bài tẩy, trùm gục, bạn gái giải cứu, twist Samael nhiễm</td><td>12</td><td>~11 phút</td></tr>
+  </table>
+
+  <div class="pen-box">
+    <strong>🖊️ Cây Bút 7 Màu — Cơ Chế Du Hành</strong><br><br>
+    7 nút màu · 3 nút đã bể khi Samael nhận → còn 4 lần dùng<br>
+    Khi ấn: quét phạm vi 5m → đưa tất cả trong phạm vi về đúng vị trí đó, 10 ngày trước<br>
+    Chỉ tồn tại 1 chiều không gian → không xuất hiện lại ở quá khứ → không thể dùng vô hạn<br>
+    Hậu phương thấy bút trong tay Samael (không còn trong túi ông) → hiểu ngay không cần giải thích<br>
+    Tại sao chỉ 4 lần: việc tạo bút đã dùng hết toàn bộ tài nguyên của hậu phương — không thể tạo thêm<br>
+    Real-time (lần đầu): bút không tự kích hoạt — Samael vô tình bấm khi giơ tay đỡ đòn. Từ hồi sinh 1 trở đi: nhờ hậu phương chỉnh lại, bút tự động kích hoạt ngay khi cả hai chết — không cần bấm tay
+  </div>
+
+  <div class="info-box">
+    <strong>Nhân vật chính:</strong><br><br>
+    <strong style="color:#ddd">Samael</strong> — IT BA, công tác chi nhánh thí nghiệm thuốc sinh học. Tỉnh táo, lý trí. Twist cuối: bị nhiễm — biểu hiện bằng lời nói gây tổn thương bạn gái mà không nhận ra.<br><br>
+    <strong style="color:#ddd">Bạn gái</strong> — bị tiêm virus ngay trước mặt Samael. Còn 10 ngày. Câu thoại: <em>"Không sao đâu anh, thà rằng em chết còn hơn là làm đau anh, anh biết em yêu anh nhiều nhường nào mà."</em><br><br>
+    <strong style="color:#ddd">Phản diện</strong> — nhà sinh vật học. Chán xã hội kìm kẹp bản năng. Không dám tiêm chính mình (sợ 40% chết). Chết bị đồng bọn đâm — không ai cứu.<br><br>
+    <strong style="color:#ddd">Tên tàn bạo từ nhỏ</strong> — khát máu bẩm sinh. Tay sai đắc lực. Thích khoe khoang trước nạn nhân → vô tình tiết lộ điểm yếu của trùm.<br><br>
+    <strong style="color:#ddd">Người hậu phương</strong> — đồng nghiệp cũ phản diện, nhà sinh vật học + đam mê du hành thời gian. Phát hiện trùm biến tấu thuốc → bị bắt nhốt. Tạo cây bút 7 nút nhưng tốn hết sức lực. Bị nhốt gần Samael.
+  </div>
+
+  <div class="char-ref">
+    <strong>⚠️ Mô tả ngoại hình — TẠM, chưa chốt style</strong><br>
+    Dùng để giữ nhất quán nhân vật giữa các img-prompt trong lúc chưa bàn xong art style / tham chiếu phim. Sẽ viết lại toàn bộ mô tả này (và mọi img-prompt) một khi chốt được nét vẽ, tông màu, đạo diễn hình ảnh tham chiếu.<br><br>
+    <strong>Samael</strong> — phần lớn xuất hiện dưới góc nhìn thứ nhất (POV), ít khi thấy mặt trực tiếp; khi thấy: nam giới Việt Nam, ~20s-30s, dáng gầy, mặc áo sơ mi công sở nhàu hoặc áo khoác tối màu tùy tập.<br>
+    <strong>Bạn gái</strong> — nữ giới Việt Nam, tóc dài đen, dáng nhỏ, mặc đồ thường ngày (áo thun/váy nhẹ ở tập đầu) → quần áo rách, lấm bẩn dần từ tập 2 trở đi. Giai đoạn nhiễm: một hoặc hai mắt nổi gân đỏ, gân đen lan trên da.<br>
+    <strong>Phản diện (trùm)</strong> — nam giới trung niên, ăn mặc chỉnh tề kiểu nhà khoa học/quản lý, thái độ điềm tĩnh lạnh lùng, không cần cơ bắp — quyền lực đến từ khí chất chứ không phải vóc dáng.<br>
+    <strong>Tên tàn bạo</strong> — nam giới trẻ hơn trùm, thân hình săn chắc, ánh mắt sắc, biểu cảm hay nhếch mép cười.<br>
+    <strong>Hậu phương</strong> — nam giới lớn tuổi, dáng mệt mỏi, kính, áo blouse cũ rách.
+  </div>
+</div>
+
+<!-- SHORT -->
+<div class="panel" id="panel-short">
+  <div class="ep-header">
+    <div class="ep-tag">Short Hook — Video Đầu Tiên</div>
+    <div class="ep-title">VIRUS — 60 Giây</div>
+    <div class="ep-meta"><span>⏱ 60 giây</span><span>🎯 Không kể chuyện — chỉ cần người xem tò mò</span></div>
+  </div>
+  <div class="info-box">Cuối Short: dẫn người xem vào kênh — <em>"Toàn bộ câu chuyện đang ở trong kênh của tôi. Giấc mơ này vẫn đang tiếp tục mỗi đêm."</em></div>
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">TIMELINE</div><div class="scene-title">Chi tiết từng giây</div></div>
+    <div class="tl-wrap">
+      <div class="tl-row"><div class="tl-time">0 – 3s</div><div>Màn đen. Chữ hiện từng từ: <em>"Đây là giấc mơ tôi mơ mỗi đêm."</em></div><div class="tl-sound">Im lặng</div></div>
+      <div class="tl-row"><div class="tl-time">3 – 8s</div><div>Ban ngày. Chi nhánh thí nghiệm thuốc — xe tải, kho lab, người đi lại. Bình thường.</div><div class="tl-sound">Tiếng gió, ambient</div></div>
+      <div class="tl-row"><div class="tl-time">8 – 15s</div><div>Đêm. Ban công. Khói thuốc. Nhìn xuống — xe đen lạ đến khu lab lúc khuya.</div><div class="tl-sound">Nhạc bắt đầu nổi, tối</div></div>
+      <div class="tl-row"><div class="tl-time">15 – 25s</div><div>Flash: hóa chất nguy hiểm — bỏ chạy — bị đánh vào đầu — tỉnh dậy bị trói — bạn gái bị tiêm.</div><div class="tl-sound">Nhạc dồn dập</div></div>
+      <div class="tl-row"><div class="tl-time">25 – 35s</div><div>Màn đen. Chữ hiện chậm: <em>"Bạn gái tôi bị nhiễm."</em> / <em>"Còn 10 ngày."</em></div><div class="tl-sound">Nhạc dừng đột ngột</div></div>
+      <div class="tl-row"><div class="tl-time">35 – 45s</div><div>Flash 3 lần chết — mờ, tối, không rõ chi tiết. Mỗi flash 2–3s. Đau và đột ngột.</div><div class="tl-sound">Tim đập nặng, distorted</div></div>
+      <div class="tl-row"><div class="tl-time">45 – 52s</div><div>Bạn gái lau nước mắt Samael. Chậm lại. Giọng cô ấy: <em>"Không sao đâu anh, thà rằng em chết còn hơn là làm đau anh..."</em></div><div class="tl-sound">Chỉ có giọng nói</div></div>
+      <div class="tl-row"><div class="tl-time">52 – 57s</div><div>Màn đen. Chữ: <em>"Giấc mơ này vẫn đang tiếp tục mỗi đêm."</em></div><div class="tl-sound">Im lặng tuyệt đối</div></div>
+      <div class="tl-row"><div class="tl-time">57 – 60s</div><div>Logo kênh. <em>"Toàn bộ câu chuyện đang ở trong kênh của tôi."</em></div><div class="tl-sound">Nhạc fade in nhẹ</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TẬP 1 -->
+<div class="panel" id="panel-ep1">
+  <div class="ep-header">
+    <div class="ep-tag">Tập 1 — VIRUS</div>
+    <div class="ep-title">Điềm Báo</div>
+    <div class="ep-meta"><span>⏱ ~6.5 phút</span><span>🎬 8 scene · 24 shot</span><span>📍 Chi nhánh thí nghiệm thuốc sinh học</span></div>
+  </div>
+  <div class="info-box">Tập này không có gì kinh dị — chỉ là <strong>cảm giác lạ tích lũy dần</strong>. Kết thúc đột ngột bằng cú đánh từ phía sau. <em>Định dạng dưới đây là shot list (mỗi scene tách thành nhiều shot máy) để gen ảnh/video từng đoạn — style & mô tả nhân vật vẫn tạm, sẽ viết lại khi chốt art style.</em></div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 1</div><div class="scene-title">Đến chi nhánh</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 1A</span><span class="shot-type">MEDIUM · Static</span><span class="shot-dur">14s</span></div>
+          <div class="shot-desc">Xe dừng trên đường dẫn vào chi nhánh. Samael xuống xe, vòng ra cốp lấy vali công tác + túi laptop. Bạn gái xuống phía bên kia, tự xách túi hành lý nhỏ của mình, ngó nghiêng quang cảnh lạ.</div>
+          <div class="img-prompt">Car parked on a road leading toward a research facility, man getting out and retrieving a travel suitcase and laptop bag from the trunk, woman getting out the other side carrying her own small travel bag, casual mundane arrival moment, daylight, faces not clearly shown, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Lần công tác này không khác gì những lần trước — tôi xách đồ xuống xe, cô ấy mang theo túi nhỏ của mình."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 1B</span><span class="shot-type">WIDE · Static</span><span class="shot-dur">14s</span></div>
+          <div class="shot-desc">Thiết lập bối cảnh nhìn từ chỗ họ đứng: cổng chi nhánh, xe tải ra vào, kho lạnh và các dãy nhà lab phía xa dưới nắng ban ngày.</div>
+          <div class="img-prompt">Pharmaceutical research facility entrance in Vietnam, daytime, wide establishing shot seen from the couple's point of arrival, trucks passing through gate, cold storage warehouses and lab buildings in background, workers in lab coats crossing yard, calm ordinary atmosphere, no anime, no clear faces, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Chi nhánh thí nghiệm thuốc — tôi xuống để xem hệ thống có vấn đề gì không."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 1C</span><span class="shot-type">MEDIUM · Slow push-in</span><span class="shot-dur">13s</span></div>
+          <div class="shot-desc">Tới cổng, bảo vệ quen mặt Samael từ những lần công tác trước, chỉ gật đầu vẫy qua, không hỏi han nhiều.</div>
+          <div class="img-prompt">Security guard at facility gate recognizing the man and waving him through with minimal words, routine familiarity, couple walking past with luggage, daylight, faces not clearly shown, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Bảo vệ ở cổng quen mặt tôi rồi, vẫy tay cho qua."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 1D</span><span class="shot-type">WIDE · Tracking</span><span class="shot-dur">14s</span></div>
+          <div class="shot-desc">Hai người kéo vali đi bộ vào khu văn phòng, công nhân qua lại bình thường xung quanh.</div>
+          <div class="img-prompt">Couple walking together with luggage toward office building entrance at research facility, other workers passing by normally in background, tracking shot from behind, daylight, ordinary peaceful mood, cinematic wide shot, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Cô ấy đi cùng. Chuyến đi ngắn, bình thường."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 2</div><div class="scene-title">Mọi người... khác</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 2A</span><span class="shot-type">MEDIUM · Static</span><span class="shot-dur">18s</span></div>
+          <div class="shot-desc">Samael ngồi làm việc với một nhân viên IT chi nhánh — người kia trả lời cộc lốc, mắt không nhìn thẳng.</div>
+          <div class="img-prompt">Man working at a computer desk with a distant unfriendly colleague beside him, colleague avoiding eye contact giving short cold answers, office interior with fluorescent lighting, uncomfortable tense atmosphere, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Nhưng mọi người khác. Mấy lần trước họ nhiệt tình lắm — mời ăn, hỏi thăm."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 2B</span><span class="shot-type">WIDE · Handheld</span><span class="shot-dur">20s</span></div>
+          <div class="shot-desc">Hành lang chi nhánh — nhân viên qua lại, ai được hỏi gì cũng đáp gắt, không ai cười.</div>
+          <div class="img-prompt">Facility hallway, several workers passing by, one snapping irritably when asked a question, no smiles anywhere, subtle unease, slight handheld camera movement, fluorescent lighting, dark cinematic realism, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Lần này không ai nhìn thẳng vào mắt tôi. Trả lời ngắn. Nóng tính bất thường."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 2C</span><span class="shot-type">CLOSE-UP · Static</span><span class="shot-dur">17s</span></div>
+          <div class="shot-desc">Cận cảnh tay Samael gõ phím chậm lại, ánh mắt anh (POV) liếc quan sát xung quanh, tự trấn an bản thân.</div>
+          <div class="img-prompt">First-person POV close-up of hands typing on keyboard slowing down, eyes glancing sideways at tense surroundings, self-reassuring inner thought mood, office lighting, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Tôi tự nhủ chắc dạo này áp lực công việc."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 3</div><div class="scene-title">Chiều tối — về phòng nghỉ</div><div class="scene-dur">~40s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 3A</span><span class="shot-type">WIDE · Static</span><span class="shot-dur">13s</span></div>
+          <div class="shot-desc">Cuối giờ làm, nắng chiều tắt dần. Samael và bạn gái kéo vali đi về phía khu nhà nghỉ dành cho khách công tác, nằm trong khuôn viên chi nhánh.</div>
+          <div class="img-prompt">Couple walking with luggage toward a modest guesthouse building within the facility compound at dusk, warm fading sunlight, quiet end-of-day mood, wide shot, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Chiều đó chúng tôi được dẫn tới phòng nghỉ dành cho khách công tác."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 3B</span><span class="shot-type">MEDIUM · Static</span><span class="shot-dur">13s</span></div>
+          <div class="shot-desc">Một nhân viên hậu cần đưa chìa khóa phòng, thái độ cộc lốc như những người khác trong ngày, không nói thêm gì rồi quay đi ngay.</div>
+          <div class="img-prompt">Facility staff member handing over a room key with a curt indifferent attitude, minimal words, immediately turning away, dim hallway lighting, subtle unease consistent with earlier tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Người dẫn đường cũng chẳng nói nhiều — đưa chìa khóa rồi quay đi."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 3C</span><span class="shot-type">MEDIUM · Static</span><span class="shot-dur">14s</span></div>
+          <div class="shot-desc">Trong phòng, bạn gái mệt vì di chuyển cả ngày, nằm vật ra giường ngay. Samael đặt vali xuống, đứng nhìn ra cửa sổ một lúc, chưa nghĩ ngợi gì nhiều.</div>
+          <div class="img-prompt">Simple guesthouse room interior, woman collapsing tiredly onto the bed after a long day of travel, man setting down luggage and gazing quietly out the window, calm domestic moment before the night's unease, warm lamp lighting, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Cô ấy mệt, nằm vật ra giường ngay. Tôi đứng nhìn ra cửa sổ một lúc, chưa nghĩ gì nhiều."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 4</div><div class="scene-title">Đêm đầu — ban công</div><div class="scene-dur">~60s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 4A</span><span class="shot-type">MEDIUM · Static</span><span class="shot-dur">18s</span></div>
+          <div class="shot-desc">Đêm khuya, ban công phòng nghỉ (chính căn phòng vừa nhận). Samael đứng một mình hút thuốc, ánh đèn phòng phía sau cho thấy bạn gái đã ngủ.</div>
+          <div class="img-prompt">Man standing alone smoking on a hotel balcony at night, room light behind him showing sleeping girlfriend silhouette through window, quiet solitary mood, moody lighting, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Tôi không buồn ngủ. Đứng hút thuốc một mình, nhìn xuống khu lab."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 4B</span><span class="shot-type">POV WIDE · Static</span><span class="shot-dur">20s</span></div>
+          <div class="shot-desc">Góc nhìn từ ban công xuống khu lab tối và im ắng phía dưới.</div>
+          <div class="img-prompt">First-person POV looking down from a balcony at a dark, silent research facility below, dim security lights scattered, nighttime stillness, cinematic wide shot, moody atmosphere, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Xe công ty ở đây toàn màu trắng — tôi biết mặt hết rồi."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 4C</span><span class="shot-type">CLOSE-UP · Slow push-in</span><span class="shot-dur">22s</span></div>
+          <div class="shot-desc">Một chiếc xe đen lạ, không cùng hãng với xe công ty, chầm chậm đậu lại trước khu lab.</div>
+          <div class="img-prompt">Mysterious unmarked black vehicle slowly parking near the dark lab entrance at night, different make from company fleet, dim headlights, slow push-in camera, tense quiet cinematic atmosphere, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Nhưng chiếc xe dưới kia màu đen. Và sai hãng. Tôi nghĩ có đối tác đến muộn. Vào ngủ. Không nghĩ thêm."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 5</div><div class="scene-title">Xe đó lại đến</div><div class="scene-dur">~45s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 5A</span><span class="shot-type">WIDE · Time-lapse feel</span><span class="shot-dur">15s</span></div>
+          <div class="shot-desc">Montage 2 đêm liên tiếp — cùng chiếc xe đen, cùng giờ, đậu lại đúng vị trí cũ.</div>
+          <div class="img-prompt">Montage-style repeated shot of the same black vehicle arriving at the same spot on consecutive nights, same time, subtle visual repetition to suggest pattern, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Hôm sau xe đó lại đến. Hôm sau nữa cũng vậy."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 5B</span><span class="shot-type">POV CLOSE-UP · Static</span><span class="shot-dur">15s</span></div>
+          <div class="shot-desc">Samael nhìn kỹ hơn từ xa — nhận ra người đi về phía xe không thuộc bộ phận nghiên cứu.</div>
+          <div class="img-prompt">First-person POV close observation at night, distant figures walking toward a black vehicle, non-research staff identifiable by uniform/badge details, suspicious focus, dim lighting, cinematic realism, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Lần này tôi nhìn kỹ hơn — người theo không phải bộ phận nghiên cứu."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 5C</span><span class="shot-type">MEDIUM · Static</span><span class="shot-dur">15s</span></div>
+          <div class="shot-desc">Nhận diện thêm hai người quen mặt — kế toán, kỹ thuật kho — cùng đi về phía xe.</div>
+          <div class="img-prompt">Two recognizable facility employees — an accountant and a warehouse technician — walking together toward the black vehicle at night, unusual pairing, suspicious tension building, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Có chị kế toán. Có anh IT kho. Tôi bắt đầu không ngủ được."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 6</div><div class="scene-title">Đi theo</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 6A</span><span class="shot-type">POV · Handheld</span><span class="shot-dur">18s</span></div>
+          <div class="shot-desc">Đêm thứ tư, Samael lẻn theo, không bật đèn, di chuyển sâu vào khu lab.</div>
+          <div class="img-prompt">First-person POV sneaking through a dark research lab at night without a flashlight, moonlight only, handheld slight shake, tense stealth movement, cinematic shadows, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Đêm thứ tư tôi đi theo. Vào sâu trong khu lab."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 6B</span><span class="shot-type">WIDE · Static</span><span class="shot-dur">20s</span></div>
+          <div class="shot-desc">Giữa các kệ và thùng chứa, một nhóm người đang bốc dỡ thùng kim loại có nhãn cảnh báo sinh học màu vàng.</div>
+          <div class="img-prompt">Group of workers unloading metal containers with yellow biohazard warning labels among storage shelves, dim industrial lighting, moonlight through windows, tense thriller atmosphere, cinematic wide shot, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Tôi thấy họ đang bốc dỡ thùng kim loại — nhãn vàng, ký hiệu nguy hiểm sinh học."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 6C</span><span class="shot-type">CLOSE-UP · Static</span><span class="shot-dur">17s</span></div>
+          <div class="shot-desc">Samael nép sau kệ hàng, nín thở quan sát.</div>
+          <div class="img-prompt">Close-up first-person POV hiding behind a storage shelf, holding breath, peering through gap at the unloading activity, dim shadows, cinematic tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Thứ đó không có trong danh sách nhập hàng tôi từng thấy. Tôi đứng sau kệ, không dám thở mạnh."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 7</div><div class="scene-title">Bị phát hiện — bỏ chạy</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 7A</span><span class="shot-type">CLOSE-UP · Static, 1s hold</span><span class="shot-dur">12s</span></div>
+          <div class="shot-desc">Một người trong nhóm quay đầu lại. Ánh mắt chạm nhau trong bóng tối. Một giây im lặng căng thẳng.</div>
+          <div class="img-prompt">One worker turning their head and making direct eye contact through the dark shelves, single frozen tense second, dim industrial lighting, cinematic horror stillness, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Một người quay lại. Nhìn thẳng vào tôi."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 7B</span><span class="shot-type">POV · Fast handheld</span><span class="shot-dur">23s</span></div>
+          <div class="shot-desc">Samael quay người chạy — qua hành lang lab, motion blur, hơi thở gấp.</div>
+          <div class="img-prompt">First-person POV sprinting through dark facility corridors, fast handheld motion blur, panicked breathing implied, industrial lighting flashing past, cinematic chase sequence, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Không biết mình đã đứng đó bao lâu. Chỉ biết là tôi chạy. Chạy qua hành lang..."</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 7C</span><span class="shot-type">WIDE · Tracking</span><span class="shot-dur">20s</span></div>
+          <div class="shot-desc">Ra khỏi tòa nhà, băng qua sân tối, tiếng chân đuổi theo phía sau (chỉ nghe, không thấy rõ ai).</div>
+          <div class="img-prompt">Man running across a dark outdoor facility yard at night, wide tracking shot from behind, sense of being pursued without showing pursuer clearly, cinematic tension, moody night lighting, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Ra sân, vào bóng tối. Không biết họ có đuổi không. Chỉ chạy."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 8</div><div class="scene-title">Bị đánh từ phía sau</div><div class="scene-dur">~30s</div></div>
+    <div class="scene-body full">
+      <div class="shotlist">
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 8A</span><span class="shot-type">POV · Handheld</span><span class="shot-dur">15s</span></div>
+          <div class="shot-desc">Samael chạy vào một góc khuất ngoài sân, thở gấp, chưa biết mình đã bị chặn đường.</div>
+          <div class="img-prompt">First-person POV running into a dark secluded corner of the outdoor yard, heavy breathing implied, unaware of danger ahead, handheld camera, cinematic tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo">"Rồi—"</div>
+        </div>
+        <div class="shot">
+          <div class="shot-head"><span class="shot-tag">SHOT 8B</span><span class="shot-type">POV · Whip to black</span><span class="shot-dur">15s</span></div>
+          <div class="shot-desc">Đột ngột một bóng người lao ra từ bên phải khung hình. Cú đánh vào sau đầu. Màn hình tối dần từ cạnh vào giữa, cắt đen.</div>
+          <div class="img-prompt">Sudden shadow figure lunging from the right edge of frame, impact from behind, screen darkening from edges inward to full black, abrupt violent cinematic blackout, no dialogue, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+          <div class="shot-vo"><em>(im lặng — chỉ tiếng va chạm rồi cắt đen)</em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-label">Kết tập 1 — Màn đen đột ngột</div></div>
+</div>
+
+<!-- TẬP 2 -->
+<div class="panel" id="panel-ep2">
+  <div class="ep-header">
+    <div class="ep-tag">Tập 2 — VIRUS</div>
+    <div class="ep-title">Bị Bắt</div>
+    <div class="ep-meta"><span>⏱ ~8 phút</span><span>🎬 8 scene</span><span>📍 Nơi giam giữ → Ra ngoài</span></div>
+  </div>
+  <div class="info-box">Tập dài nhất về cảm xúc. Cảnh tiêm virus rất trực tiếp. 9 ngày bị nhốt mô tả giác quan từng bước. Kết tập: người lạ đầm đìa máu xuất hiện.</div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 1</div><div class="scene-title">Tỉnh dậy</div><div class="scene-dur">~45s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Tối. Mắt mở ra. Tay bị trói sau lưng. Kho chứa tối, ẩm, mùi kim loại. Bạn gái ở cạnh — cũng bị trói, còn tỉnh, nhìn anh lo lắng.</div><br><div class="img-prompt">Dark storage room, man waking up tied, dim light, girlfriend also tied nearby but conscious and looking at him with fear, cold concrete floor first-person, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi tỉnh dậy không biết mình đang ở đâu. Tay bị trói ra sau. Mùi kim loại và ẩm mốc. Tôi quay đầu — cô ấy ở đó. Cũng bị trói. Nhưng còn tỉnh. Còn nhìn được tôi."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 2</div><div class="scene-title">Phản diện và câu hỏi</div><div class="scene-dur">~80s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Cửa mở. Phản diện bước vào — ăn mặc bình thường, không hung dữ. Nhìn hai người một lượt, như đang đánh giá một món đồ mới nhận. Kéo ghế ngồi xuống đối diện Samael, thong thả, không vội. Thuộc hạ đứng sau với ống tiêm. Samael giằng dây trói, hỏi dồn — phản diện chỉ cười nhẹ, phớt lờ, rồi mới từ từ chuyển sang giọng trầm hơn.</div><br><div class="img-prompt">Calm middle-aged scientist entering dark room, looking captives over appraisingly, pulling a chair to sit casually across from the bound man, one subordinate standing behind with syringe, unsettling normalcy, low key dramatic lighting, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Đối thoại mở đầu</div><div class="voice-box"><em>Phản diện (thản nhiên):</em> "Xin lỗi vì mấy đứa nhân viên tao hơi thô bạo. Đau đầu lắm hả?"<br><br><em>Samael (giằng dây trói):</em> "Ông là ai? Thả bọn tôi ra!"<br><br><em>Phản diện (cười nhẹ, phớt lờ câu hỏi):</em> "Từ từ. Tao thích nói chuyện với người mới hơn là trả lời câu hỏi vội vàng."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 3</div><div class="scene-title">Triết lý ngột ngạt</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Phản diện ngồi hẳn xuống, giọng trầm xuống, ánh mắt xa xăm như đang nói cho chính mình nghe hơn là cho Samael. Không còn vẻ đùa cợt ban đầu.</div><br><div class="img-prompt">Villain settling into his seat, voice lowering, distant contemplative gaze as if speaking to himself more than to the captive, shift from playful to unsettlingly sincere, dim dramatic lighting, close-up, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại phản diện</div><div class="voice-box">"Mày có bao giờ cảm thấy mệt mỏi không? Cảm thấy thế giới này thật ngột ngạt — ai cũng phải đứng đúng ô, dừng đúng vạch. Rất giả tạo. Rất nhàm chán.<br><br>Có muốn xem thử... con người thật của người mình yêu không?"</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 4</div><div class="scene-title">Tiêm virus — trước mặt Samael</div><div class="scene-dur">~60s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Thuộc hạ tiêm thẳng vào bạn gái trước mặt Samael. Samael hét lên. Hỏi đó là gì. Phản diện cười — bình thản, như đang trả lời câu hỏi bình thường nhất thế giới.</div><br><div class="img-prompt">Subordinate injecting girlfriend while boyfriend watches helplessly bound, man screaming, villain smiling calmly, horror moment without gore, dramatic lighting contrast, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại phản diện</div><div class="voice-box">"Đây là thuốc — giúp bạn gái mày trở về đúng bản chất hơn. Xem lúc đó nó còn yêu mày không, nhóc con.<br><br>Hahaha."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 5</div><div class="scene-title">9 ngày bị nhốt</div><div class="scene-dur">~90s</div></div>
+    <div class="scene-body full">
+      <div class="field-label">Voiceover — Kể theo thứ tự thời gian</div>
+      <div class="voice-box">
+        "Tiếng báo động reo inh ỏi không ngừng. Loa thông báo trú ẩn — rồi nhỏ dần, rồi tắt hẳn.<br><br>
+        Mùi kỳ lạ kéo dài từ bên ngoài — không rõ là gì, chỉ biết là không phải mùi bình thường.<br><br>
+        Chúng tôi không cảm thấy đói. Chỉ thấy đầu óc hơi mơ màng — như không hoàn toàn tỉnh táo.<br><br>
+        Rồi tiếng la hét. Tiếng cháy nổ. Tiếng cười ồn ào bất thường từ bên ngoài.<br><br>
+        Cô ấy bắt đầu co giật. Ngồi một góc, phát ra những tiếng kỳ lạ. Tôi giữ tay cô ấy và không nói gì.<br><br>
+        Ngày thứ mười — một chiếc xe đâm thẳng vào bức tường chỗ chúng tôi đang ở. Bụi. Tiếng vỡ. Ánh sáng từ bên ngoài tràn vào."
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 6</div><div class="scene-title">Bước ra ngoài</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Bước qua lỗ hổng do xe tạo ra. Ngay cửa — xác người. Buồn nôn. Chi nhánh gần như sụp đổ. Người ta chạy, đánh nhau, la hét. Không ai để ý đến nhau. Mọi thứ hỗn loạn.</div><br><div class="img-prompt">Post-apocalyptic research facility exterior, bodies near exit, people running and fighting in background, smoke, chaos, two people stepping out into devastation, overwhelming horror of collapsed society, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Ngay cửa ra là một xác người. Tôi buồn nôn. Nhưng không có thời gian. Chi nhánh gần như không còn nguyên vẹn. Ngoài kia — người ta không còn là người tôi biết nữa."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 7</div><div class="scene-title">Trốn — tìm chỗ ẩn náu</div><div class="scene-dur">~40s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Samael dìu bạn gái chạy. Cô ấy yếu hơn bình thường, chân bước không vững. Tìm được góc khuất — kho nhỏ còn nguyên vẹn. Dừng lại thở.</div><br><div class="img-prompt">Man helping weakened girlfriend escape through chaos, finding small intact storage building to hide, desperate survival, dark cinematic, emotional urgency, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi dìu cô ấy chạy. Cô ấy yếu hơn tôi tưởng — chân không vững. Tìm được một góc khuất. Ngồi xuống. Tôi không biết phải làm gì tiếp theo."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 8</div><div class="scene-title">Người lạ đưa bút</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Tiếng động bên ngoài. Cửa kho bật mở — một người đàn ông lê vào. Đầm đìa máu. Một bên tay chân đứt lìa. Hơi thở gấp. Tìm mắt Samael. Đưa ra cây bút 7 màu — 3 nút đã bể. Nói câu duy nhất: <em>"Hãy quay lại gặp tôi."</em> Rồi gục xuống.</div><br><div class="img-prompt">Severely injured man crawling into dark storage, missing limb, blood everywhere, reaching out to hand over a seven-color pen with some broken buttons, last effort, dramatic death scene, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi không biết ông ta là ai. Chỉ biết ông ta đang chết. Và ông ta dùng hơi thở cuối cùng để tìm đến chỗ tôi."</div></div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-label">Kết tập 2 — Fade to black</div></div>
+  <div class="quote">"Trong tay tôi là một cây bút 7 màu. Ba nút đã bể. Tôi không hiểu tại sao. Tôi cũng không hiểu ông ta muốn gì."</div>
+</div>
+
+<!-- TẬP 3 -->
+<div class="panel" id="panel-ep3">
+  <div class="ep-header">
+    <div class="ep-tag">Tập 3 — VIRUS</div>
+    <div class="ep-title">Thế Giới Vỡ Vụn</div>
+    <div class="ep-meta"><span>⏱ ~4 phút</span><span>🎬 4 scene</span><span>📍 Kho ẩn náu → Vòng lặp đầu tiên</span></div>
+  </div>
+  <div class="info-box">Tập này mở đầu bằng cảnh <strong>bạn gái biến đổi</strong> — đỉnh điểm cảm xúc trước khi cơ chế du hành thời gian được kích hoạt lần đầu tiên.</div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 1</div><div class="scene-title">Bạn gái bắt đầu thay đổi</div><div class="scene-dur">~70s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Samael nhìn quanh kho. Quay lại nhìn bạn gái — 1 mắt nổi gân đỏ. Cô ấy run, giọng nhỏ: <em>"Chạy đi."</em> Samael hỏi lại. Cô ấy đẩy anh văng xa, hét to: <em>"CHẠY ĐI"</em> — đang khóc, mắt đỏ lòm.</div><br><div class="img-prompt">Young woman with one eye showing red veins, trembling, crying while trying to warn boyfriend, pushing him away desperately, emotional horror scene, dark storage room, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Một mắt cô ấy đỏ — những tia gân nổi lên. Cô ấy run. Giọng nhỏ đến mức tôi phải hỏi lại. Rồi cô ấy đẩy tôi. Mạnh hơn tôi nghĩ rất nhiều. Tôi văng ra xa. Cô ấy hét — vừa hét vừa khóc."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 2</div><div class="scene-title">Cô ấy đứng dậy</div><div class="scene-dur">~65s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Vài giây — cô ấy gục xuống. Samael gọi tên. Cô ấy từ từ đứng dậy. Mặt cúi gằm. Tay bẻ thanh sắt kế bên. Bước về phía Samael chậm rãi. Dừng lại trước mặt anh. Từ từ ngước mặt lên — 2 mắt như chảy máu, gân đen nổi khắp người, miệng nở nụ cười quái dị.</div><br><div class="img-prompt">Girlfriend slowly rising, face down, picking up iron bar, walking toward boyfriend, looking up revealing bleeding eyes and dark veins spreading across skin, disturbing smile, body horror cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi gọi tên cô ấy. Cô ấy đứng dậy. Nhưng không phải theo cách bình thường. Mặt cúi xuống. Tay bẻ thanh sắt như không phải chuyện gì. Tôi không bỏ chạy. Tôi không thể bỏ chạy."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 3</div><div class="scene-title">Bút kích hoạt — lần đầu</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Cô ấy vung cây gậy sắt về phía đầu Samael. Anh giơ tay đỡ theo bản năng — tay đang cầm cây bút. Vô tình ấn nút thứ 4. <strong>Màn hình hiện số 4 đảo thành số 3</strong> — to, hiệu ứng nặng, nhấn mạnh: còn 3 lần. Mọi thứ xoáy ngược lại.</div><br><div class="img-prompt">Slow motion iron bar swinging at man, hand instinctively raising pen to block, button pressed accidentally, dramatic number display 4 turning to 3, time reversal visual effect, surreal dreamlike, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi không kịp nghĩ. Chỉ giơ tay lên đỡ. Tay tôi đang cầm cây bút của người lạ. Ngón tay ấn vào nút thứ tư theo bản năng. Và mọi thứ — dừng lại."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 4</div><div class="scene-title">Trở về — 10 ngày trước</div><div class="scene-dur">~45s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Cảnh quen thuộc. Kho tối, bị trói, phản diện vừa rời đi. Bạn gái bất tỉnh bên cạnh — vừa bị tiêm xong. Samael nhìn tay mình — vẫn còn cây bút.</div><br><div class="img-prompt">Back in original dark storage room, tied up again, girlfriend unconscious just injected, man looking at pen in hand with disbelief and understanding, same scene as episode 2, temporal loop realization, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi nhận ra ngay. Cảnh này tôi đã thấy rồi. Phản diện vừa rời đi. Cô ấy vừa bị tiêm. Còn mười ngày. Nhưng lần này — tôi nhớ tất cả những gì đã xảy ra."</div></div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-label">Kết tập 3</div></div>
+  <div class="quote">"Tôi có thêm một lần thử. Và cô ấy còn mười ngày. Nhưng tôi không biết phải bắt đầu từ đâu." — Fade to black. Chữ hiện: <em>Tập 4: Bốn Lần Hồi Sinh</em></div>
+</div>
+
+<!-- TẬP 4 -->
+<div class="panel" id="panel-ep4">
+  <div class="ep-header">
+    <div class="ep-tag">Tập 4 — VIRUS</div>
+    <div class="ep-title">Bốn Lần Hồi Sinh</div>
+    <div class="ep-meta"><span>⏱ ~29 phút</span><span>🎬 30 scene</span><span>📍 4 vòng lặp · Cảm xúc leo thang</span></div>
+  </div>
+  <div class="info-box">Tập quan trọng nhất về cảm xúc. Mỗi hồi sinh là một bài học — và một vết thương khác nhau. Từ hồi sinh 1, bút tự động kích hoạt ngay khi cả hai chết, không cần bấm tay. Kết: câu thoại bạn gái + quyết định lên đường một mình.</div>
+
+  <div class="divider"><div class="divider-label">Hồi Sinh 1 — Mười Ngày Đầu Tiên · Số 3 → 2</div></div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 1</div><div class="scene-title">Ngày 1–3 · Phá lồng</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Cảnh quen thuộc lặp lại — nhưng lần này Samael biết mình đang ở đâu. Anh lao vào phá khóa lồng giam bằng mảnh kim loại nhặt được, cạy đi cạy lại suốt ba ngày. Tay rách, chảy máu. Bạn gái ngồi cạnh, còn tỉnh nhưng yếu dần theo từng giờ.</div><br><div class="img-prompt">Man desperately prying open a cage lock with a scrap of metal over three days, bleeding hands, weakened girlfriend watching nearby, dim storage room, gritty determined montage, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi biết mình đang ở đâu rồi. Ba ngày, tôi chỉ làm một việc — cạy cái khóa này ra. Tay tôi rách hết. Cô ấy ngồi nhìn tôi, không nói gì, chỉ yếu dần theo từng giờ."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 2</div><div class="scene-title">Ngày 4–5 · Tìm hậu phương</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Thoát khỏi lồng, Samael dìu bạn gái len lỏi qua khu vực rộng lớn của chi nhánh, cố nhớ lại vị trí ông hậu phương từng bị giam. Hai ngày dò dẫm trong bóng tối, tránh né người qua lại.</div><br><div class="img-prompt">Man helping weakened girlfriend navigate through a sprawling facility at night, searching by half-remembered directions, avoiding patrols, tense stealth movement, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Khu này không nhỏ. Tôi chỉ nhớ mang máng chỗ ông ấy từng bị nhốt. Hai ngày dò dẫm, né người, mới tìm ra đúng chỗ."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 3</div><div class="scene-title">Ngày 6 · Gặp lại hậu phương</div><div class="scene-dur">~100s</div></div>
+    <div class="scene-body full">
+      <div class="field-label">Hình ảnh</div>
+      <div class="field-text" style="margin-bottom:10px;">Tìm được đúng phòng giam hậu phương — mệt mỏi nhưng còn tỉnh táo. Ông nhìn thấy cây bút trong tay Samael, rồi nhìn xuống túi mình — trống. Không hỏi Samael là ai hay đến từ đâu, chỉ gật đầu, hiểu ngay. Cả hai ngồi xuống. Hậu phương kể về mối quan hệ với trùm, về virus, về việc ông từng định ngăn nhưng bị bắt trước — nhưng thẳng thắn nói mình <strong>chưa tìm ra cách chống lại nó</strong>. Sau đó mới lấy dụng cụ thô sơ, mở nắp cây bút, chỉnh lại mạch bên trong theo yêu cầu của Samael. Cả hai nghỉ ngơi lần đầu tiên sau nhiều ngày.</div>
+      <div class="img-prompt">Tired imprisoned scientist recognizing the seven-color pen in a stranger's hand, silent understanding, then sitting down for an urgent quiet conversation, dim room, later adjusting the pen's internal mechanism with crude tools, warm dim workshop lighting, cinematic close-up, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+      <div class="voice-box" style="margin-top:10px;"><em>Hậu phương:</em> "Ông ấy nhìn cây bút trong tay tôi. Rồi nhìn xuống túi mình — trống. Không hỏi tôi là ai. Chỉ gật đầu. Rồi bắt đầu kể.<br><br>Ông ấy và trùm từng là đồng nghiệp, cùng nghiên cứu bản năng sinh vật. Khi phát hiện trùm biến tấu thuốc thành virus — ông định ngăn. Nhưng bị bắt trước, bị nhốt ở đây để chứng kiến.<br><br>'Tôi biết cơ chế của nó. Nhưng cách chống lại thì — tôi vẫn đang tìm.' Ông nói vậy, rồi im lặng một lúc lâu."<br><br><em>Hậu phương (chuyển sang chuyện cây bút):</em> "Cậu suýt bấm nhầm lần trước, đúng không? Được — tôi chỉnh lại để nó tự kích hoạt ngay khi cả hai chết. Cậu sẽ không phải nhớ bấm nút vào lúc không còn kịp nghĩ nữa."</div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 4</div><div class="scene-title">Ngày 7–9 · Ba ngày vô ích</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Samael dò hỏi khắp chi nhánh, vẫn tại khu vực này. Những người từng liên quan đến vụ việc đều đã nghỉ việc, đi theo phản diện. Người còn lại lắc đầu, né tránh câu hỏi, giả vờ không biết gì khi anh nhắc tới những đồng nghiệp đã "nghỉ việc" hay nhắc tới phản diện.</div><br><div class="img-prompt">Man asking questions to indifferent facility workers over several days, empty leads, people avoiding eye contact, montage of closed doors and shrugging shoulders, gritty realism, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Ba ngày liền gần như vô ích. Ai từng dính líu đều đã nghỉ việc, đi theo bọn chúng rồi. Người còn lại — hỏi tới thì chỉ lắc đầu, hoặc giả vờ không biết gì cả."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 5</div><div class="scene-title">Ngày 10 · Máy tính bàn bỏ lại</div><div class="scene-dur">~65s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Một máy tính bàn bị bỏ lại trong văn phòng trống — chủ nhân đã theo phản diện, không mang đi được vì cồng kềnh. Dữ liệu chưa bị xóa hẳn. Samael ngồi xuống, cặm cụi khôi phục các file đã xóa.</div><br><div class="img-prompt">Man sitting at an abandoned desktop computer in empty office, screen glow in dark room, running file recovery software, focused breakthrough moment, cinematic detective tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Ngày thứ mười, tôi tìm được một máy tính bàn bị bỏ lại — quá cồng kềnh để mang theo. Dữ liệu chưa xóa hẳn. Tôi ngồi xuống, khôi phục từng file một."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 6</div><div class="scene-title">Phiếu vận chuyển hóa chất</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trong đống file khôi phục, một phiếu vận chuyển hóa chất vào giờ muộn hiện ra — loại phiếu bắt buộc phải có để qua mặt bảo vệ khi chở hàng ra khỏi chi nhánh. Samael nhìn địa chỉ đến, ghép nối với những gì đã biết — suy ra được vị trí chi nhánh tiếp theo của bọn chúng.</div><br><div class="img-prompt">Close-up of a recovered digital document — a late-night chemical transport slip with a destination address, man's eyes widening in realization, cinematic breakthrough lighting, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Một phiếu vận chuyển hóa chất lúc nửa đêm — loại giấy tờ bắt buộc phải có để qua cổng bảo vệ. Địa chỉ đến ghi rõ ràng. Tôi biết bọn chúng đã chuyển tới đâu."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 7</div><div class="scene-title">"Dù có sống lại ngàn lần" · Bút tự động lần 1</div><div class="scene-dur">~75s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Samael chạy đi báo tin cho bạn gái — háo hức, cuối cùng cũng có manh mối. Nhưng khi tới cửa văn phòng, anh thấy cô ấy ngồi gục, run rẩy, một mắt đã nổi gân đỏ — đang biến đổi giai đoạn cuối. Anh chạy lại xem tình trạng cô ấy. Cô ấy hóa điên, đứng dậy, lao vào tấn công. Lần này Samael không chạy, không chống trả — chỉ ôm chặt lấy cô ấy.</div><br><div class="img-prompt">Man running excitedly to share news, then freezing at the sight of girlfriend trembling with red-veined eye, transformation reaching final stage, choosing to embrace instead of fighting back, tragic tender devastation, cinematic close-up, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại Samael</div><div class="voice-box">"Dù có sống lại ngàn lần, anh cũng sẽ không làm tổn thương em."<br><br><em>Tôi ôm cô ấy đến khi mọi thứ tối lại. Cây bút trong túi tự sáng lên — không cần tôi bấm. Số 3 đảo thành số 2.</em></div></div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-label">Hồi Sinh 2 — Tin Nhầm Người · Số 2 → 1</div></div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 8</div><div class="scene-title">Gã lảng vảng ven đường</div><div class="scene-dur">~60s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trên đường tới chi nhánh vừa suy ra được — vùng núi cao. Gần tới nơi, họ gặp một người đàn ông trẻ lảng vảng ven đường. Hắn ở đó không phải tình cờ: vừa để giải trí bằng bạo lực, vừa canh gác người ra vào khu vực. Hai người nhờ hắn cho đi nhờ xe vào trong.</div><br><div class="img-prompt">Mountain road in Vietnam, couple's car stopping for a young man loitering by the roadside, subtle menace beneath a helpful facade, dusk lighting, cinematic tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Gần tới nơi, chúng tôi gặp hắn — đứng ven đường như đang chờ ai đó. Chúng tôi nhờ hắn cho đi nhờ xe vào khu vực."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 9</div><div class="scene-title">Vỏ bọc nhân viên sợ hãi</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Hắn giả làm nhân viên phòng thí nghiệm tại chi nhánh, giọng run run kể có chuyện kỳ lạ đang xảy ra bên trong, khuyên họ nên đi chỗ khác, đừng vào sâu.</div><br><div class="img-prompt">Young man pretending to be a frightened lab employee, warning couple to leave, trembling voice and nervous glances, convincing performance, dim roadside lighting, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại gã lạ</div><div class="voice-box">"Các anh chị đừng vào trong đó. Có chuyện gì đó kỳ lạ lắm đang xảy ra ở chi nhánh — tôi làm trong đó, tôi biết. Đi chỗ khác đi."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 10</div><div class="scene-title">Tuần trăng mật giả</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Nghe vậy, họ đoán ngay đây chính là nơi bọn phản diện đang ở — nhưng vẫn giả vờ không sao, nói rằng họ thích địa điểm này từ lâu, đây là tuần trăng mật của họ. Gã cười lén sau lưng, tận hưởng cảm giác dẫn dụ con mồi.</div><br><div class="img-prompt">Couple pretending to be an ordinary honeymooning pair while the young man secretly smiles behind their backs, predator enjoying the hunt, disguised danger, mountain scenery, cinematic irony, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại Samael</div><div class="voice-box">"Không sao đâu, tụi tôi thích chỗ này từ lâu rồi. Đây là tuần trăng mật của tụi tôi mà.<br><br><em>Hắn cười. Chúng tôi không thấy. Nhưng tôi biết hắn đang cười.</em></div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 11</div><div class="scene-title">Dẫn đi lòng vòng</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Gã dắt họ đi lòng vòng quanh khu vực, kể thêm những chuyện vặt để củng cố vỏ bọc "người bình thường đang sợ hãi" — chỉ để câu giờ, giữ họ trong tầm kiểm soát.</div><br><div class="img-prompt">Young man leading couple on a winding path through mountain terrain, casual small talk masking calculated control, subtle unease building, cinematic slow tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Hắn dẫn chúng tôi đi lòng vòng, kể đủ thứ chuyện vặt. Lúc đó tôi không nhận ra — hắn chỉ đang câu giờ."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 12</div><div class="scene-title">Nói thật — bị dẫn vào hang ổ</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Thời gian gần hết, Samael chủ động nói ra sự thật: họ tới để tìm hiểu nguyên nhân. Gã đổi thái độ ngay lập tức — nụ cười biến mất, ánh mắt lạnh. Hắn dẫn cả hai thẳng vào hang ổ.</div><br><div class="img-prompt">Man's fake friendly demeanor instantly vanishing into cold menace after being confronted with the truth, leading couple into a hidden compound entrance, dramatic tonal shift, dark cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Sắp hết thời gian rồi nên tôi nói thẳng — chúng tôi tới để tìm hiểu chuyện gì đang xảy ra. Ngay lúc đó, mặt hắn đổi khác hẳn. Hắn dẫn chúng tôi thẳng vào trong."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 13</div><div class="scene-title">Đấu trường · Bút tự động lần 2</div><div class="scene-dur">~75s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Sân vận động cải tạo. Vòng tròn người nhiễm vây quanh. Hai người liên tục chống trả — hết đợt này đến đợt khác — cho tới khi kiệt sức hoàn toàn và gục xuống. Không có đoạn đối thoại, không ai khoe khoang. Chỉ có sự kiệt quệ.</div><br><div class="img-prompt">Stadium converted to arena, couple fighting endless waves of infected until complete exhaustion collapse, no dialogue, pure physical horror, crowd watching in silence, cinematic dread, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Không ai nói gì với chúng tôi. Không cần. Chúng tôi chỉ chống trả — hết người này đến người khác — cho tới khi không còn sức. Cây bút tự sáng. Số 2 đảo thành số 1."</div></div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-label">Hồi Sinh 3 — Chủ Quan · Số 1 → 0</div></div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 14</div><div class="scene-title">Mò vào một mình</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Đã biết rõ vị trí chi nhánh từ hồi sinh trước, lần này họ tự mò vào được — không cần tên tàn bạo dẫn đường. Tự tin hơn. Có phần chủ quan.</div><br><div class="img-prompt">Couple confidently infiltrating facility on their own using prior knowledge, no guide needed, slightly overconfident body language, night infiltration, cinematic tension building, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Lần này chúng tôi đã biết đường. Không cần ai dẫn nữa. Tôi nghĩ vậy là đủ an toàn rồi. Tôi đã sai."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 15</div><div class="scene-title">"Lũ chuột nhắt này đi đâu đây"</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trong bóng tối, tên tàn bạo bất ngờ xuất hiện sau lưng, đâm thẳng vào bạn gái trước khi Samael kịp nhận ra. Anh không phản ứng kịp — sụp đổ ngay tại chỗ.</div><br><div class="img-prompt">Villain suddenly appearing from shadows, stabbing girlfriend from behind, boyfriend collapsing in shock unable to react, sudden violent ambush, dark cinematic horror, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại tên tàn bạo</div><div class="voice-box">"Lũ chuột nhắt này đi đâu đây?"<br><br><em>Tôi không kịp phản ứng. Cô ấy đã ngã xuống trước khi tôi kịp hiểu chuyện gì xảy ra.</em></div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 16</div><div class="scene-title">Trước mặt trùm — khen ngợi</div><div class="scene-dur">~60s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Cả hai bị lôi tới trước trùm. Trùm khen ngợi vì họ thoát được cái lồng cũ và mò được đến tận đây — ánh mắt gần như thích thú, tò mò xem họ đã làm thế nào.</div><br><div class="img-prompt">Villain leader genuinely impressed, examining captives with curious admiration, dim throne-like room, cold charismatic presence, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại trùm</div><div class="voice-box">"Không tệ. Thoát được cái lồng của tao, còn mò được đến tận đây. Tao tò mò thật đấy — làm sao mà tụi bay làm được vậy?"</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 17</div><div class="scene-title">Trò tiêu khiển bị hỏng</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trùm quay sang mắng tên tàn bạo: hắn đã phá hỏng thứ trùm muốn tự tay xem — bạn gái biến đổi hoàn toàn và giết Samael trước mặt hắn, như một màn trình diễn. Giờ bạn gái đang hấp hối vì nhát đâm, trò tiêu khiển coi như hỏng.</div><br><div class="img-prompt">Villain leader turning furious on his subordinate, ruined entertainment, dying girlfriend on the ground nearby, mixed anger and disappointment, dramatic dim lighting, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại trùm</div><div class="voice-box">"Tao muốn tự tay xem con bé đó biến thành cái gì — xem nó còn yêu cái thằng này không. Giờ mày đâm nó gần chết rồi thì còn gì để xem nữa? Mày làm hỏng hết trò vui của tao rồi."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 18</div><div class="scene-title">Hết giá trị giải trí</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trùm nói vì bạn gái coi như đã chết nên Samael cũng hết giá trị giải trí — ra lệnh cho tên tàn bạo vứt bỏ Samael, kèm dọn xác bạn gái. Mặt trùm vừa giận vừa khinh bỉ tên tàn bạo khi nói câu này.</div><br><div class="img-prompt">Villain leader ordering disposal with disgust and contempt on his face, subordinate seething with humiliation, power dynamic tension, cold cruel dismissal, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại trùm</div><div class="voice-box">"Con bé chết rồi thì thằng này còn giá trị gì nữa. Vứt nó đi. Dọn luôn cái xác kia."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 19</div><div class="scene-title">Lôi đi, lèm bèm</div><div class="scene-dur">~45s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Tên tàn bạo, vừa tức giận vừa nhục nhã vì bị mắng trước mặt cả đám, lôi Samael đi xử lý, tay siết chặt, miệng lèm bèm chửi rủa không ngừng.</div><br><div class="img-prompt">Humiliated subordinate dragging protagonist away by force, muttering angry curses under his breath, dark corridor, seething resentment, cinematic tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Hắn lôi tôi đi, tay siết chặt đến đau. Miệng hắn không ngừng lèm bèm — tôi không nghe rõ hắn nói gì, chỉ biết hắn đang rất tức."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 20</div><div class="scene-title">Chọc giận · Tiết lộ bí mật</div><div class="scene-dur">~70s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trước khi hắn xuống tay, Samael hỏi chọc giận hắn. Hắn tức, buột miệng tiết lộ: trùm không dám tự tiêm virus của chính mình vì sợ tỉ lệ tử vong, và cả vị trí chính xác của máy phát tán trong chi nhánh.</div><br><div class="img-prompt">Protagonist provoking his captor with calm defiance despite being about to die, villain snapping and revealing secrets in furious pride, dark corridor, cinematic tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại Samael / tên tàn bạo</div><div class="voice-box">"Mày mà cũng chịu làm tay sai — xử việc vặt như xử lý tụi tao?"<br><br><em>(tên tàn bạo, tức giận)</em> "Ít ra tao còn được nó tin dùng — còn ông trùm của mày, có ngon thì tự tiêm cái thứ đó vào người đi, bốn mươi phần trăm chết đấy, sợ vãi ra thì có. Máy phát của ổng nằm ngay dưới tầng hầm khu B — sắp tới lượt mày cũng chẳng còn cơ hội mà đi báo cho ai đâu."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 21</div><div class="scene-title">Flashback · Cả hai cùng chết · Bút tự động lần 3</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body full">
+      <div class="voice-box">"Cô ấy đã chết trước tôi lần đó. Tôi nghĩ đến tất cả những lần tôi từng nói — em là cả thế giới của anh. <em>I will let the world burn for you.</em><br><br>Lần đó, tôi không giữ được lời.<br><br>Cây bút tự sáng lên lần cuối. Số 1 đảo thành số 0. Không còn lần nào nữa."</div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-label">Hồi Sinh 4 — Chuẩn Bị Lần Cuối</div></div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 22</div><div class="scene-title">Gục ngã</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trở về lần cuối. Cú sốc mất bạn gái ở hồi sinh 3 quá lớn — Samael gục xuống ngay tại chỗ, úp mặt khóc, không đứng dậy nổi.</div><br><div class="img-prompt">Man collapsing to the floor in devastation right after time-loop reset, face buried in hands, unable to stand, dim familiar room, raw emotional breakdown, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi gục xuống ngay tại chỗ. Không đứng dậy nổi. Cú sốc lần đó quá lớn."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 23</div><div class="scene-title">Không sao đâu anh</div><div class="scene-dur">~65s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Bạn gái tỉnh, hỏi vì sao thất bại. Anh kể — đến đoạn cô ấy chết thì ngập ngừng, không nói được nữa. Cô ấy hiểu, lấy hai tay lau nước mắt anh, ôm anh.</div><br><div class="img-prompt">Man sitting broken on floor sobbing, girlfriend waking and gently wiping his tears after hearing him falter, intimate emotional embrace, dim light, tragic tenderness, cinematic close-up, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại bạn gái</div><div class="voice-box">"Không sao đâu anh. Thà rằng em chết còn hơn là làm đau anh — anh biết em yêu anh nhiều nhường nào mà.<br><br>Không sao đâu anh. Không sao đâu..."<br><br><em>Cô ấy ôm tôi. Tôi khóc như đứa trẻ trong vòng tay cô ấy.</em></div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 24</div><div class="scene-title">Kể lại toàn bộ · Đột phá Oxytocin</div><div class="scene-dur">~80s</div></div>
+    <div class="scene-body full">
+      <div class="field-label">Hình ảnh</div>
+      <div class="field-text" style="margin-bottom:10px;">Bình tĩnh lại, cả hai quay về tìm hậu phương, kể lại toàn bộ những gì đã biết qua ba lần hồi sinh — vị trí máy phát, nỗi sợ của trùm, cách vào chi nhánh, mọi thứ. Hậu phương lắng nghe, không ngắt lời. Kể xong, ông lặng đi một lúc rồi lục trong đống ghi chép cũ của mình — suốt ba lần hồi sinh qua, trong lúc chờ đợi, ông vẫn âm thầm nghiên cứu tiếp. Giờ ông mới dám chắc: đã tìm ra cách.</div>
+      <div class="img-prompt">Couple briefing tired scientist with all accumulated knowledge from three loops, scientist digging through old notes with growing realization, breakthrough moment after long silent research, dim strategy room, cinematic close-up, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div>
+      <div class="voice-box" style="margin-top:10px;">"Chúng tôi kể lại hết — từng chi tiết nhỏ nhất qua ba lần hồi sinh. Ông ấy lắng nghe, không ngắt lời.<br><br><em>Hậu phương:</em> "Suốt mấy lần các cậu đi rồi quay lại, tôi không ngồi yên đâu. Tôi nghiên cứu tiếp — từ chính cái virus đó. Nó triệt tiêu Oxytocin trong người bệnh nhân, đúng không? Vậy thì... đưa ngược lại cho họ một liều đậm đặc, đột ngột, não họ sẽ không xử lý kịp.<br><br>Tôi vừa hoàn thành xong đêm qua. Chưa kịp báo các cậu."</div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 25</div><div class="scene-title">Chuẩn bị 4 ngày</div><div class="scene-dur">~45s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Nhờ có đủ thông tin và kinh nghiệm, lần này việc chuẩn bị chỉ tốn 4 ngày — nhanh hơn tất cả những lần trước cộng lại. Hậu phương chuẩn bị bom phá máy và bom Y, dặn dò cách dùng.</div><br><div class="img-prompt">Montage of rapid efficient preparation, packing devices and equipment, scientist explaining usage, determined focused energy compressed into days, dim strategy room, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Lần này chúng tôi có đủ mọi thứ. Bốn ngày để chuẩn bị — nhanh hơn tất cả những lần trước cộng lại."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 26</div><div class="scene-title">Nụ cười ngàn lần</div><div class="scene-dur">~45s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Ngày thứ 5, di chuyển tới chi nhánh của trùm. Mắt bạn gái đã dần ửng đỏ — bắt đầu biến đổi — nhưng cô ấy vẫn quay sang cười với Samael. Nụ cười anh đã ngắm nhìn không biết bao nhiêu lần.</div><br><div class="img-prompt">Woman with slightly reddening eyes still smiling warmly at boyfriend during journey, bittersweet tenderness despite impending danger, soft natural light, cinematic emotional close-up, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Mắt cô ấy đã bắt đầu đỏ. Nhưng cô ấy vẫn cười với tôi — nụ cười tôi đã nhìn ngắm ngàn lần, và vẫn chưa bao giờ thấy chán."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 27</div><div class="scene-title">Đêm cuối bên nhau</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Tối đó, hai người ở bên nhau — ôm ấp, không nói gì thêm, chỉ có sự im lặng ấm áp. Cô ấy ngủ thiếp đi trong vòng tay anh.</div><br><div class="img-prompt">Tender intimate embrace at night, tasteful and restrained, soft dim lighting, quiet warmth, woman falling asleep in boyfriend's arms, cinematic melancholic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tối đó, chúng tôi ở bên nhau. Không nói thêm gì cả. Cô ấy ngủ thiếp đi trong vòng tay tôi."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 28</div><div class="scene-title">Liều thuốc giải</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Samael nhẹ vuốt tóc, hôn lên trán cô ấy, rồi lặng lẽ ra ngoài — lấy liều thuốc giải hậu phương đã chuẩn bị, tiêm cho cô ấy trong giấc ngủ để cô bất tỉnh vài ngày, đủ thời gian cho cơ thể hấp thụ thuốc.</div><br><div class="img-prompt">Man gently kissing sleeping woman's forehead, then quietly administering an antidote injection while she sleeps, tender solemn moment, dim candlelight, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi tin liều thuốc đó sẽ hiệu quả — vì sự thuần túy trong tâm hồn cô ấy chính là điều khiến tôi yêu cô đến tận cùng. Nó sẽ khiến cô ấy bất tỉnh vài ngày, đủ để cơ thể hấp thụ."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 29</div><div class="scene-title">Dặn hậu phương</div><div class="scene-dur">~40s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Samael tìm hậu phương, dặn dò: nếu anh thất bại, hãy đưa cô ấy đi thật xa, chăm sóc cô ấy thay anh.</div><br><div class="img-prompt">Man speaking solemnly to tired scientist in dim room, final instructions, quiet resolve, cinematic farewell tone, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại Samael</div><div class="voice-box">"Nếu tôi thất bại, hãy đưa cô ấy đi thật xa. Chăm sóc cô ấy thay tôi."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 30</div><div class="scene-title">Lên đường một mình</div><div class="scene-dur">~40s</div></div>
+    <div class="scene-body full">
+      <div class="img-prompt" style="margin-bottom:10px;">Solitary figure walking toward misty mountain base at dawn, determined but weary, first light breaking over the ridge, cinematic wide shot</div>
+      <div class="voice-box">"Sáng hôm sau, trời tờ mờ sáng, tôi đã một mình đứng dưới chân núi."</div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-label">Kết tập 4</div></div>
+  <div class="quote">"Lần cuối. Không còn phím tắt." — Fade to black. Chữ hiện: <em>Tập 5: Lần Cuối</em></div>
+</div>
+
+<!-- TẬP 5 -->
+<div class="panel" id="panel-ep5">
+  <div class="ep-header">
+    <div class="ep-tag">Tập 5 — VIRUS</div>
+    <div class="ep-title">Lần Cuối</div>
+    <div class="ep-meta"><span>⏱ ~11 phút</span><span>🎬 12 scene</span><span>📍 Chi nhánh trên núi → Trận cuối → Kết</span></div>
+  </div>
+  <div class="info-box">Tập về <strong>cái giá của chiến thắng</strong>. Hai lá bài tẩy vẫn không đủ — phải chờ đến lá bài thứ ba mới thoát được. Trùm gục — nhưng máy phát tán vẫn hoạt động, 90% thế giới vẫn nhiễm. Và twist: người tưởng trong sạch nhất cũng đã nhiễm từ lâu.</div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 1</div><div class="scene-title">Tỉnh dậy — đòi đuổi theo</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Bạn gái tỉnh dậy sớm hơn dự tính, phát hiện Samael đã đi một mình. Cô hoảng loạn, đòi đuổi theo. Hậu phương giữ cô lại, giải thích lý do — đuổi theo lúc này chỉ khiến kế hoạch đổ vỡ. Cô ấy dần bình tĩnh, không làm loạn nữa, ngồi xuống im lặng chờ.</div><br><div class="img-prompt">Woman waking in panic in safe room, trying to run after boyfriend, tired scientist calmly holding her back and explaining, her panic slowly turning into quiet resolve, dim room, cinematic emotional restraint, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi biết cô ấy sẽ tỉnh dậy và muốn chạy theo tôi. Người hậu phương đã hứa sẽ giữ cô ấy lại — không phải nhốt, mà là thuyết phục. Tôi tin ông ấy sẽ làm được."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 2</div><div class="scene-title">Đột nhập chi nhánh trên núi — đặt bom</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Sáng sớm. Samael lẻn vào một chi nhánh thí nghiệm khác của công ty, đặt trên núi cao — nơi máy phát tán mới được lắp đặt. Anh đặt quả bom hậu phương đã chuẩn bị, cài áp sát máy phát để phá hủy nó, rồi bắt đầu tìm đường rút ra để kích hoạt từ xa cho an toàn.</div><br><div class="img-prompt">Man sneaking into mountain research facility at dawn, planting explosive device near dispersal machine, tense infiltration, industrial dark interior, cinematic thriller, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Chi nhánh mới của bọn chúng nằm trên núi. Tôi đặt quả bom hậu phương đưa — áp sát máy phát. Định trốn ra ngoài rồi kích hoạt từ xa. An toàn hơn."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 3</div><div class="scene-title">Lá bài tẩy 1 — bom Y giữa đường trốn</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trên đường rút ra, Samael bị phát hiện. Anh buộc phải tung lá bài tẩy đầu tiên sớm hơn dự tính — bom Y (Oxytocin), khiến đám lính canh gần đó co giật mất kiểm soát vài giây. Anh lao qua khoảng hở đó, chạy về phía mép chi nhánh.</div><br><div class="img-prompt">Man throwing an oxytocin gas bomb at pursuing guards who seize momentarily, sprinting through the opening toward the facility's mountain edge, urgent action, cinematic tension, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi bị phát hiện giữa đường rút. Không còn lựa chọn — tôi tung quả bom Y ra. Vài giây hỗn loạn là đủ để tôi lao qua."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 4</div><div class="scene-title">Gục trước khi kịp bay</div><div class="scene-dur">~50s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Chi nhánh nằm trên cao, khu vực núi — kế hoạch là bung dù lượn thoát khỏi mép vách. Nhưng trong lúc chạy, Samael bị thương — một nhát chém sượt qua từ phía sau. Anh gục ngã ngay trước khi kịp bung dù, chưa kịp rời khỏi mép chi nhánh. Bị bắt lại.</div><br><div class="img-prompt">Man wounded by a slash from behind while sprinting toward a cliff edge with a paraglider pack, collapsing just before he can jump, recaptured, dramatic failure, cinematic mountain facility at dawn, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi định bung dù ngay mép vách. Nhưng một nhát chém từ phía sau trúng tôi. Tôi gục xuống — ngay trước khi kịp nhảy. Chúng bắt tôi lại."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 5</div><div class="scene-title">Lá bài tẩy 2 — vạch trần</div><div class="scene-dur">~65s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Bị lôi tới trước trùm và toàn bộ đồng bọn. Samael, không vũ khí, dùng chính thông tin đã đổi bằng ba lần hồi sinh — nói thẳng vào mặt trùm: hắn không dám tự tiêm virus của chính mình. Đồng thời châm ngòi rằng đám tay sai cũng chẳng ai thực lòng phục tùng, vì virus đẩy cái tôi của từng đứa lên tuyệt đối.</div><br><div class="img-prompt">Captured man speaking loudly and defiantly before villain and his followers, calling out the leader's cowardice, followers exchanging uneasy glances, power shifting in the room, dramatic confrontation, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại Samael</div><div class="voice-box">"Ông không dám tự tiêm thứ ông tạo ra — vì sợ cái tỉ lệ bốn mươi phần trăm đó, đúng không?<br><br>Và đám đàn em ông đang đứng đó — ông nghĩ chúng phục tùng ông vì trung thành à? Cái thứ ông tiêm vào người chúng chỉ đẩy cái tôi lên tuyệt đối thôi. Đứa nào cũng nghĩ nó là nhất."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 6</div><div class="scene-title">Phản bội</div><div class="scene-dur">~60s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trùm nổi giận, quay qua chửi rủa đám tay sai để dập tắt lời Samael. Giữa lúc đó, tên tàn bạo từ nhỏ đâm thẳng sau lưng trùm — xả hết những uất ức bị sai khiến bấy lâu, chửi ngược lại hắn.</div><br><div class="img-prompt">Villain leader turning to lash out at his subordinates, one of them — the brutal enforcer — suddenly stabbing him from behind, releasing years of pent-up resentment, shocking betrayal, dramatic low lighting, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover — Lời thoại tên tàn bạo</div><div class="voice-box">"Ông nghĩ tôi phục ông thật à? Bao nhiêu năm sai vặt, dọn dẹp bẩn thỉu cho ông — giờ ông còn định chửi tôi trước mặt cả đám sao?"</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 7</div><div class="scene-title">Bỏ mặc</div><div class="scene-dur">~45s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Trùm gục xuống — không chết. Bị bỏ mặc tại chỗ, lần đầu tiên tự mình nếm trải nỗi đau của bạo lực mà cả đời hắn gieo rắc cho người khác. Đám người nhiễm xung quanh chỉ đứng nhìn, cười nhạo, không ai giúp.</div><br><div class="img-prompt">Villain leader collapsed and bleeding, left abandoned on the floor, infected onlookers standing around watching and laughing mockingly, no one helping, poetic justice, cold cinematic irony, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Ông ta không chết. Chỉ nằm đó. Đám người nhiễm đứng xung quanh — nhìn, cười. Không ai đến đỡ. Lần đầu tiên trong đời, ông ta nếm thử thứ mình đã gieo rắc cho bao người."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 8</div><div class="scene-title">Lá bài tẩy 3 — cuối cùng</div><div class="scene-dur">~70s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Tên tàn bạo quay sang định kết liễu Samael. Đúng lúc lưỡi dao gần chạm tới — bạn gái xuất hiện, ném bom Y cải tiến, bế Samael nhảy khỏi mép chi nhánh (nằm trên cao, khu vực núi), bung dù lượn, thoát khỏi đó.</div><br><div class="img-prompt">Villain about to strike, girlfriend suddenly appearing throwing an improved oxytocin gas bomb, grabbing boyfriend and leaping off the mountain facility edge, paraglider opening below, dramatic rescue mid-air, cinematic action, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi tưởng đó là hết. Rồi cô ấy xuất hiện — không nghe lời ai cả. Ném quả bom cải tiến, kéo tôi nhảy khỏi vách núi. Dù bung ra ngay trước khi tôi kịp hiểu chuyện gì."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 9</div><div class="scene-title">Kích hoạt thất bại</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Thoát an toàn dưới chân núi, Samael bấm nút kích hoạt bom từ xa — không có gì xảy ra. Anh nhận ra: tên tàn bạo tinh ranh đã phát hiện và tháo gỡ quả bom từ trước — đó cũng là lý do anh bị phát hiện lúc đột nhập.</div><br><div class="img-prompt">Man pressing a remote detonator that does nothing, confused then dawning realization on his face, mountain facility silent in the background, bittersweet failure, cinematic, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Tôi bấm nút. Không có gì xảy ra. Không nổ. Không cháy.<br><br>Hắn đã tìm ra quả bom từ trước rồi. Đó là lý do tôi bị phát hiện ngay từ đầu."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 10</div><div class="scene-title">90% thế giới</div><div class="scene-dur">~40s</div></div>
+    <div class="scene-body full">
+      <div class="voice-box">"Máy phát tán vẫn hoạt động. Vẫn lan ra, ngày qua ngày. Chín mươi phần trăm thế giới đã nhiễm. Tôi thắng trùm — nhưng không thắng được con virus."</div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 11</div><div class="scene-title">Quay về — Bạn gái</div><div class="scene-dur">~55s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Về lại căn cứ. Nhờ liều thuốc giải đã uống trước khi Samael lên đường, bạn gái hồi phục một phần — mắt bình thường hơn, nhận ra anh. Nhưng có gì đó khác đi một chút — cô ấy vẫn là cô ấy, nhưng không hoàn toàn như trước.</div><br><div class="img-prompt">Girlfriend recovered partially, eyes mostly normal but something subtly different, recognizing boyfriend, emotional reunion but bittersweet, dim safe room lighting, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Thuốc giải không hoàn hảo. Nhưng với người như cô ấy — đủ để giữ lại những thứ quan trọng nhất. Cô ấy nhìn tôi. Tôi nhìn cô ấy. Chúng tôi không nói gì."</div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-header"><div class="scene-num">SCENE 12</div><div class="scene-title">Kết — Và twist</div><div class="scene-dur">~70s</div></div>
+    <div class="scene-body">
+      <div><div class="field-label">Hình ảnh</div><div class="field-text">Hai người ngồi cạnh nhau nhìn ra cửa sổ — thành phố hỗn loạn phía xa. Bạn gái tựa đầu lên vai Samael. Samael nói gì đó. Bạn gái im lặng lâu — mặt thoáng đau. Samael không nhận ra. Fade to black.</div><br><div class="img-prompt">Couple sitting by window watching chaotic city, girlfriend resting head on shoulder, man saying something unknowingly hurtful, girl's expression briefly pained, man unaware, bittersweet cinematic ending, fade to black, cinematic digital painting style, painterly brushwork with fine textured detail, moody dark color palette, dramatic film lighting, concept-art quality — not photorealistic, not anime, not manga, not cartoon</div></div>
+      <div><div class="field-label">Voiceover</div><div class="voice-box">"Chúng tôi ngồi bên nhau nhìn ra thành phố. Tôi nói gì đó. Tôi không nhớ mình nói gì. Chỉ nhớ cô ấy im lặng rất lâu sau đó.<br><br>Virus không cần kim tiêm để vào người tôi.<br><br>Chúng tôi cách ly với thế giới. Không phải vì thế giới nguy hiểm.<br><br>Mà vì chúng tôi cần thời gian — để hiểu phần nào trong tôi vừa thức dậy.<br><br><em>Giấc mơ này vẫn đang tiếp tục mỗi đêm.</em><br><em>Toàn bộ câu chuyện đang ở trong kênh của tôi.</em>"</div></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

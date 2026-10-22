@@ -1,0 +1,282 @@
+{
+  "fps": 30,
+  "scenes": [
+    {
+      "index": 0,
+      "start": 0.3,
+      "end": 1.6,
+      "caus": []
+    },
+    {
+      "index": 1,
+      "start": 1.6,
+      "end": 7.949130499999999,
+      "caus": [
+        {
+          "text": "Mỗi sáng đại lý nhắn đặt hàng đủ kiểu.",
+          "start": 1.6300000000000001,
+          "end": 3.5691303999999997
+        },
+        {
+          "text": "Chép từng tin vào Excel vừa lâu, vừa dễ sót.",
+          "start": 3.5691303999999997,
+          "end": 6.1560869
+        },
+        {
+          "text": "Giờ mình chỉ dán một lần.",
+          "start": 6.156086999999999,
+          "end": 7.5691305
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "start": 7.949130499999999,
+      "end": 12.646087,
+      "caus": [
+        {
+          "text": "Tin thì viết tắt, tin thì chiều mai, thứ sáu.",
+          "start": 7.979130499999999,
+          "end": 10.668260899999998
+        },
+        {
+          "text": "Có tin còn quên ghi mã hàng.",
+          "start": 10.6682609,
+          "end": 12.266086999999999
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "start": 12.646087,
+      "end": 16.256087,
+      "caus": [
+        {
+          "text": "Chép tay thì phải tự đổi ngày, tự dò mã, tự cộng số bao.",
+          "start": 12.676086999999999,
+          "end": 15.876086999999998
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "start": 16.256087,
+      "end": 20.844347900000002,
+      "caus": [
+        {
+          "text": "Mẹo của mình là biến khung chat AI thành một máy chuyển đổi,",
+          "start": 16.286087000000002,
+          "end": 18.98173919354839
+        },
+        {
+          "text": "chỉ với bốn dòng trong câu lệnh.",
+          "start": 19.02666673010753,
+          "end": 20.4643479
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "start": 20.844347900000002,
+      "end": 26.9760871,
+      "caus": [
+        {
+          "text": "Một: dặn AI, từ giờ mỗi khi tôi dán tin nhắn,",
+          "start": 20.874347900000004,
+          "end": 23.591433069014087
+        },
+        {
+          "text": "chỉ trả về các dòng bảng.",
+          "start": 23.65181273943662,
+          "end": 25.161304500000004
+        },
+        {
+          "text": "Cả ngày bạn chỉ việc dán.",
+          "start": 25.161304500000004,
+          "end": 26.596087100000002
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "start": 26.9760871,
+      "end": 33.2273914,
+      "caus": [
+        {
+          "text": "Hai: cho AI biết hôm nay là thứ ba, hai mươi tháng mười.",
+          "start": 27.006087100000002,
+          "end": 30.2604349
+        },
+        {
+          "text": "Nó sẽ tự đổi mai, thứ sáu thành ngày cụ thể.",
+          "start": 30.2604349,
+          "end": 32.8473914
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "start": 33.2273914,
+      "end": 38.446087000000006,
+      "caus": [
+        {
+          "text": "Ba: đưa danh mục mã hàng.",
+          "start": 33.2573914,
+          "end": 34.9139131
+        },
+        {
+          "text": "Mã lạ hoặc thiếu thông tin thì AI ghi dấu hỏi, không tự đoán.",
+          "start": 34.9139131,
+          "end": 38.066087
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "start": 38.446087000000006,
+      "end": 42.28434790000001,
+      "caus": [
+        {
+          "text": "Bốn: thêm một dòng tổng số bao, để đối chiếu với số của bạn.",
+          "start": 38.47608700000001,
+          "end": 41.904347900000005
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "start": 42.28434790000001,
+      "end": 46.51391310000001,
+      "caus": [
+        {
+          "text": "Câu lệnh đầy đủ đây, chỉ bốn dòng.",
+          "start": 42.31434790000001,
+          "end": 44.36217400000001
+        },
+        {
+          "text": "Dán một lần vào đầu cuộc trò chuyện.",
+          "start": 44.36217400000001,
+          "end": 46.13391310000001
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "start": 46.51391310000001,
+      "end": 55.50434790000001,
+      "caus": [
+        {
+          "text": "Dán năm tin nhắn, AI trả về bảng bảy dòng,",
+          "start": 46.54391310000001,
+          "end": 48.976822804615395
+        },
+        {
+          "text": "ngày giao đã đổi đúng.",
+          "start": 49.034749226153856,
+          "end": 50.30913050000001
+        },
+        {
+          "text": "Ba ô dấu hỏi là chỗ cần hỏi lại: trại Tư Long quên mã,",
+          "start": 50.30913050000001,
+          "end": 53.26392299545456
+        },
+        {
+          "text": "còn HT10 không có trong danh mục.",
+          "start": 53.31864137500001,
+          "end": 55.12434790000001
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "start": 55.50434790000001,
+      "end": 59.45130440000001,
+      "caus": [
+        {
+          "text": "Dòng tổng một trăm bao, khớp với số mình cộng.",
+          "start": 55.534347900000014,
+          "end": 57.908260900000016
+        },
+        {
+          "text": "Không lo sót đơn.",
+          "start": 57.908260900000016,
+          "end": 59.07130440000001
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "start": 59.45130440000001,
+      "end": 64.49608700000002,
+      "caus": [
+        {
+          "text": "Copy bảng, dán vào Excel là các cột tự vào đúng chỗ.",
+          "start": 59.48130440000001,
+          "end": 62.74652180000001
+        },
+        {
+          "text": "Tin mới đến cứ dán tiếp.",
+          "start": 62.74652180000001,
+          "end": 64.11608700000001
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "start": 64.49608700000002,
+      "end": 69.31260880000002,
+      "caus": [
+        {
+          "text": "Kết quả: không chép tay từng tin, ngày và mã đã chuẩn,",
+          "start": 64.52608700000002,
+          "end": 67.42794281951221
+        },
+        {
+          "text": "chỉ cần soát vài ô dấu hỏi.",
+          "start": 67.48168089024392,
+          "end": 68.93260880000001
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "start": 69.31260880000002,
+      "end": 75.85739150000002,
+      "caus": [
+        {
+          "text": "Lưu ý: chỉ dùng công cụ AI công ty cho phép,",
+          "start": 69.34260880000002,
+          "end": 71.46272351208793
+        },
+        {
+          "text": "không dán số điện thoại hay công nợ của khách.",
+          "start": 71.51090793736266,
+          "end": 73.72739150000002
+        },
+        {
+          "text": "Dữ liệu trong clip là minh hoạ.",
+          "start": 73.72739150000002,
+          "end": 75.47739150000002
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "start": 75.85739150000002,
+      "end": 80.61956540000003,
+      "caus": [
+        {
+          "text": "Câu lệnh mẫu mình để trong bài viết.",
+          "start": 75.88739150000002,
+          "end": 77.52217410000002
+        },
+        {
+          "text": "Bạn copy, đổi danh mục mã hàng là dùng được ngay.",
+          "start": 77.52217410000002,
+          "end": 80.23956540000002
+        }
+      ]
+    }
+  ],
+  "total": 82.01956540000003
+}

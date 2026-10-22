@@ -1,0 +1,303 @@
+{
+  "fps": 30,
+  "scenes": [
+    {
+      "index": 0,
+      "start": 0.3,
+      "end": 1.7,
+      "caus": []
+    },
+    {
+      "index": 1,
+      "start": 1.7,
+      "end": 6.937232,
+      "caus": [
+        {
+          "text": "Tờ đề nghị thanh toán này nhìn qua rất bình thường.",
+          "start": 1.73,
+          "end": 4.0683928
+        },
+        {
+          "text": "Thử dừng năm giây, xem bạn tìm được mấy lỗi.",
+          "start": 4.0683928,
+          "end": 6.557232
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "start": 6.937232,
+      "end": 17.029374699999998,
+      "caus": [
+        {
+          "text": "Văn bản soạn xong thường chỉ đọc lướt rồi gửi.",
+          "start": 6.967232,
+          "end": 9.1605355
+        },
+        {
+          "text": "Mà lỗi số tiền,",
+          "start": 9.1605355,
+          "end": 9.932164189655172
+        },
+        {
+          "text": "lỗi ngày tháng lại là loại mắt người hay bỏ qua,",
+          "start": 9.98360610229885,
+          "end": 12.452817909195403
+        },
+        {
+          "text": "vì nhìn qua thấy đúng.",
+          "start": 12.504259821839081,
+          "end": 13.6359819
+        },
+        {
+          "text": "Gửi đi rồi mới phát hiện, là phải làm lại, ký lại.",
+          "start": 13.6359819,
+          "end": 16.6493747
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "start": 17.029374699999998,
+      "end": 28.516606699999997,
+      "caus": [
+        {
+          "text": "Mẹo của mình: giao cho AI đúng một vai, người soát lỗi,",
+          "start": 17.0593747,
+          "end": 20.075535393333332
+        },
+        {
+          "text": "không cho viết lại.",
+          "start": 20.130374678666666,
+          "end": 21.172321099999998
+        },
+        {
+          "text": "Bốn bước: dán văn bản kèm câu lệnh,",
+          "start": 21.172321099999998,
+          "end": 23.091612407086615
+        },
+        {
+          "text": "chỉ rõ năm nhóm lỗi cần tìm, nhận về một bảng lỗi,",
+          "start": 23.1464493015748,
+          "end": 25.88829402598425
+        },
+        {
+          "text": "rồi tự bấm máy kiểm lại các lỗi về tiền.",
+          "start": 25.943130920472438,
+          "end": 28.136606699999998
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "start": 28.516606699999997,
+      "end": 35.439106599999995,
+      "caus": [
+        {
+          "text": "Đây là câu lệnh mẫu.",
+          "start": 28.546606699999998,
+          "end": 29.780088799999998
+        },
+        {
+          "text": "Hai chỗ quan trọng nhất: bắt AI tính lại từng bước,",
+          "start": 29.780088799999998,
+          "end": 32.29625616261682
+        },
+        {
+          "text": "và chỗ nào không chắc thì ghi dấu hỏi, không được đoán.",
+          "start": 32.34559277757009,
+          "end": 35.0591066
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "start": 35.439106599999995,
+      "end": 41.993302899999996,
+      "caus": [
+        {
+          "text": "Dán vào, AI soi từng dòng.",
+          "start": 35.469106599999996,
+          "end": 37.5731244
+        },
+        {
+          "text": "Lỗi thứ nhất: ngày hai mươi ba tháng mười năm nay là thứ sáu,",
+          "start": 37.5731244,
+          "end": 40.61572796172839
+        },
+        {
+          "text": "không phải thứ năm.",
+          "start": 40.665606708641974,
+          "end": 41.613302899999994
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "start": 41.993302899999996,
+      "end": 50.366695699999994,
+      "caus": [
+        {
+          "text": "Lỗi thứ hai: cộng ba dòng chi tiết ra mười ba triệu năm trăm năm mươi nghìn,",
+          "start": 42.0233029,
+          "end": 45.451901574809156
+        },
+        {
+          "text": "văn bản lại ghi mười ba triệu bảy trăm năm mươi nghìn.",
+          "start": 45.49701471526717,
+          "end": 47.933124299999996
+        },
+        {
+          "text": "Kéo theo tiền thuế và tổng cộng đều sai.",
+          "start": 47.933124299999996,
+          "end": 49.9866957
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "start": 50.366695699999994,
+      "end": 53.528034899999994,
+      "caus": [
+        {
+          "text": "Lỗi thứ ba: số tiền bằng chữ không khớp với số.",
+          "start": 50.396695699999995,
+          "end": 53.14803489999999
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "start": 53.528034899999994,
+      "end": 61.097856199999995,
+      "caus": [
+        {
+          "text": "Lỗi thứ tư: tên đơn vị nhận tiền khác với tên trong phần nội dung.",
+          "start": 53.558034899999996,
+          "end": 56.889731299999994
+        },
+        {
+          "text": "Lỗi thứ năm: bảng ghi mười thùng giấy,",
+          "start": 56.889731299999994,
+          "end": 58.82931458266666
+        },
+        {
+          "text": "phần ghi chú lại ghi mười hai thùng.",
+          "start": 58.880356248,
+          "end": 60.71785619999999
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "start": 61.097856199999995,
+      "end": 70.3864275,
+      "caus": [
+        {
+          "text": "AI trả về một bảng: vị trí, đang ghi, lỗi gì, đề xuất sửa.",
+          "start": 61.1278562,
+          "end": 65.5533026
+        },
+        {
+          "text": "Hai chỗ không chắc, AI ghi dấu hỏi,",
+          "start": 65.5533026,
+          "end": 67.40877130833333
+        },
+        {
+          "text": "để mình tự kiểm tra lại với hoá đơn và biên bản.",
+          "start": 67.4617847,
+          "end": 70.0064275
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "start": 70.3864275,
+      "end": 79.7531238,
+      "caus": [
+        {
+          "text": "Bước cuối, lỗi nào về tiền thì tự bấm máy.",
+          "start": 70.4164275,
+          "end": 72.8552667
+        },
+        {
+          "text": "Sáu triệu rưỡi, cộng bốn triệu tám, cộng hai triệu hai trăm năm mươi.",
+          "start": 72.8552667,
+          "end": 76.5383023
+        },
+        {
+          "text": "Đúng mười ba triệu năm trăm năm mươi nghìn, AI tính đúng.",
+          "start": 76.53830239999999,
+          "end": 79.3731238
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "start": 79.7531238,
+      "end": 88.2158022,
+      "caus": [
+        {
+          "text": "Mẹo nhỏ: dán thêm báo giá hoặc đơn đặt hàng gốc,",
+          "start": 79.7831238,
+          "end": 82.54220535428571
+        },
+        {
+          "text": "rồi bảo AI đối chiếu.",
+          "start": 82.59968622,
+          "end": 83.8067844
+        },
+        {
+          "text": "Nó sẽ soát chéo giữa hai văn bản: đơn giá, số lượng, tên hàng.",
+          "start": 83.8067844,
+          "end": 87.8358022
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "start": 88.2158022,
+      "end": 94.6025878,
+      "caus": [
+        {
+          "text": "Kết quả: năm trên năm lỗi cài sẵn đều bị bắt.",
+          "start": 88.2458022,
+          "end": 90.8408914
+        },
+        {
+          "text": "Mình chỉ bấm máy kiểm một phép cộng,",
+          "start": 90.8408914,
+          "end": 92.58004954857142
+        },
+        {
+          "text": "và biết ngay hai chỗ cần hỏi lại.",
+          "start": 92.62835949714285,
+          "end": 94.2225878
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "start": 94.6025878,
+      "end": 101.045177,
+      "caus": [
+        {
+          "text": "Dùng được cho báo giá, biên bản giao nhận, thông báo nội bộ,",
+          "start": 94.6325878,
+          "end": 97.8344851
+        },
+        {
+          "text": "bảng kê thanh toán.",
+          "start": 97.887850055,
+          "end": 98.9017842
+        },
+        {
+          "text": "Câu lệnh mẫu mình để trong bài viết.",
+          "start": 98.9017842,
+          "end": 100.665177
+        }
+      ]
+    }
+  ],
+  "total": 102.445177
+}

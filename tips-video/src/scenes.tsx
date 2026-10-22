@@ -33,8 +33,10 @@ const Card: React.FC<{ style?: React.CSSProperties; children: React.ReactNode }>
 );
 
 /** Tô vàng những chữ "khó" trong tin nhắn (ngày tương đối, mã sai, thiếu mã). */
-function markTricky(text: string) {
-  const re = /(chiều mai|thứ \d|như hôm trước|HT10|5bao ht01|càng sớm càng tốt)/gi;
+const MAC_DINH_MARK = /(chiều mai|thứ \d|như hôm trước|HT10|5bao ht01|càng sớm càng tốt)/gi;
+function markTricky(text: string, mark?: string[]) {
+  const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = mark?.length ? new RegExp(`(${mark.map(esc).join("|")})`, "gi") : MAC_DINH_MARK;
   const out: React.ReactNode[] = [];
   let last = 0;
   for (const m of text.matchAll(re)) {
@@ -72,7 +74,7 @@ export const Hook: React.FC<SP> = ({ sc }) => {
         <div style={{ fontSize: 90, color: C.green, fontWeight: 900, transform: `translateX(${Math.sin(f / 6) * 10}px)` }}>→</div>
         <SheetIcon />
       </div>
-      <div style={{ ...pop(at(60)), marginTop: 70, fontSize: 52, fontWeight: 800, color: C.green }}>Dán 1 lần, ra bảng ngay</div>
+      <div style={{ ...pop(at(60)), marginTop: 70, fontSize: 52, fontWeight: 800, color: C.green }}>{String(sc.foot ?? "Dán 1 lần, ra bảng ngay")}</div>
     </div>
   );
 };
@@ -100,7 +102,7 @@ export const Chat: React.FC<SP> = ({ sc, dur }) => {
           <div key={i} style={{ ...pop(at(8 + i * step)), alignSelf: i % 2 ? "flex-end" : "flex-start", maxWidth: 840 }}>
             <div style={{ fontSize: 28, color: C.muted, fontWeight: 600, margin: "0 0 8px 18px" }}>{m.from}</div>
             <div style={{ background: C.card, boxShadow: shadow, borderRadius: 34, borderTopLeftRadius: i % 2 ? 34 : 8, borderTopRightRadius: i % 2 ? 8 : 34, padding: "26px 34px", fontSize: 40, color: C.ink, lineHeight: 1.35 }}>
-              {markTricky(m.text)}
+              {markTricky(m.text, sc.mark as string[] | undefined)}
             </div>
           </div>
         ))}
@@ -186,7 +188,7 @@ export const Prompt: React.FC<SP> = ({ sc, dur }) => {
     <div style={{ padding: "0 60px" }}>
       <Heading text={sc.heading} />
       <Card style={{ ...pop(at(4)), padding: 44 }}>
-        <div style={{ fontSize: 28, fontWeight: 700, color: C.muted, marginBottom: 26 }}>✦ Gửi cho AI (ChatGPT / Gemini / Copilot)</div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: C.muted, marginBottom: 26 }}>{String(sc.label ?? "✦ Gửi cho AI (ChatGPT / Gemini / Copilot)")}</div>
         {lines.map((l, i) => {
           const take = Math.max(0, Math.min(l.length, shown - used));
           used += l.length + 1;
@@ -298,7 +300,7 @@ export const Result: React.FC<SP> = ({ sc }) => {
     <div style={{ padding: "0 60px" }}>
       <Heading text={sc.heading} />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 34, fontWeight: 800, marginBottom: 20, padding: "0 20px" }}>
-        <span style={{ color: C.red }}>Chép tay</span><span style={{ color: C.green }}>Dùng AI</span>
+        <span style={{ color: C.red }}>{String(sc.left ?? "Chép tay")}</span><span style={{ color: C.green }}>{String(sc.right ?? "Dùng AI")}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
         {pairs.map(([label, a, b], i) => (
@@ -365,7 +367,8 @@ export const Cover: React.FC<SP> = ({ sc, script }) => {
         {String(sc.line1)}<br /><span style={{ color: C.yellow }}>{String(sc.line2)}</span>
       </div>
       <div style={{ position: "relative", marginTop: 46, fontSize: 56, fontWeight: 800, color: C.ink, background: "#fff", padding: "14px 40px", borderRadius: 999 }}>{String(sc.hook)}</div>
-      {/* minh hoạ: tin nhắn → bảng */}
+      {sc.art === "assistant" ? <CoverAssistant nhip={nhip} /> : (
+      /* minh hoạ: tin nhắn → bảng */
       <div style={{ position: "relative", marginTop: 120, display: "flex", alignItems: "center", gap: 30, transform: `scale(${1.12 + 0.04 * nhip})` }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {["20 bao HT01, chiều mai", "5bao ht01 thứ 6", "như hôm trước 30 bao"].map((t, i) => (
@@ -383,6 +386,7 @@ export const Cover: React.FC<SP> = ({ sc, script }) => {
           ))}
         </div>
       </div>
+      )}
       <div style={{ position: "absolute", bottom: 100, left: 0, right: 0, textAlign: "center" }}>
         <div style={{ fontSize: 30, color: C.yellow, fontWeight: 800, letterSpacing: 2 }}>AI SHARING TIPS CHALLENGE 2026</div>
         <div style={{ fontSize: 38, color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 12 }}>{script.author}</div>
@@ -391,8 +395,145 @@ export const Cover: React.FC<SP> = ({ sc, script }) => {
   );
 };
 
+/** Minh hoạ bìa video 2: câu lệnh dài (dán đi dán lại) → 1 trợ lý riêng, cả team dùng chung. */
+const CoverAssistant: React.FC<{ nhip: number }> = ({ nhip }) => (
+  <div style={{ position: "relative", marginTop: 110, display: "flex", alignItems: "center", gap: 34, transform: `scale(${1.1 + 0.04 * nhip})` }}>
+    <div style={{ position: "relative", width: 300, height: 330 }}>
+      {[2, 1, 0].map((k) => (
+        <div key={k} style={{ position: "absolute", left: k * 18, top: k * 18, width: 260, height: 290, background: "#fff", borderRadius: 22, boxShadow: shadow, padding: 24, boxSizing: "border-box", opacity: 1 - k * 0.25 }}>
+          {[1, 0.9, 0.95, 0.7, 0.85, 0.6, 0.9, 0.5].map((w, i) => <div key={i} style={{ height: 14, width: `${w * 100}%`, background: C.line, borderRadius: 7, marginBottom: 16 }} />)}
+        </div>
+      ))}
+      <div style={{ position: "absolute", right: -6, top: -18, background: C.red, color: "#fff", fontSize: 28, fontWeight: 900, padding: "6px 16px", borderRadius: 14 }}>dán lại ×3</div>
+    </div>
+    <div style={{ fontSize: 90, fontWeight: 900, color: C.yellow }}>→</div>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
+      <div style={{ background: "#fff", borderRadius: 28, boxShadow: shadow, padding: "26px 30px", display: "flex", alignItems: "center", gap: 18 }}>
+        <div style={{ width: 76, height: 76, borderRadius: 38, background: C.yellow, color: C.ink, fontSize: 34, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>AI</div>
+        <div style={{ fontSize: 32, fontWeight: 800, color: C.ink, lineHeight: 1.15 }}>Trợ lý<br />nhập đơn</div>
+      </div>
+      <div style={{ display: "flex", gap: 12 }}>
+        {["L", "H", "M"].map((x, i) => (
+          <div key={x} style={{ width: 64, height: 64, borderRadius: 32, background: ["#FFD8A8", "#BDE0FE", "#FFC8DD"][i], border: "4px solid #fff", color: C.ink, fontSize: 28, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>{x}</div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const AiDot: React.FC<{ size: number }> = ({ size }) => (
+  <div style={{ width: size, height: size, flex: "none", borderRadius: size / 2, background: C.yellow, fontSize: size * 0.43, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", color: C.ink }}>AI</div>
+);
+
+/** Form tạo trợ lý (chung cho Gem / GPT / Agent): tên, hướng dẫn gõ dần, file đính kèm, bấm Lưu. */
+export const Setup: React.FC<SP> = ({ sc, dur }) => {
+  const at = usePopAt();
+  const f = useCurrentFrame();
+  const guide = String(sc.guide ?? "");
+  const shown = Math.floor(prog(f, 16, dur * 0.5) * guide.length);
+  const fileAt = Math.round(dur * 0.55);
+  const btnAt = Math.round(dur * 0.72);
+  const press = prog(f, btnAt, btnAt + 5) - prog(f, btnAt + 7, btnAt + 12);
+  const saved = f > btnAt + 8;
+  const label = (t: string) => <div style={{ fontSize: 28, fontWeight: 700, color: C.muted, marginBottom: 10 }}>{t}</div>;
+  const box: React.CSSProperties = { border: `3px solid ${C.line}`, borderRadius: 18, padding: "18px 22px", fontSize: 34, color: C.ink, background: "#FAFCFA" };
+  return (
+    <div style={{ padding: "0 60px" }}>
+      <Heading text={sc.heading} />
+      <Card style={{ ...pop(at(4)), padding: 40 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 30 }}>
+          <AiDot size={64} />
+          <div style={{ fontSize: 38, fontWeight: 800, color: C.ink }}>Tạo trợ lý mới</div>
+        </div>
+        {label("Tên")}
+        <div style={{ ...box, fontWeight: 700, marginBottom: 26 }}>{String(sc.name)}</div>
+        {label("Hướng dẫn")}
+        <div style={{ ...box, minHeight: 250, lineHeight: 1.4, marginBottom: 26 }}>
+          {guide.slice(0, shown)}{shown < guide.length ? <span style={{ color: C.green, opacity: f % 20 < 10 ? 1 : 0 }}>|</span> : null}
+        </div>
+        {label("Kiến thức (file đính kèm)")}
+        <div style={{ ...box, borderStyle: "dashed", display: "flex", alignItems: "center", minHeight: 92, marginBottom: 34 }}>
+          <div style={{ ...pop(at(fileAt), 20), display: "flex", alignItems: "center", gap: 16, background: C.greenSoft, border: `3px solid ${C.green}`, borderRadius: 14, padding: "10px 20px" }}>
+            <div style={{ width: 44, height: 50, background: C.green, color: "#fff", borderRadius: 8, fontSize: 24, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>X</div>
+            <span style={{ fontSize: 32, fontWeight: 700, color: C.greenDark }}>{String(sc.file)}</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ ...pop(at(btnAt - 10)), background: saved ? C.greenDark : C.green, color: "#fff", fontSize: 38, fontWeight: 800, padding: "18px 44px", borderRadius: 999, transform: `scale(${1 - press * 0.08})` }}>
+            {saved ? "✓ Đã lưu · Đã chia sẻ" : String(sc.button)}
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+/** Cả team cùng mở 1 trợ lý: mỗi người chỉ dán tin nhắn → cùng 1 kiểu bảng. */
+export const Team: React.FC<SP> = ({ sc, dur }) => {
+  const at = usePopAt();
+  const f = useCurrentFrame();
+  const people = sc.people as string[];
+  const cols = sc.columns as string[];
+  const step = Math.max(8, Math.floor((dur * 0.45) / people.length));
+  const mau = ["#FFD8A8", "#BDE0FE", "#FFC8DD"];
+  return (
+    <div style={{ padding: "0 60px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <Heading text={sc.heading} />
+      <div style={{ ...pop(at(4)), display: "flex", alignItems: "center", gap: 20, background: C.card, boxShadow: shadow, borderRadius: 999, padding: "16px 36px 16px 16px", marginBottom: 46 }}>
+        <AiDot size={80} />
+        <div style={{ fontSize: 44, fontWeight: 800, color: C.ink }}>{String(sc.name)}</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 30, width: "100%" }}>
+        {people.map((p, i) => {
+          const a = 14 + i * step;
+          const ra = prog(f, a + 12, a + 20);
+          const chu = p.split(" ").pop() ?? p;
+          return (
+            <div key={p} style={{ ...pop(at(a)), display: "flex", alignItems: "center", gap: 22 }}>
+              <div style={{ width: 92, height: 92, flex: "none", borderRadius: 46, background: mau[i % 3], fontSize: 40, fontWeight: 900, color: C.ink, display: "flex", alignItems: "center", justifyContent: "center" }}>{chu[0]}</div>
+              <div style={{ width: 210, flex: "none" }}>
+                <div style={{ fontSize: 32, fontWeight: 800, color: C.ink }}>{p}</div>
+                <div style={{ fontSize: 26, color: C.muted, fontWeight: 600 }}>Ctrl+V tin nhắn</div>
+              </div>
+              <div style={{ fontSize: 56, fontWeight: 900, color: C.green, opacity: ra }}>→</div>
+              <div style={{ flex: 1, display: "flex", borderRadius: 14, overflow: "hidden", boxShadow: shadow, opacity: ra, transform: `translateX(${(1 - ra) * 30}px)` }}>
+                {cols.map((c) => (
+                  <div key={c} style={{ flex: 1, background: C.greenDark, color: "#fff", fontSize: 24, fontWeight: 700, padding: "14px 6px", textAlign: "center", borderRight: "2px solid rgba(255,255,255,0.25)" }}>{c}</div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ ...pop(at(14 + people.length * step + 16)), marginTop: 56, background: C.green, color: "#fff", fontSize: 42, fontWeight: 800, padding: "16px 40px", borderRadius: 999 }}>✓ Cùng cột · gộp lại là xong</div>
+    </div>
+  );
+};
+
+/** Lợi ích: lưới 2×2 thẻ, mỗi thẻ 1 ký hiệu lớn + tiêu đề + 1 dòng giải thích, bật lần lượt. */
+export const Benefits: React.FC<SP> = ({ sc, dur }) => {
+  const at = usePopAt();
+  const items = sc.items as { icon: string; t: string; d: string }[];
+  const step = Math.max(10, Math.floor((dur * 0.6) / items.length));
+  const mau = [C.green, C.blue, "#B7791F", C.red];
+  return (
+    <div style={{ padding: "0 56px" }}>
+      <Heading text={sc.heading} />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
+        {items.map((it, i) => (
+          <Card key={i} style={{ ...pop(at(6 + i * step)), padding: "34px 30px", display: "flex", flexDirection: "column", gap: 14, minHeight: 330, boxSizing: "border-box" }}>
+            <div style={{ width: 96, height: 96, borderRadius: 26, background: mau[i % 4], color: "#fff", fontSize: 50, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>{it.icon}</div>
+            <div style={{ fontSize: 42, fontWeight: 900, color: C.ink, lineHeight: 1.12 }}>{it.t}</div>
+            <div style={{ fontSize: 30, color: C.muted, lineHeight: 1.32, fontWeight: 500 }}>{it.d}</div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const SCENES: Record<string, React.FC<SP>> = {
-  cover: Cover,
+  cover: Cover, setup: Setup, team: Team, benefits: Benefits,
   hook: Hook, chat: Chat, typing: Typing, tips: Tips, prompt: Prompt, table: Table,
   total: Total, paste: Paste, result: Result, safety: Safety, outro: Outro,
 };
