@@ -1,0 +1,135 @@
+{
+  "id": "06-cai-ho-so",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Cài hồ sơ cho AI một lần",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Cài hồ sơ cho AI một lần - khỏi giới thiệu lại",
+  "theme": "badge",
+  "music": "pad",
+  "scenes": [
+    {
+      "type": "k-cover",
+      "tag": "DÙNG AI ĐÚNG CÁCH · P3",
+      "line1": "Lần nào cũng",
+      "line2": "phải giới thiệu?",
+      "hook": "Cài 1 lần, AI nhớ mãi",
+      "name": "???",
+      "dur": 1.4,
+      "vo": ""
+    },
+    {
+      "type": "k-hook",
+      "big": "Quên giới thiệu là AI [[trả lời chung chung]]",
+      "rep": "Tôi làm kế toán, trả lời tiếng Việt, ngắn thôi…",
+      "count": 14,
+      "wrong": "Tuỳ ngành nghề của bạn, có nhiều cách…",
+      "sub": "14 lần giới thiệu lại mỗi tuần",
+      "vo": "Bạn có hay phải gõ đi gõ lại: tôi làm kế toán nha, trả lời tiếng Việt, ngắn thôi? Mười bốn lần một tuần. Mà quên gõ là AI trả lời chung chung, kiểu: tuỳ ngành nghề của bạn."
+    },
+    {
+      "type": "k-steps",
+      "heading": "Cài [[hồ sơ]] một lần",
+      "steps": [
+        {
+          "t": "Vào Cài đặt → Cá nhân hoá",
+          "d": "ChatGPT · Gemini · Copilot đều có"
+        },
+        {
+          "t": "Viết 3–4 dòng về bạn",
+          "d": "vai trò · công việc · cách trả lời"
+        },
+        {
+          "t": "Lưu, hỏi như bình thường",
+          "d": "mọi cuộc trò chuyện mới đều nhớ"
+        }
+      ],
+      "vo": "Mẹo của mình: cài hồ sơ một lần. Vào phần cài đặt, mục cá nhân hoá. ChatGPT gọi là Custom instructions, Gemini là thông tin đã lưu, Copilot cũng có. Viết ba bốn dòng, lưu lại, vậy thôi."
+    },
+    {
+      "type": "k-prompt",
+      "heading": "Mẫu [[4 dòng]]",
+      "hint": "✻ dán vào phần Cá nhân hoá / Custom instructions",
+      "hot": [
+        2
+      ],
+      "lines": [
+        "Tôi là kế toán công nợ ở công ty sản xuất.",
+        "Việc chính: đối chiếu công nợ, nhắc thanh toán.",
+        "Trả lời tiếng Việt, ngắn, gạch đầu dòng.",
+        "Chỗ nào không chắc thì hỏi lại tôi."
+      ],
+      "note": "3–4 dòng là đủ — nhồi nhiều AI lại rối",
+      "vo": "Mẫu đây. Bạn là ai, làm việc gì, thích được trả lời ra sao, và dặn nó hỏi lại khi không chắc. Đừng viết quá dài, nhồi nhiều quá AI lại rối."
+    },
+    {
+      "type": "k-split",
+      "q": "Viết email nhắc khách thanh toán.",
+      "profile": "Kế toán công nợ · tiếng Việt · ngắn gọn",
+      "generic": [
+        "Kính gửi Quý khách hàng,",
+        "Chúng tôi xin trân trọng thông báo…",
+        "[Tên công ty] · [Số tiền] · [Ngày]"
+      ],
+      "good": [
+        "Chào anh Minh,",
+        "Hoá đơn 0027 (12.500.000đ) đến hạn 30/10.",
+        "Anh xác nhận giúp em ngày thanh toán nhé.",
+        "— Phòng Kế toán"
+      ],
+      "vo": "Thử cùng một câu: viết email nhắc khách thanh toán. Chưa cài, AI viết một lá thư mẫu chung chung. Cài rồi, [cười] AI viết đúng giọng phòng kế toán, ngắn, có số hoá đơn, đúng xưng hô."
+    },
+    {
+      "type": "k-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "CHƯA CÀI",
+      "colB": "ĐÃ CÀI HỒ SƠ",
+      "rows": [
+        [
+          "GIỚI THIỆU",
+          "14 lần/tuần",
+          "0 lần"
+        ],
+        [
+          "CÂU TRẢ LỜI",
+          "Chung chung",
+          "Đúng việc"
+        ],
+        [
+          "SỬA LẠI",
+          "3–4 lượt",
+          "0–1 lượt"
+        ],
+        [
+          "MỖI VIỆC",
+          "~5 phút",
+          "~1 phút"
+        ]
+      ],
+      "vo": "Kết quả: khỏi giới thiệu lại, câu trả lời đúng việc ngay, số lượt phải sửa giảm từ ba bốn lượt còn một."
+    },
+    {
+      "type": "k-signs",
+      "heading": "Nên ghi [[gì?]]",
+      "items": [
+        "Vai trò, việc chính",
+        "Cách xưng hô, độ dài",
+        "Điều cấm: không bịa số liệu"
+      ],
+      "cta": "→ 3–4 dòng là đủ",
+      "vo": "Nên ghi gì? Vai trò và việc chính của bạn, cách xưng hô và độ dài câu trả lời, và điều cấm, ví dụ không được bịa số liệu."
+    },
+    {
+      "type": "k-outro",
+      "line": "Cài một lần, [[AI hiểu bạn.]]",
+      "echo": "Kế toán công nợ",
+      "echoNote": "hồ sơ đã cài ✓",
+      "tools": [
+        "ChatGPT",
+        "Gemini",
+        "Copilot"
+      ],
+      "cta": "Mẫu 4 dòng ở bài viết",
+      "vo": "Cài một lần, AI hiểu bạn mãi. Mẫu bốn dòng mình để trong bài viết, bạn thử rồi bình luận kết quả cho mình nha."
+    }
+  ]
+}

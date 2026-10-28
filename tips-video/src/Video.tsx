@@ -7,11 +7,18 @@ import { P, PAPER_SCENES } from "./paper";
 import { M, MAIL_SCENES } from "./mail";
 import { K, CHAT_SCENES } from "./chat";
 import { D, DARK_SCENES } from "./dark";
+import { KIT_SCENES, LOOKS } from "./kit";
 
-const ALL = { ...SCENES, ...PAPER_SCENES, ...MAIL_SCENES, ...CHAT_SCENES, ...DARK_SCENES };
+const ALL = { ...SCENES, ...PAPER_SCENES, ...MAIL_SCENES, ...CHAT_SCENES, ...DARK_SCENES, ...KIT_SCENES };
 const isCover = (t?: string) => /(^|-)cover$/.test(t ?? "");
 /** Màu khung chung (nền, header, phụ đề) theo `script.theme`: mỗi video một tone (Quang 20/10). */
 function theme(name?: string) {
+  if (name === "badge" || name === "pinboard" || name === "swiss") {
+    const L = LOOKS[name];
+    const dark = name === "badge";
+    return { bg1: L.bg1, bg2: L.bg2, dot: L.dot, bar: name === "swiss" ? L.ink : L.acc, pillFg: dark ? L.bg1 : "#fff", pillBg: name === "swiss" ? L.ink : L.acc,
+      title: L.ink, subBg: L.subBg, hi: L.hi };
+  }
   if (name === "dark") return { bg1: D.bg, bg2: D.bg2, dot: "rgba(255,255,255,0.05)", bar: D.acc, pillFg: D.bg, pillBg: D.acc, title: D.ink, subBg: "rgba(0,0,0,0.88)", hi: D.acc };
   if (name === "chat") return { bg1: K.bg1, bg2: K.bg2, dot: "rgba(79,70,229,0.12)", bar: K.indigo, pillFg: "#fff", pillBg: K.indigo, title: K.ink, subBg: "rgba(27,29,58,0.93)", hi: "#FFD84D" };
   if (name === "mail") return { bg1: M.bg1, bg2: M.bg2, dot: "rgba(120,160,220,0.14)", bar: M.teal, pillFg: M.bg1, pillBg: M.teal, title: M.ink, subBg: "rgba(6,12,24,0.92)", hi: M.amber };

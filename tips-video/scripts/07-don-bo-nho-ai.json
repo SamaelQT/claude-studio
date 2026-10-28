@@ -1,0 +1,145 @@
+{
+  "id": "07-don-bo-nho-ai",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "AI nhớ sai về bạn? Dọn bộ nhớ",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Kiểm tra và dọn bộ nhớ AI",
+  "theme": "pinboard",
+  "music": "pad",
+  "scenes": [
+    {
+      "type": "k-cover",
+      "tag": "DÙNG AI ĐÚNG CÁCH · P4",
+      "line1": "AI nhớ",
+      "line2": "sai về bạn?",
+      "hook": "Hỏi 1 câu là biết",
+      "note": "Bạn làm ở phòng Mua hàng",
+      "dur": 1.4,
+      "vo": ""
+    },
+    {
+      "type": "k-hook",
+      "big": "Đổi việc rồi mà [[AI vẫn nhớ việc cũ]]",
+      "rep": "Với vai trò Mua hàng, bạn nên…",
+      "count": 9,
+      "wrong": "Gợi ý cho phòng Mua hàng: so sánh 3 báo giá…",
+      "sub": "Bạn đã sang Kế toán 3 tháng rồi",
+      "vo": "Bạn chuyển sang phòng kế toán ba tháng rồi, mà AI vẫn gợi ý theo việc mua hàng cũ. Hỏi gì nó cũng lôi chuyện báo giá, nhà cung cấp ra. Vì nó tự ghi nhớ từ những cuộc trò chuyện trước, kể cả những thứ đã hết đúng."
+    },
+    {
+      "type": "k-steps",
+      "heading": "Hỏi thẳng, rồi [[dọn]]",
+      "steps": [
+        {
+          "t": "Hỏi: Bạn đang nhớ gì về tôi?",
+          "d": "AI liệt kê những gì đã lưu"
+        },
+        {
+          "t": "Đánh dấu mục sai, mục cũ",
+          "d": "đổi việc, dự án đã xong…"
+        },
+        {
+          "t": "Xoá trong phần Bộ nhớ",
+          "d": "Cài đặt → Cá nhân hoá → Bộ nhớ"
+        }
+      ],
+      "vo": "Mẹo của mình: hỏi thẳng nó một câu, rồi dọn. Hỏi: bạn đang nhớ gì về tôi? Đánh dấu mục sai, mục cũ. Rồi xoá trong phần bộ nhớ của cài đặt. ChatGPT, Gemini hay Copilot đều có phần này."
+    },
+    {
+      "type": "k-prompt",
+      "heading": "Câu hỏi [[kiểm tra]]",
+      "hint": "✻ hỏi trong một cuộc trò chuyện mới",
+      "hot": [
+        3
+      ],
+      "lines": [
+        "Bạn đang nhớ những gì về tôi?",
+        "Liệt kê từng mục, mỗi mục một dòng,",
+        "ghi rõ bạn biết điều đó từ khi nào.",
+        "Đánh dấu mục nào có thể đã cũ."
+      ],
+      "note": "AI tự chỉ ra mục cũ — bạn chỉ việc xoá",
+      "vo": "Câu hỏi đây. Bảo AI liệt kê từng mục, và tự đánh dấu mục nào có thể đã cũ. Bạn chỉ việc xem và xoá."
+    },
+    {
+      "type": "k-cleanup",
+      "heading": "Bộ nhớ [[đã dọn]]",
+      "items": [
+        {
+          "t": "Làm ở phòng Mua hàng",
+          "bad": true
+        },
+        {
+          "t": "Trả lời bằng tiếng Việt"
+        },
+        {
+          "t": "Đang làm dự án kho mới (đã xong)",
+          "bad": true
+        },
+        {
+          "t": "Làm kế toán công nợ"
+        },
+        {
+          "t": "Thích câu trả lời thật dài",
+          "bad": true
+        },
+        {
+          "t": "Thích bảng 4 cột"
+        }
+      ],
+      "vo": "AI liệt kê ra sáu điều. Ba điều đã sai: phòng cũ, dự án đã xong, và thói quen thích trả lời dài. Xoá ba mục đó, [thở dài] nhẹ cả người."
+    },
+    {
+      "type": "k-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "CHƯA DỌN",
+      "colB": "ĐÃ DỌN",
+      "rows": [
+        [
+          "GỢI Ý",
+          "Theo việc cũ",
+          "Đúng việc mới"
+        ],
+        [
+          "ĐÍNH CHÍNH",
+          "Mỗi lần hỏi",
+          "Không cần"
+        ],
+        [
+          "MỤC SAI",
+          "3/6",
+          "0"
+        ],
+        [
+          "MẤT",
+          "—",
+          "~2 phút dọn"
+        ]
+      ],
+      "vo": "Kết quả: mất hai phút dọn, AI gợi ý đúng việc mới, không phải đính chính nữa."
+    },
+    {
+      "type": "k-signs",
+      "heading": "Khi nào [[nên kiểm tra?]]",
+      "items": [
+        "Đổi phòng, đổi việc",
+        "Xong một dự án lớn",
+        "AI trả lời lạ, sai bối cảnh"
+      ],
+      "cta": "→ Hỏi: bạn nhớ gì về tôi?",
+      "vo": "Khi nào nên kiểm tra? Khi bạn đổi phòng, đổi việc, xong một dự án lớn, hoặc thấy AI trả lời lạ, sai bối cảnh. Không thì cứ mỗi tháng hỏi một lần cho chắc."
+    },
+    {
+      "type": "k-outro",
+      "line": "Bộ nhớ gọn, [[AI đúng ý.]]",
+      "echo": "Bạn làm kế toán công nợ ✓",
+      "tools": [
+        "ChatGPT",
+        "Gemini",
+        "Copilot"
+      ],
+      "cta": "Câu hỏi mẫu ở bài viết",
+      "vo": "Bộ nhớ gọn, AI đúng ý. Câu hỏi mẫu mình để trong bài viết, bạn hỏi thử AI của mình xem nó đang nhớ gì nha."
+    }
+  ]
+}

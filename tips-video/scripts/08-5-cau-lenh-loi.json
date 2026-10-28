@@ -1,0 +1,153 @@
+{
+  "id": "08-5-cau-lenh-loi",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Giữ 5 câu lệnh lõi, nâng cấp dần",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Thư viện 5 câu lệnh lõi - dùng xong nâng cấp 1 dòng",
+  "theme": "swiss",
+  "music": "pad",
+  "scenes": [
+    {
+      "type": "k-cover",
+      "tag": "DÙNG AI ĐÚNG CÁCH · P5",
+      "line1": "Lưu trăm câu lệnh,",
+      "line2": "dùng được mấy?",
+      "hook": "Giữ 5 câu, nâng cấp dần",
+      "big": "127",
+      "bigNote": "câu lệnh đã lưu · chưa mở lần nào",
+      "dur": 1.4,
+      "vo": ""
+    },
+    {
+      "type": "k-hook",
+      "big": "Lưu cả trăm câu lệnh, [[không dùng câu nào]]",
+      "rep": "100 câu lệnh ChatGPT hay nhất (đã lưu)",
+      "count": 127,
+      "wrong": "Câu lệnh trên mạng: dài, không hợp việc mình",
+      "sub": "Đến lúc cần lại gõ từ đầu",
+      "vo": "Bạn lưu cả trăm câu lệnh trên mạng, nào là một trăm câu lệnh hay nhất, nào là bí kíp viết prompt. Đến lúc cần, chẳng nhớ câu nào, rốt cuộc lại gõ từ đầu. Câu lệnh của người khác cũng ít khi hợp việc của mình."
+    },
+    {
+      "type": "k-steps",
+      "heading": "Chỉ giữ [[5 câu lõi]]",
+      "steps": [
+        {
+          "t": "Chọn 3–5 việc lặp lại nhiều nhất",
+          "d": "email, tóm tắt họp, báo cáo tuần…"
+        },
+        {
+          "t": "Mỗi việc 1 câu lệnh, 1 file ghi chú",
+          "d": "Notes, OneNote, Word đều được"
+        },
+        {
+          "t": "Dùng xong, thêm 1 dòng cải tiến",
+          "d": "câu lệnh tốt dần theo việc của bạn"
+        }
+      ],
+      "vo": "Mẹo của mình: chỉ giữ năm câu lõi. Chọn ba đến năm việc bạn lặp lại nhiều nhất. Mỗi việc một câu lệnh, để chung một file ghi chú. Dùng xong, thêm một dòng cải tiến."
+    },
+    {
+      "type": "k-versions",
+      "heading": "Câu lệnh [[lên đời]]",
+      "name": "#2 TÓM TẮT HỌP",
+      "versions": [
+        {
+          "label": "v1",
+          "add": "Tóm tắt biên bản họp này.",
+          "fixes": 4
+        },
+        {
+          "label": "v2",
+          "add": "Chia theo: quyết định | việc cần làm | người phụ trách.",
+          "fixes": 2
+        },
+        {
+          "label": "v3",
+          "add": "Thêm cột hạn chót; việc chưa có hạn ghi \"?\".",
+          "fixes": 0
+        }
+      ],
+      "vo": "Ví dụ câu tóm tắt họp. Bản một chỉ có một dòng. Dùng xong thấy thiếu việc cần làm, thêm một dòng. Lần sau thấy thiếu hạn chót, thêm dòng nữa. [cười] Giờ chỉ cần dán là xong."
+    },
+    {
+      "type": "k-library",
+      "heading": "Bộ [[5 câu]] của mình",
+      "items": [
+        {
+          "t": "Email",
+          "d": "Viết email [mục đích] gửi [ai], giọng [lịch sự], dưới 120 chữ."
+        },
+        {
+          "t": "Tóm tắt họp",
+          "d": "Quyết định | việc | người | hạn chót."
+        },
+        {
+          "t": "Báo cáo tuần",
+          "d": "Từ ghi chú sau, viết 5 gạch đầu dòng kết quả."
+        },
+        {
+          "t": "Giải thích",
+          "d": "Giải thích [vấn đề] cho người không chuyên, kèm 1 ví dụ."
+        },
+        {
+          "t": "Soát lỗi",
+          "d": "Soát chính tả, giữ nguyên ý, đánh dấu chỗ đã sửa."
+        }
+      ],
+      "vo": "Đây là bộ năm câu mình dùng mỗi ngày: email, tóm tắt họp, báo cáo tuần, giải thích cho người không chuyên, và soát lỗi. Câu nào cũng đã lên đời vài lần, nên giờ dán vào là gần đúng ngay."
+    },
+    {
+      "type": "k-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "LƯU TRĂM CÂU",
+      "colB": "5 CÂU LÕI",
+      "rows": [
+        [
+          "TÌM CÂU LỆNH",
+          "Lục mãi",
+          "Vài giây"
+        ],
+        [
+          "HỢP VIỆC MÌNH",
+          "Ít khi",
+          "Đúng việc"
+        ],
+        [
+          "SỬA KẾT QUẢ",
+          "~4 lượt",
+          "0 lượt"
+        ],
+        [
+          "MỖI VIỆC",
+          "~10 phút",
+          "~2 phút"
+        ]
+      ],
+      "vo": "Kết quả: tìm câu lệnh chỉ mất vài giây, kết quả gần đúng ngay lần đầu, mỗi việc từ mười phút còn khoảng hai phút."
+    },
+    {
+      "type": "k-signs",
+      "heading": "Câu nào [[đáng giữ?]]",
+      "items": [
+        "Việc lặp lại mỗi tuần",
+        "Đã dùng ít nhất 3 lần",
+        "Gần đúng ngay lần đầu"
+      ],
+      "cta": "→ Giữ, và nâng cấp dần",
+      "vo": "Câu nào đáng giữ? Việc lặp lại mỗi tuần, đã dùng ít nhất ba lần, và cho kết quả gần đúng ngay lần đầu. Câu nào cả tháng không dùng thì bỏ ra, đừng tiếc."
+    },
+    {
+      "type": "k-outro",
+      "line": "5 câu lõi, [[dùng mỗi ngày.]]",
+      "echo": "127 → 5",
+      "echoNote": "câu lệnh thật sự dùng",
+      "tools": [
+        "ChatGPT",
+        "Gemini",
+        "Copilot"
+      ],
+      "cta": "Bộ 5 câu ở bài viết",
+      "vo": "Năm câu lõi, dùng mỗi ngày. Bộ năm câu mình để trong bài viết, bạn lấy về, sửa theo việc của mình rồi kể mình nghe nha."
+    }
+  ]
+}

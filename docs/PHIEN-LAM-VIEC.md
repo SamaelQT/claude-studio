@@ -7,13 +7,18 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 "mẹo dùng AI" cho cuộc thi AI Tips (SAP Jam), kế hoạch 6 tuần ở `D:\Web\AI workspace\ai-sharing-tips\KE-HOACH-MEO-AI.md`.
 
 ## Nhật ký
+- 2026-10-28 · acc 2 · Dựng 3 clip tuần 2: #6 cài hồ sơ (phong cách "thẻ nhân viên"), #7 dọn bộ nhớ AI ("bảng ghim giấy nhớ"),
+  #8 5 câu lệnh lõi ("khối màu Thuỵ Sĩ") — Quang muốn mỗi clip một phong cách. Bộ cảnh mới `src/kit.tsx` (k-*, 3 look + 3 cảnh đặc trưng:
+  k-split, k-cleanup, k-versions, k-library). Mỗi clip 64–67 s, ~−15,4 LUFS. Kịch bản/treatment: `tips-video/treatments/tuan2-clip-6-7-8.md`;
+  bài đăng: `D:\Web\AI workspace\ai-sharing-tips\Bai-tuan2-06-07-08.md`. Số RESULT là dự kiến — chờ Quang bấm giờ thật.
 - 2026-10-28 · acc 2 · Giọng mới cho tips-video: VieNeu-TTS "Mai Anh" chạy local, nhanh ×1.08 (Quang chọn sau 2 vòng nghe mẫu;
   đọc đúng từ tiếng Anh, Edge thì không). `tts.mjs` thêm engine VieNeu (kịch bản không ghi `voice` → VieNeu), `vieneu_tts.py` đọc
   từng câu + whisper lấy mốc từng chữ. Thử với kịch bản #5: 9 cảnh / 74 s, đọc ~2,5 phút, render ra MP4 + phụ đề khớp. Đã dọn file thử.
 - 2026-10-26 · acc 2 · Video #5 "Bản bàn giao + chat mới" (đen + cam, phụ đề tô từng chữ qua Edge WordBoundary, msedge-tts 2.1.1).
 
 ## Đang dở / việc kế tiếp
-- Video tuần 2 còn #6 (cài hồ sơ), #7 (dọn bộ nhớ AI), #8 (thư viện câu lệnh) — Quang chọn đề tài, duyệt kịch bản rồi mới dựng.
+- Clip #6–#8 đã dựng (28/10), chờ Quang xem + thay số đo thật rồi đăng. Tuần 3 (3–9/11, chống AI bịa) cần 4 clip, mỗi clip một phong cách mới.
+- Kiểm trước khi giao: mỗi clip ≥ 60 s (thể lệ 1–3 phút); phông có dấu tiếng Việt (Georgia vỡ dấu → dùng Cambria); Cascadia Mono không có số khoanh tròn ②.
 - Quang muốn: lời viết kiểu văn nói, có thể chèn `[cười]`; nhạc nền dùng `"music": "pad"` (tự tổng hợp, không bản quyền).
 
 ## Quyết định đã chốt
