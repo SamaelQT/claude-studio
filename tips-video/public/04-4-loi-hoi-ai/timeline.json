@@ -1,0 +1,234 @@
+{
+  "fps": 30,
+  "scenes": [
+    {
+      "index": 0,
+      "start": 0.3,
+      "end": 1.7,
+      "caus": []
+    },
+    {
+      "index": 1,
+      "start": 1.7,
+      "end": 10.2742856,
+      "caus": [
+        {
+          "text": "Hỏi AI một câu, sửa tám lần, cuối cùng tự làm.",
+          "start": 1.73,
+          "end": 4.916607099999999
+        },
+        {
+          "text": "Lỗi không nằm ở AI, mà ở cách hỏi.",
+          "start": 4.9166071,
+          "end": 7.3621428
+        },
+        {
+          "text": "Đây là bốn lỗi phổ biến nhất, và cách sửa.",
+          "start": 7.3621428,
+          "end": 9.8942856
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "start": 10.2742856,
+      "end": 16.8508033,
+      "caus": [
+        {
+          "text": "Lỗi một: gõ cụt lủn, rồi sửa đi sửa lại.",
+          "start": 10.3042856,
+          "end": 13.2007141
+        },
+        {
+          "text": "AI không biết bạn cần gì, nên phải đoán, và đoán sai.",
+          "start": 13.2007141,
+          "end": 16.4708033
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "start": 16.8508033,
+      "end": 25.1795532,
+      "caus": [
+        {
+          "text": "Mẹo: thêm một câu, trước khi làm hãy hỏi tôi tối đa năm câu.",
+          "start": 16.8808033,
+          "end": 20.234821099999998
+        },
+        {
+          "text": "Trả lời xong là có bản đúng ý.",
+          "start": 20.234821099999998,
+          "end": 21.739677836263734
+        },
+        {
+          "text": "Cuối cùng bảo AI viết lại thành câu lệnh, lần sau dùng luôn.",
+          "start": 21.789839727472526,
+          "end": 24.7995532
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "start": 25.1795532,
+      "end": 29.3899996,
+      "caus": [
+        {
+          "text": "Lỗi hai: tả định dạng cả một đoạn dài,",
+          "start": 25.209553200000002,
+          "end": 27.65729833898305
+        },
+        {
+          "text": "mà AI vẫn làm sai ý.",
+          "start": 27.721712684745764,
+          "end": 29.0099996
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "start": 29.3899996,
+      "end": 35.4196423,
+      "caus": [
+        {
+          "text": "Mẹo: đưa một dòng mẫu là đủ.",
+          "start": 29.4199996,
+          "end": 31.2784817
+        },
+        {
+          "text": "AI bắt chước đúng từng dấu gạch, từng mũi tên,",
+          "start": 31.2784817,
+          "end": 33.68144541666667
+        },
+        {
+          "text": "không cần giải thích dài.",
+          "start": 33.733683758333335,
+          "end": 35.0396423
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "start": 35.4196423,
+      "end": 42.3198207,
+      "caus": [
+        {
+          "text": "Lỗi ba: AI trả lời dài lê thê, có mở bài, có kết luận,",
+          "start": 35.4496423,
+          "end": 39.06270025
+        },
+        {
+          "text": "toàn câu xã giao.",
+          "start": 39.12960873055555,
+          "end": 40.267052899999996
+        },
+        {
+          "text": "Đọc cả phút mới thấy ý chính.",
+          "start": 40.267052899999996,
+          "end": 41.9398207
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "start": 42.3198207,
+      "end": 50.514642,
+      "caus": [
+        {
+          "text": "Mẹo: nói rõ điều không được làm, kèm giới hạn độ dài.",
+          "start": 42.3498207,
+          "end": 45.6145528
+        },
+        {
+          "text": "Tối đa năm gạch đầu dòng, không mở bài, không kết luận.",
+          "start": 45.6145528,
+          "end": 48.806517
+        },
+        {
+          "text": "Đọc năm giây là xong.",
+          "start": 48.8065171,
+          "end": 50.134642
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "start": 50.514642,
+      "end": 56.867945500000005,
+      "caus": [
+        {
+          "text": "Lỗi bốn: cãi nhau với AI.",
+          "start": 50.544642,
+          "end": 52.5593741
+        },
+        {
+          "text": "Câu trả lời sai vẫn nằm lại trong cuộc trò chuyện,",
+          "start": 52.5593741,
+          "end": 55.0776891
+        },
+        {
+          "text": "nên AI cứ bị kéo lệch theo.",
+          "start": 55.1280554,
+          "end": 56.4879455
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "start": 56.867945500000005,
+      "end": 64.46008830000001,
+      "caus": [
+        {
+          "text": "Mẹo: rê chuột vào câu hỏi cũ, bấm biểu tượng bút chì,",
+          "start": 56.897945500000006,
+          "end": 60.02415479367089
+        },
+        {
+          "text": "sửa cho đủ ý rồi gửi lại.",
+          "start": 60.083139874683546,
+          "end": 61.557766900000004
+        },
+        {
+          "text": "AI trả lời lại từ đầu, như chưa từng sai.",
+          "start": 61.557766900000004,
+          "end": 64.0800883
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "start": 64.46008830000001,
+      "end": 71.22633820000001,
+      "caus": [
+        {
+          "text": "Tóm lại bốn mẹo: bắt AI hỏi ngược, đưa một dòng mẫu,",
+          "start": 64.49008830000001,
+          "end": 67.52242770183487
+        },
+        {
+          "text": "nói rõ điều cấm và giới hạn, và sửa câu hỏi thay vì cãi.",
+          "start": 67.58074192110092,
+          "end": 70.8463382
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "start": 71.22633820000001,
+      "end": 76.12874880000001,
+      "caus": [
+        {
+          "text": "Công cụ AI nào cũng dùng được.",
+          "start": 71.25633820000002,
+          "end": 72.89160600000001
+        },
+        {
+          "text": "Câu lệnh mẫu mình để trong bài viết, lưu lại dùng dần.",
+          "start": 72.89160600000001,
+          "end": 75.74874880000002
+        }
+      ]
+    }
+  ],
+  "total": 77.52874880000002
+}

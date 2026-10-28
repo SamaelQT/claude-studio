@@ -5,17 +5,21 @@ import type { Props } from "./types";
 import { SCENES } from "./scenes";
 import { P, PAPER_SCENES } from "./paper";
 import { M, MAIL_SCENES } from "./mail";
+import { K, CHAT_SCENES } from "./chat";
+import { D, DARK_SCENES } from "./dark";
 
-const ALL = { ...SCENES, ...PAPER_SCENES, ...MAIL_SCENES };
+const ALL = { ...SCENES, ...PAPER_SCENES, ...MAIL_SCENES, ...CHAT_SCENES, ...DARK_SCENES };
 const isCover = (t?: string) => /(^|-)cover$/.test(t ?? "");
 /** Màu khung chung (nền, header, phụ đề) theo `script.theme`: mỗi video một tone (Quang 20/10). */
 function theme(name?: string) {
+  if (name === "dark") return { bg1: D.bg, bg2: D.bg2, dot: "rgba(255,255,255,0.05)", bar: D.acc, pillFg: D.bg, pillBg: D.acc, title: D.ink, subBg: "rgba(0,0,0,0.88)", hi: D.acc };
+  if (name === "chat") return { bg1: K.bg1, bg2: K.bg2, dot: "rgba(79,70,229,0.12)", bar: K.indigo, pillFg: "#fff", pillBg: K.indigo, title: K.ink, subBg: "rgba(27,29,58,0.93)", hi: "#FFD84D" };
   if (name === "mail") return { bg1: M.bg1, bg2: M.bg2, dot: "rgba(120,160,220,0.14)", bar: M.teal, pillFg: M.bg1, pillBg: M.teal, title: M.ink, subBg: "rgba(6,12,24,0.92)", hi: M.amber };
   if (name === "paper") return { bg1: P.bg1, bg2: P.bg2, dot: "rgba(120,100,60,0.18)", bar: P.red, pillFg: "#fff", pillBg: P.dark, title: P.ink, subBg: "rgba(34,32,28,0.94)", hi: "#FF9B8F" };
   return { bg1: C.bg1, bg2: C.bg2, dot: C.line, bar: C.green, pillFg: C.green, pillBg: C.greenSoft, title: C.ink, subBg: "rgba(10, 40, 24, 0.92)", hi: C.yellow };
 }
 
-/** Phụ đề: câu đang đọc, phần đã đọc tô vàng dần theo thời gian (ước lượng theo số ký tự). */
+/** Phụ đề: câu đang đọc, phần đã đọc tô màu nhấn. Có mốc từng chữ (Edge WordBoundary) thì tô đúng chữ đang đọc; không có thì ước lượng theo số ký tự. */
 const Subtitle: React.FC<Props> = ({ script, timeline }) => {
   const T = theme(script.theme);
   const f = useCurrentFrame();
@@ -27,13 +31,16 @@ const Subtitle: React.FC<Props> = ({ script, timeline }) => {
   const words = cau.text.split(/\s+/);
   const total = cau.text.length;
   const done = interpolate(t, [cau.start, cau.end], [0, total], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const tw = (cau as { words?: { start: number }[] }).words ?? [];
+  // Số chữ Edge đã đọc → quy ra số chữ hiển thị (2 bên có thể lệch, VD "20/10" Edge tách thành nhiều chữ)
+  const daDoc = tw.length ? Math.round((tw.filter((w) => w.start <= t).length / tw.length) * words.length) : -1;
   let acc = 0;
   const appear = interpolate(t, [cau.start - 0.05, cau.start + 0.12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <div style={{ position: "absolute", left: 60, right: 60, bottom: 150, display: "flex", justifyContent: "center", opacity: appear }}>
       <div style={{ background: T.subBg, borderRadius: 28, padding: "26px 40px", maxWidth: 960, textAlign: "center", fontSize: 50, fontWeight: 700, lineHeight: 1.3, color: "#fff" }}>
         {words.map((w, i) => {
-          const on = acc + w.length / 2 <= done;
+          const on = daDoc >= 0 ? i < daDoc : acc + w.length / 2 <= done;
           acc += w.length + 1;
           return <span key={i} style={{ color: on ? T.hi : "#fff" }}>{w}{i < words.length - 1 ? " " : ""}</span>;
         })}

@@ -6,7 +6,8 @@
  *   node tts.mjs scripts/01-zalo-don-hang.json
  * Kết quả: public/<id>/voice.mp3 + public/<id>/timeline.json (render.mjs đọc tiếp).
  * Cảnh đã đọc được lưu cache theo giọng + nội dung → sửa 1 cảnh chỉ đọc lại cảnh đó.
- * Giọng mặc định: Vivienne đa ngôn ngữ đọc tiếng Việt, cao giọng +8% (Quang chọn mẫu E1, 20/10).
+ * Giọng mặc định (kịch bản không ghi `voice`): VieNeu-TTS "Mai Anh" chạy local, nhanh ×1.08 (Quang chọn 28/10) — xem vieneu_tts.py.
+ * Kịch bản ghi `voice` Edge (VD Vivienne đa ngôn ngữ +8%, mẫu E1 20/10) thì vẫn đọc bằng Edge như cũ.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -42,14 +43,16 @@ async function doc(text, voice, rate, pitch) {
   for (let lan = 1; lan <= 6; lan++) {
     const tts = new MsEdgeTTS();
     try {
-      await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3, { voiceLocale: "vi-VN", sentenceBoundaryEnabled: true });
+      await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3, { voiceLocale: "vi-VN", sentenceBoundaryEnabled: true, wordBoundaryEnabled: true });
       const { audioStream, metadataStream } = tts.toStream(text, { rate, pitch });
       const chunks = [];
       const cau = [];
+      const words = [];   // mốc từng chữ → phụ đề tô đúng chữ đang đọc (thay ước lượng theo ký tự)
       metadataStream?.on("data", (c) => {
         for (const m of JSON.parse(c.toString()).Metadata ?? []) {
-          if (m.Type !== "SentenceBoundary") continue;
           const s = m.Data.Offset * TICK;
+          if (m.Type === "WordBoundary") { words.push({ start: s, end: s + m.Data.Duration * TICK }); continue; }
+          if (m.Type !== "SentenceBoundary") continue;
           cau.push({ text: m.Data.text?.Text ?? "", start: s, end: s + m.Data.Duration * TICK });
         }
       });
@@ -61,7 +64,7 @@ async function doc(text, voice, rate, pitch) {
       });
       const buf = Buffer.concat(chunks);
       if (!buf.length || !cau.length) throw new Error("thiếu âm thanh hoặc mốc câu");
-      return { buf, cau };
+      return { buf, cau, words };
     } catch (e) {
       console.warn(`  Edge TTS lần ${lan}/6 lỗi: ${e.message}`);
       if (lan === 6) throw e;
@@ -118,6 +121,34 @@ const timeline = { fps: 30, scenes: [], total: 0 };
 // giọng đa ngôn ngữ đọc từ tiếng Anh như phiên âm Việt kiểu lạ (Quang 20/10: "agent") → viết sẵn cách người Việt nói.
 const PHAT_AM = kb.phatAm ?? {};
 const docTiengAnh = (vo) => Object.entries(PHAT_AM).reduce((t, [w, doc]) => t.replace(new RegExp(`(?<!\\p{L})${w}(?!\\p{L})`, "giu"), doc), vo);
+// Giọng VieNeu-TTS chạy local — mặc định cho kịch bản mới từ 28/10 (Quang chọn "Mai Anh", nói nhanh hơn chút; đọc đúng từ
+// tiếng Anh nên không cần `phatAm`). Kịch bản cũ có `voice` Edge thì giữ Edge để render lại không đổi giọng.
+// Thẻ cảm xúc VieNeu [cười] [thở dài] [hắng giọng] viết thẳng trong `vo`: chỉ VieNeu đọc, phụ đề và Edge bỏ đi.
+const engine = kb.engine ?? (kb.voice ? "edge" : "vieneu");
+const vnVoice = kb.vieneuVoice || "Mai Anh";
+const vnTemp = kb.temperature ?? 0.6;
+const vnTempo = kb.tempo ?? 1.08;
+const boThe = (s) => s.replace(/\s*\[[^\]]+\]/g, "").replace(/\s{2,}/g, " ").trim();
+const loiDoc = (vo) => (engine === "vieneu" ? vo : docTiengAnh(boThe(vo)));
+const keyCanh = (noi) => crypto.createHash("sha1")
+  .update(engine === "vieneu" ? `vieneu|${vnVoice}|${vnTemp}|${vnTempo}|${noi}` : `${voice}|${rate}|${pitch}|${noi}`)
+  .digest("hex").slice(0, 16);
+const duoi = engine === "vieneu" ? "wav" : "mp3";
+if (engine === "vieneu") {
+  // Đọc gộp mọi cảnh chưa có trong cache bằng MỘT tiến trình Python (nạp model 1 lần).
+  const items = kb.scenes.filter((sc) => sc.vo).map((sc) => {
+    const k = keyCanh(loiDoc(sc.vo));
+    return { text: loiDoc(sc.vo), wav: path.join(cacheDir, `${k}.wav`), meta: path.join(cacheDir, `${k}.json`) };
+  }).filter((it) => !fs.existsSync(it.wav) || !fs.existsSync(it.meta));
+  if (items.length) {
+    const jobF = path.join(cacheDir, "vieneu-job.json");
+    fs.writeFileSync(jobF, JSON.stringify({ voice: vnVoice, temperature: vnTemp, tempo: vnTempo, gap: 0.18, items }));
+    console.log(`VieNeu "${vnVoice}" ×${vnTempo}: đọc ${items.length} cảnh (lần đầu nạp model ~15–70 s)…`);
+    execFileSync("py", ["-3.12", "-I", "-S", path.join(HERE, "vieneu_tts.py"), jobF],
+      { stdio: "inherit", env: { ...process.env, HF_HUB_DISABLE_SYMLINKS_WARNING: "1" } });
+    fs.rmSync(jobF, { force: true });
+  }
+}
 const ghep = [];   // danh sách [file | null, giây lặng sau]
 let t = DAU;
 
@@ -131,28 +162,33 @@ for (const [i, sc] of kb.scenes.entries()) {
     timeline.scenes.push({ index: i, start, end: t, caus: [] });
     continue;
   }
-  const noi = docTiengAnh(sc.vo);
-  const key = crypto.createHash("sha1").update(`${voice}|${rate}|${pitch}|${noi}`).digest("hex").slice(0, 16);
-  const raw = path.join(cacheDir, `${key}.mp3`);
+  const noi = loiDoc(sc.vo);
+  const noiSach = boThe(noi);   // chữ dùng để gán mốc phụ đề (không có thẻ cảm xúc)
+  const key = keyCanh(noi);
+  const raw = path.join(cacheDir, `${key}.${duoi}`);
   const metaF = path.join(cacheDir, `${key}.json`);
   const cat = path.join(cacheDir, `${key}.cat.wav`);
+  if (engine === "vieneu" && (!fs.existsSync(raw) || !fs.existsSync(metaF))) throw new Error(`VieNeu chưa đọc được cảnh ${i + 1}`);
   if (!fs.existsSync(raw) || !fs.existsSync(metaF)) {
     process.stdout.write(`  đọc cảnh ${i + 1}: ${sc.vo.slice(0, 50)}…\n`);
-    const { buf, cau } = await doc(noi, voice, rate, pitch);
+    const { buf, cau, words } = await doc(noi, voice, rate, pitch);
     fs.writeFileSync(raw, buf);
-    fs.writeFileSync(metaF, JSON.stringify(cau));
+    fs.writeFileSync(metaF, JSON.stringify({ cau, words }));
     await new Promise((r) => setTimeout(r, 1500));   // Edge hay trả 429 nếu gọi dồn dập
   }
-  const edge = JSON.parse(fs.readFileSync(metaF, "utf8"));
+  const meta = JSON.parse(fs.readFileSync(metaF, "utf8"));
+  const edge = Array.isArray(meta) ? meta : meta.cau;   // cache cũ chỉ có mốc câu
+  const tuEdge = Array.isArray(meta) ? [] : meta.words;
   // Cắt đúng từ đầu câu đầu đến cuối câu cuối (bỏ lặng Edge chèn sẵn) — khoảng nghỉ giữa các câu trong cảnh giữ tự nhiên.
   const cutA = Math.max(0, edge[0].start - 0.03);
   const cutB = edge[edge.length - 1].end + 0.08;
   if (!fs.existsSync(cat)) execFileSync(FFMPEG, ["-y", "-v", "error", "-i", raw, "-ss", cutA.toFixed(3), "-to", cutB.toFixed(3), "-ar", "48000", cat]);
   const dLen = cutB - cutA;
   // Mốc tính trên câu đã đổi cách đọc (khớp chữ Edge trả về); chữ phụ đề lấy câu tương ứng của `vo` gốc (cùng số câu).
-  const pdGoc = chiaCau(sc.vo);
-  const caus = ganMoc(noi, chiaCau(noi), edge).map((c, j) => ({
+  const pdGoc = chiaCau(boThe(sc.vo));
+  const caus = ganMoc(noiSach, chiaCau(noiSach), edge).map((c, j) => ({
     text: pdGoc[j] ?? c.text, start: t + Math.max(0, c.start - cutA), end: t + Math.min(dLen, c.end - cutA),
+    words: tuEdge.filter((w) => w.start >= c.start - 0.02 && w.start < c.end - 0.02).map((w) => ({ start: t + w.start - cutA, end: t + w.end - cutA })),
   }));
   ghep.push([cat, GAP_CANH]);
   t += dLen + GAP_CANH;

@@ -11,7 +11,7 @@
     "@remotion/bundler": "^4.0.537",
     "@remotion/cli": "^4.0.537",
     "@remotion/renderer": "^4.0.537",
-    "msedge-tts": "^2.1.0",
+    "msedge-tts": "^2.1.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "remotion": "^4.0.537"

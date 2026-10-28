@@ -1,0 +1,156 @@
+{
+  "id": "04-4-loi-hoi-ai",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "4 lỗi hỏi AI ai cũng mắc",
+  "author": "Quang · IT Application",
+  "nop": "10690930_4 lỗi hỏi AI ai cũng mắc và cách sửa",
+  "theme": "chat",
+  "music": "pad",
+  "voice": "fr-FR-VivienneMultilingualNeural",
+  "rate": "+12%",
+  "pitch": "+8%",
+  "scenes": [
+    {
+      "type": "c-cover",
+      "tag": "DÙNG AI ĐÚNG CÁCH · P1",
+      "line1": "4 lỗi",
+      "line2": "hỏi AI ai cũng mắc",
+      "hook": "Sửa xong, hỏi 1 lần là trúng",
+      "dur": 1.4,
+      "vo": ""
+    },
+    {
+      "type": "c-hook",
+      "big": "Hỏi AI 1 câu, sửa 8 lần?",
+      "msgs": ["viết giùm cái báo cáo", "không phải", "ngắn thôi", "sai rồi", "ý tôi là…", "làm lại đi", "vẫn chưa đúng", "thôi để tự làm"],
+      "sub": "Lỗi ở cách hỏi, không phải ở AI",
+      "vo": "Hỏi AI một câu, sửa tám lần, cuối cùng tự làm. Lỗi không nằm ở AI, mà ở cách hỏi. Đây là bốn lỗi phổ biến nhất, và cách sửa."
+    },
+    {
+      "type": "c-bad",
+      "n": 1,
+      "heading": "Gõ cụt lủn, rồi sửa mãi",
+      "counter": true,
+      "msgs": [
+        { "who": "u", "text": "Viết giùm cái báo cáo tháng", "at": 0.04 },
+        { "who": "ai", "text": "Dưới đây là [[mẫu báo cáo tháng tổng quát]]…", "lines": 3, "tone": "bad", "at": 0.1 },
+        { "who": "u", "text": "Không phải, báo cáo doanh số", "at": 0.36 },
+        { "who": "ai", "text": "Đây là [[báo cáo doanh số mẫu]], gồm 8 mục…", "lines": 3, "tone": "bad", "at": 0.42 },
+        { "who": "u", "text": "Ngắn thôi, gửi sếp mà", "at": 0.64 },
+        { "who": "ai", "lines": 2, "tone": "bad", "at": 0.7 }
+      ],
+      "vo": "Lỗi một: gõ cụt lủn, rồi sửa đi sửa lại. AI không biết bạn cần gì, nên phải đoán, và đoán sai."
+    },
+    {
+      "type": "c-good",
+      "n": 1,
+      "heading": "Bắt AI hỏi ngược trước",
+      "h": 760,
+      "key": "Trước khi làm, hỏi tôi tối đa 5 câu. Làm xong: viết lại yêu cầu này thành 1 câu lệnh để lần sau tôi dùng lại.",
+      "keyAt": 0.6,
+      "msgs": [
+        { "who": "u", "text": "Viết báo cáo doanh số tháng 10 gửi sếp. [[Trước khi viết, hỏi tôi tối đa 5 câu.]]", "at": 0.05 },
+        { "who": "ai", "text": "Mình hỏi nhanh nhé:", "list": ["1. Số tổng hay theo từng chi nhánh?", "2. So với tháng trước hay cùng kỳ năm ngoái?", "3. Dài 1 trang hay 5 dòng?"], "tone": "good", "at": 0.14 },
+        { "who": "u", "text": "Theo chi nhánh, so tháng trước, 5 dòng", "at": 0.36 },
+        { "who": "ai", "text": "[[✓ Bản 5 dòng, đúng ý ngay lần đầu]]", "lines": 2, "tone": "good", "at": 0.44 }
+      ],
+      "vo": "Mẹo: thêm một câu, trước khi làm hãy hỏi tôi tối đa năm câu. Trả lời xong là có bản đúng ý. Cuối cùng bảo AI viết lại thành câu lệnh, lần sau dùng luôn."
+    },
+    {
+      "type": "c-bad",
+      "n": 2,
+      "heading": "Tả định dạng dài dòng",
+      "msgs": [
+        { "who": "u", "text": "Làm danh sách: mỗi chi nhánh một dòng, tên trước, rồi sản lượng đơn vị tấn, rồi phần trăm so tháng trước có mũi tên lên xuống, ngăn cách bằng gạch ngang…", "at": 0.04 },
+        { "who": "ai", "text": "[[Chi nhánh Đồng Nai đạt sản lượng 120 tấn trong tháng, tăng 5% so với tháng trước. Chi nhánh Bình Dương đạt…]]", "tone": "bad", "at": 0.3 },
+        { "who": "u", "text": "Không phải, mỗi dòng một chi nhánh mà!", "at": 0.6 }
+      ],
+      "vo": "Lỗi hai: tả định dạng cả một đoạn dài, mà AI vẫn làm sai ý."
+    },
+    {
+      "type": "c-good",
+      "n": 2,
+      "heading": "Đưa 1 dòng mẫu",
+      "h": 760,
+      "key": "Làm đúng theo mẫu này: [dán 1 dòng mẫu]",
+      "keyAt": 0.55,
+      "msgs": [
+        { "who": "u", "text": "Làm đúng theo mẫu này:", "list": ["Đồng Nai — 120 tấn — ↑5%"], "at": 0.05 },
+        { "who": "ai", "list": ["[[Bình Dương — 98 tấn — ↓2%]]", "[[Long An — 75 tấn — ↑8%]]", "[[Tây Ninh — 64 tấn — ↑1%]]", "[[Bình Phước — 52 tấn — ↑3%]]"], "tone": "good", "at": 0.22 }
+      ],
+      "vo": "Mẹo: đưa một dòng mẫu là đủ. AI bắt chước đúng từng dấu gạch, từng mũi tên, không cần giải thích dài."
+    },
+    {
+      "type": "c-bad",
+      "n": 3,
+      "heading": "Để AI nói lê thê",
+      "meter": "Dài: 1 trang",
+      "msgs": [
+        { "who": "u", "text": "Tóm tắt cuộc họp sáng nay", "at": 0.04 },
+        { "who": "ai", "text": "[[Chắc chắn rồi! Dưới đây là bản tóm tắt chi tiết]] cuộc họp…", "lines": 7, "tone": "bad", "at": 0.1 },
+        { "who": "ai", "text": "[[Tóm lại, cuộc họp đã diễn ra thành công tốt đẹp…]]", "lines": 2, "tone": "bad", "at": 0.45 }
+      ],
+      "vo": "Lỗi ba: AI trả lời dài lê thê, có mở bài, có kết luận, toàn câu xã giao. Đọc cả phút mới thấy ý chính."
+    },
+    {
+      "type": "c-good",
+      "n": 3,
+      "heading": "Nói rõ điều cấm + giới hạn",
+      "h": 760,
+      "meter": "5 dòng",
+      "key": "Tối đa 5 gạch đầu dòng. Không mở bài, không kết luận, không câu xã giao.",
+      "keyAt": 0.6,
+      "msgs": [
+        { "who": "u", "text": "Tóm tắt cuộc họp. [[Tối đa 5 gạch đầu dòng. Không mở bài, không kết luận.]]", "at": 0.05 },
+        { "who": "ai", "list": ["Chốt giá mới từ 01/11", "Long An tăng chỉ tiêu 5%", "Kiểm kê kho xong trước 30/10", "Anh Minh gửi báo giá xe trước thứ Sáu", "Họp lại ngày 05/11"], "tone": "good", "at": 0.18 }
+      ],
+      "vo": "Mẹo: nói rõ điều không được làm, kèm giới hạn độ dài. Tối đa năm gạch đầu dòng, không mở bài, không kết luận. Đọc năm giây là xong."
+    },
+    {
+      "type": "c-bad",
+      "n": 4,
+      "heading": "Cãi nhau với AI",
+      "counter": true,
+      "msgs": [
+        { "who": "u", "text": "Viết thông báo nghỉ Tết", "at": 0.04 },
+        { "who": "ai", "text": "Thông báo nghỉ [[Tết Nguyên đán]]…", "lines": 2, "tone": "bad", "at": 0.1 },
+        { "who": "u", "text": "Không phải, Tết Dương lịch", "at": 0.34 },
+        { "who": "ai", "text": "Thông báo nghỉ [[Tết Nguyên đán]] Dương lịch…", "lines": 2, "tone": "bad", "at": 0.4 },
+        { "who": "u", "text": "Sai rồi, bỏ chữ Nguyên đán đi!", "at": 0.6 },
+        { "who": "ai", "lines": 2, "tone": "bad", "at": 0.66 }
+      ],
+      "vo": "Lỗi bốn: cãi nhau với AI. Câu trả lời sai vẫn nằm lại trong cuộc trò chuyện, nên AI cứ bị kéo lệch theo."
+    },
+    {
+      "type": "c-good",
+      "n": 4,
+      "heading": "Sửa câu hỏi, đừng cãi",
+      "h": 760,
+      "key": "Rê chuột vào câu hỏi cũ → bấm ✏️ Sửa → gửi lại. AI trả lời lại từ đầu.",
+      "keyAt": 0.62,
+      "msgs": [
+        { "who": "u", "text": "Viết thông báo nghỉ Tết", "edit": "Viết thông báo nghỉ Tết Dương lịch 1/1/2027, nghỉ 1 ngày, gửi toàn chi nhánh", "editAt": 0.3, "at": 0.03 },
+        { "who": "ai", "text": "Thông báo nghỉ [[Tết Nguyên đán]]…", "lines": 2, "tone": "bad", "at": 0.08, "fade": 0.31 },
+        { "who": "ai", "text": "[[Thông báo nghỉ Tết Dương lịch 1/1/2027]]", "lines": 3, "tone": "good", "at": 0.4 }
+      ],
+      "vo": "Mẹo: rê chuột vào câu hỏi cũ, bấm biểu tượng bút chì, sửa cho đủ ý rồi gửi lại. AI trả lời lại từ đầu, như chưa từng sai."
+    },
+    {
+      "type": "c-recap",
+      "heading": "4 mẹo, nhớ 1 lần",
+      "items": [
+        ["Gõ cụt lủn, sửa 10 lần", "Bắt AI hỏi ngược"],
+        ["Tả định dạng dài dòng", "Đưa 1 dòng mẫu"],
+        ["Để AI nói lê thê", "Nói rõ điều cấm + giới hạn"],
+        ["Cãi nhau với AI", "Sửa câu hỏi ✏️"]
+      ],
+      "vo": "Tóm lại bốn mẹo: bắt AI hỏi ngược, đưa một dòng mẫu, nói rõ điều cấm và giới hạn, và sửa câu hỏi thay vì cãi."
+    },
+    {
+      "type": "c-outro",
+      "tools": ["Gemini", "ChatGPT", "Copilot"],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Công cụ AI nào cũng dùng được. Câu lệnh mẫu mình để trong bài viết, lưu lại dùng dần."
+    }
+  ]
+}

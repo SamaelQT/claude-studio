@@ -1,0 +1,101 @@
+{
+  "id": "05-ban-giao-chat-moi",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Chat dài, AI lú? Viết bản bàn giao",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Chat dài AI quên yêu cầu - viết bản bàn giao rồi mở chat mới",
+  "theme": "dark",
+  "music": "pad",
+  "voice": "fr-FR-VivienneMultilingualNeural",
+  "rate": "+12%",
+  "pitch": "+8%",
+  "scenes": [
+    {
+      "type": "d-cover",
+      "tag": "DÙNG AI ĐÚNG CÁCH · P2",
+      "line1": "Chat dài,",
+      "line2": "AI bắt đầu lú",
+      "hook": "1 câu lệnh sửa ngay",
+      "dur": 1.4,
+      "vo": ""
+    },
+    {
+      "type": "d-hook",
+      "big": "Dặn rồi mà [[AI vẫn quên?]]",
+      "count": 187,
+      "wrong": "Đây là bảng 3 cột… (đã dặn 4 cột)",
+      "sub": "Dùng 1 khung chat cho cả tuần",
+      "vo": "Cùng một khung trò chuyện, dùng cho cả tuần. Đến tin nhắn thứ một trăm tám mươi bảy, AI bắt đầu quên những gì bạn dặn từ đầu."
+    },
+    {
+      "type": "d-memory",
+      "heading": "Bộ nhớ của AI [[có hạn]]",
+      "notes": ["Chat càng dài, phần đầu càng bị đẩy ra", "Mà phần đầu là chỗ bạn dặn quan trọng nhất", "AI chậm hơn, tốn lượt hơn, bắt đầu đoán"],
+      "vo": "Vì AI chỉ nhớ được một lượng chữ có hạn. Cuộc trò chuyện càng dài, phần đầu càng bị đẩy ra, mà phần đầu lại chính là chỗ bạn dặn quan trọng nhất. AI trả lời chậm hơn, tốn lượt hơn, và bắt đầu đoán."
+    },
+    {
+      "type": "d-steps",
+      "heading": "Đừng nhắc lại. [[Bàn giao.]]",
+      "steps": [
+        { "t": "Bảo AI viết bản bàn giao", "d": "ngay trong cuộc trò chuyện cũ" },
+        { "t": "Mở cuộc trò chuyện mới", "d": "dán bản bàn giao vào đầu tiên" },
+        { "t": "Làm tiếp như bình thường", "d": "AI nắm lại đúng mọi quy ước" }
+      ],
+      "vo": "Mẹo của mình: đừng nhắc đi nhắc lại, hãy bàn giao. Ba bước: bảo AI viết bản bàn giao ngay trong cuộc trò chuyện cũ, mở cuộc trò chuyện mới và dán bản đó vào, rồi làm tiếp như bình thường."
+    },
+    {
+      "type": "d-prompt",
+      "heading": "Câu lệnh [[bàn giao]]",
+      "hot": [3],
+      "lines": [
+        "Viết bản bàn giao để tôi dán sang",
+        "một cuộc trò chuyện mới, gồm:",
+        "1. Mục tiêu chúng ta đang làm",
+        "2. Điều bạn sẽ làm SAI nếu phải đoán",
+        "3. Các quyết định đã chốt",
+        "4. Bước tiếp theo",
+        "Ngắn gọn, đọc dưới 1 phút."
+      ],
+      "note": "Đừng chỉ bảo \"tóm tắt lại\": dễ rơi mất chi tiết",
+      "vo": "Câu lệnh đây. Dòng đáng giá nhất là dòng: điều bạn sẽ làm sai nếu phải đoán. Đó chính là những quy ước hay bị quên. Đừng chỉ bảo tóm tắt lại, vì tóm tắt chung chung sẽ làm rơi mất chi tiết."
+    },
+    {
+      "type": "d-handoff",
+      "items": [
+        ["MỤC TIÊU", "Hoàn thiện tài liệu hướng dẫn nhập kho"],
+        ["DỄ SAI", "Bảng luôn 4 cột: Bước | Màn hình | Thao tác | Lưu ý"],
+        ["DỄ SAI", "Ảnh đặt tên theo mã bước: B01, B02…"],
+        ["ĐÃ CHỐT", "Số liệu mẫu dùng phiếu nhập số 0027"],
+        ["TIẾP THEO", "Viết phần in phiếu nhập kho"]
+      ],
+      "cont": "Tiếp tục từ bản bàn giao này.",
+      "reply": "Đã rõ. Phần in phiếu, bảng 4 cột:",
+      "vo": "AI trả về bản bàn giao gọn trong vài dòng. Mở cuộc trò chuyện mới, dán vào, kèm một câu: tiếp tục từ đây. AI làm đúng bảng bốn cột ngay, không cần nhắc."
+    },
+    {
+      "type": "d-compare",
+      "heading": "Trước & [[sau]]",
+      "rows": [
+        ["QUY ƯỚC", "Quên, phải nhắc lại", "Nhớ đúng ngay"],
+        ["ĐỘ DÀI", "187 tin nhắn", "3 tin nhắn"],
+        ["TRẢ LỜI", "Chậm, lan man", "Nhanh, đúng ý"],
+        ["LƯỢT DÙNG", "Hao nhanh", "Tiết kiệm"]
+      ],
+      "vo": "Kết quả: AI nhớ đúng quy ước mà không cần nhắc, cuộc trò chuyện ngắn gọn, trả lời nhanh hơn, và đỡ tốn lượt dùng."
+    },
+    {
+      "type": "d-signs",
+      "heading": "Khi nào [[mở chat mới?]]",
+      "items": ["AI quên điều đã dặn", "Trả lời chậm hẳn đi", "Chuyển sang việc khác"],
+      "cta": "→ Bàn giao, rồi mở mới",
+      "vo": "Khi nào nên làm? Khi AI bắt đầu quên điều đã dặn, khi trả lời chậm hẳn đi, hoặc khi bạn chuyển sang việc khác. Thấy một trong ba dấu hiệu, bàn giao rồi mở mới."
+    },
+    {
+      "type": "d-outro",
+      "line": "Chat ngắn, [[AI khôn hơn.]]",
+      "tools": ["Gemini", "ChatGPT", "Copilot"],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Công cụ AI nào cũng dùng được. Câu lệnh mẫu mình để trong bài viết, lưu lại để dùng."
+    }
+  ]
+}
