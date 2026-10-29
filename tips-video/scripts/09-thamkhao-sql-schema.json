@@ -13,26 +13,58 @@
       "line1": "AI viết SQL",
       "line2": "toàn cột ma?",
       "hook": "Đưa schema, hết đoán",
-      "err": "ORA-00904: \"SALES\": invalid identifier",
+      "err": "ORA-00942: table or view does not exist",
       "dur": 1.4,
       "vo": ""
     },
     {
-      "type": "k-hook",
-      "big": "AI tự [[bịa tên cột]]",
-      "rep": "ORA-00904: invalid identifier",
-      "count": 4,
-      "wrong": "SELECT ten_kh, SUM(sales) … WHERE is_new_customer = 1",
-      "sub": "Sửa 4 lượt vẫn chưa chạy được",
-      "vo": "Nhờ AI viết câu SQL tính doanh số khách hàng mới. Nó trả về ngay, nhưng dùng cột sales, cột is new customer, những cột không hề có trong bảng. Chạy là báo lỗi, sửa bốn lượt vẫn chưa xong."
+      "type": "k-shot",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Hỏi SQL [[không kèm schema]]",
+      "window": "Trợ lý AI",
+      "src": "shots/1-khong-schema.png",
+      "focus": [
+        20,
+        32,
+        31,
+        14
+      ],
+      "caption": "AI phải tự đoán tên bảng, tên cột",
+      "vo": "Mình nhờ AI viết câu SQL tính doanh số khách hàng mới, chỉ mô tả bằng lời. AI viết ngay, nhưng phải tự giả định cấu trúc bảng, đoán luôn tên cột.",
+      "ar": 1.526
+    },
+    {
+      "type": "k-shot",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Chạy thử: [[báo lỗi]]",
+      "window": "Toad for Oracle",
+      "src": "shots/2-loi.png",
+      "focus": [
+        33,
+        11,
+        34,
+        15
+      ],
+      "caption": "Bảng, cột AI đoán không khớp database thật",
+      "vo": "Chạy thử trong Toad là báo lỗi ngay. Tên bảng, tên cột AI đoán không khớp với database thật, sửa tới sửa lui mất thời gian.",
+      "ar": 2.902
     },
     {
       "type": "k-steps",
       "heading": "Tip của anh Hùng: [[đưa schema]]",
       "steps": [
-        { "t": "Lấy schema bằng 1 câu SQL", "d": "all_tab_columns · INFORMATION_SCHEMA" },
-        { "t": "Dán schema + yêu cầu cho AI", "d": "kèm 2–3 dòng dữ liệu mẫu đã che" },
-        { "t": "Dặn: chỉ dùng cột có thật", "d": "thiếu thì hỏi lại, không tự đặt tên" }
+        {
+          "t": "Lấy schema bằng 1 câu SQL",
+          "d": "all_tab_columns · INFORMATION_SCHEMA"
+        },
+        {
+          "t": "Dán schema + yêu cầu cho AI",
+          "d": "kèm 2–3 dòng dữ liệu mẫu đã che"
+        },
+        {
+          "t": "Dặn: chỉ dùng cột có thật",
+          "d": "thiếu thì hỏi lại, không tự đặt tên"
+        }
       ],
       "vo": "Mình thử tip của anh Hoàng Mạnh Hùng: muốn AI viết SQL, hãy đưa schema. Mình thêm hai thứ: lấy schema bằng một câu SQL cho nhanh, và dặn AI chỉ dùng cột có thật, thiếu thì hỏi lại."
     },
@@ -40,7 +72,9 @@
       "type": "k-prompt",
       "heading": "Câu lấy [[schema]]",
       "hint": "✻ chạy trên Oracle, copy kết quả dán cho AI",
-      "hot": [2],
+      "hot": [
+        2
+      ],
       "lines": [
         "SELECT table_name, column_name,",
         "       data_type",
@@ -53,32 +87,20 @@
       "vo": "Đây là câu lấy schema trên Oracle. Chạy một lần, copy kết quả dán cho AI cùng yêu cầu. Với SQL Server thì dùng information schema."
     },
     {
-      "type": "k-schema",
-      "tables": [
-        { "name": "DON_HANG", "cols": ["ma_don", "ma_kh", "ngay_dat", "trang_thai"] },
-        { "name": "CHI_TIET", "cols": ["ma_don", "ma_hang", "so_luong", "don_gia"] },
-        { "name": "KHACH_HANG", "cols": ["ma_kh", "ten_kh", "ngay_tao"] }
+      "type": "k-shot",
+      "tag": "CÓ SCHEMA",
+      "heading": "Dán schema, [[viết lại]]",
+      "window": "Trợ lý AI",
+      "src": "shots/3-co-schema.png",
+      "focus": [
+        18,
+        42,
+        50,
+        34
       ],
-      "bad": [
-        "SELECT ten_kh, SUM(sales)",
-        "FROM   orders",
-        "WHERE  is_new_customer = 1",
-        "GROUP  BY ten_kh;"
-      ],
-      "badCols": ["sales", "orders", "is_new_customer"],
-      "errLine": "✗ ORA-00904: cột không tồn tại",
-      "good": [
-        "SELECT k.ten_kh,",
-        "       SUM(c.so_luong * c.don_gia)",
-        "FROM   DON_HANG d",
-        "JOIN   CHI_TIET c ON c.ma_don = d.ma_don",
-        "JOIN   KHACH_HANG k ON k.ma_kh = d.ma_kh",
-        "WHERE  k.ngay_tao >= DATE '2026-10-01'",
-        "GROUP  BY k.ten_kh;"
-      ],
-      "used": ["DON_HANG.ma_don", "DON_HANG.ma_kh", "CHI_TIET.ma_don", "CHI_TIET.so_luong", "CHI_TIET.don_gia", "KHACH_HANG.ma_kh", "KHACH_HANG.ten_kh", "KHACH_HANG.ngay_tao"],
-      "okLine": "✓ Chạy được ngay lần đầu",
-      "vo": "Có schema rồi, AI thấy rõ ba bảng: đơn hàng, chi tiết, khách hàng. Cột sales biến mất, thay bằng số lượng nhân đơn giá. Khách hàng mới thì lọc theo ngày tạo. [cười] Chạy phát ăn ngay."
+      "caption": "Đúng bảng, đúng cột, đúng điều kiện lọc",
+      "vo": "Dán schema vào, kèm một câu dặn: chỉ dùng cột có thật. AI viết lại ngay: đúng bảng, đúng cột, doanh số bằng số lượng nhân đơn giá, khách mới lọc theo ngày tạo, còn tự thêm điều kiện trạng thái đơn. [cười] Lần này khớp đúng cấu trúc bảng.",
+      "ar": 1.534
     },
     {
       "type": "k-compare",
@@ -86,25 +108,45 @@
       "colA": "KHÔNG SCHEMA",
       "colB": "CÓ SCHEMA",
       "rows": [
-        ["SỬA CÂU SQL", "~4 lượt", "1 lượt"],
-        ["SAI TÊN CỘT", "Lần nào cũng gặp", "0"],
-        ["MỖI CÂU", "~15 phút", "~3 phút"]
+        [
+          "SỬA CÂU SQL",
+          "~4 lượt",
+          "1 lượt"
+        ],
+        [
+          "SAI TÊN BẢNG, CỘT",
+          "Gần như lần nào",
+          "0"
+        ],
+        [
+          "MỖI CÂU",
+          "~15 phút",
+          "~3 phút"
+        ]
       ],
-      "vo": "Kết quả: từ bốn lượt sửa còn một, hết lỗi sai tên cột, mỗi câu tra cứu từ mười lăm phút còn khoảng ba phút."
+      "vo": "Kết quả ước lượng: từ bốn lượt sửa còn một, hết sai tên bảng tên cột, mỗi câu tra cứu từ mười lăm phút còn khoảng ba phút."
     },
     {
       "type": "k-signs",
       "heading": "Lưu ý [[khi dán]]",
-      "items": ["Chỉ dán cấu trúc bảng", "Dữ liệu mẫu: đổi số, che tên", "Bảng nhiều cột: lấy cột cần dùng"],
+      "items": [
+        "Chỉ dán cấu trúc bảng",
+        "Dữ liệu mẫu: đổi số, che tên",
+        "Bảng nhiều cột: lấy cột cần dùng"
+      ],
       "cta": "→ Không dán dữ liệu thật",
       "vo": "Lưu ý: chỉ dán cấu trúc bảng. Dữ liệu mẫu thì đổi số, che tên. Bảng nhiều cột quá thì chỉ lấy những cột cần dùng."
     },
     {
       "type": "k-outro",
       "line": "Có schema, [[hết đoán mò.]]",
-      "echo": "ORA-00904 → 0",
+      "echo": "Đoán mò → đúng schema",
       "echoNote": "cảm ơn tip của anh Hoàng Mạnh Hùng",
-      "tools": ["ChatGPT", "Gemini", "Copilot"],
+      "tools": [
+        "ChatGPT",
+        "Gemini",
+        "Copilot"
+      ],
       "cta": "Câu lệnh mẫu ở bài viết",
       "vo": "Cảm ơn anh Hùng vì tip rất thực tế. Câu lấy schema và câu lệnh mẫu mình để trong bài viết, bạn thử với bảng của mình nha."
     }

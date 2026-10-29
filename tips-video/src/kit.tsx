@@ -7,7 +7,7 @@
  * Easing "giữ → giật" (outExpo) như bộ dark. Luật cấm chung: không logo hãng, không cảnh cảnh báo cuối video.
  */
 import React from "react";
-import { interpolate, random, useCurrentFrame } from "remotion";
+import { Img, interpolate, random, staticFile, useCurrentFrame } from "remotion";
 import type { Scene, Script } from "./types";
 import { prog } from "./anim";
 
@@ -613,8 +613,47 @@ export const KSchema: React.FC<SP> = ({ sc, script, dur }) => {
   );
 };
 
+/**
+ * Ảnh chụp màn hình thật (Quang tự chụp khi thử): khung cửa sổ, từ từ phóng vào vùng cần xem, khung nhấn sáng vùng đó, che mờ vùng nhạy cảm.
+ * `src` nằm trong public/<id>/; `focus`, `blur` tính theo % kích thước ảnh: [x, y, w, h].
+ */
+export const KShot: React.FC<SP> = ({ sc, script, dur }) => {
+  const L = lookOf(script);
+  const f = useCurrentFrame();
+  const [fx, fy, fw, fh] = (sc.focus as number[]) ?? [0, 0, 100, 100];
+  const blur = (sc.blur as number[][]) ?? [];
+  const z = interpolate(f, [dur * 0.25, dur * 0.7], [1, Math.min(2.2, 100 / Math.max(fw, fh * 0.7))], { extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    easing: (x) => 1 - Math.pow(1 - x, 3) });
+  const cx = fx + fw / 2, cy = fy + fh / 2;
+  const hl = snap(f, dur * 0.72, 10);
+  return (
+    <div style={{ padding: "0 50px" }}>
+      <Tag L={L} text={String(sc.tag ?? "ẢNH CHỤP KHI THỬ")} />
+      {sc.heading ? <Title L={L} text={String(sc.heading)} size={70} /> : null}
+      <div style={{ marginTop: 30, border: `3px solid ${L.line}`, background: "#111", ...vao(f, 4, 50) }}>
+        <div style={{ display: "flex", gap: 10, padding: "12px 16px", background: "#2A2A2E" }}>
+          {["#FF5F57", "#FEBC2E", "#28C840"].map((c) => <div key={c} style={{ width: 16, height: 16, borderRadius: 8, background: c }} />)}
+          <div style={{ marginLeft: 14, fontFamily: MONO, fontSize: 20, color: "#AAA" }}>{String(sc.window ?? "")}</div>
+        </div>
+        {/* khung cao theo đúng tỉ lệ ảnh (`ar` = rộng/cao) để % của focus/blur trùng % trên ảnh */}
+        <div style={{ position: "relative", height: Math.min(900, Math.round(974 / Number(sc.ar ?? 1.5))), overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, transform: `scale(${z})`, transformOrigin: `${cx}% ${cy}%` }}>
+            <Img src={staticFile(`${script.id}/${String(sc.src)}`)} style={{ width: "100%", height: "100%", objectFit: "fill" }} />
+            {blur.map(([x, y, w, h], i) => (
+              <div key={i} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, width: `${w}%`, height: `${h}%`, backdropFilter: "blur(14px)", background: "rgba(128,128,128,0.25)" }} />
+            ))}
+            <div style={{ position: "absolute", left: `${fx}%`, top: `${fy}%`, width: `${fw}%`, height: `${fh}%`, border: `${4 / z}px solid ${L.acc}`, opacity: hl,
+              boxShadow: `0 0 0 9999px rgba(0,0,0,${0.35 * hl})` }} />
+          </div>
+        </div>
+      </div>
+      {sc.caption ? <div style={{ marginTop: 26, fontFamily: L.body, fontSize: 36, fontWeight: 800, color: L.ink, ...vao(f, dur * 0.74) }}>{String(sc.caption)}</div> : null}
+    </div>
+  );
+};
+
 export const KIT_SCENES: Record<string, React.FC<SP>> = {
-  "k-schema": KSchema,
+  "k-schema": KSchema, "k-shot": KShot,
   "k-cover": KCover, "k-hook": KHook, "k-steps": KSteps, "k-prompt": KPrompt, "k-compare": KCompare, "k-signs": KSigns, "k-outro": KOutro,
   "k-split": KSplit, "k-cleanup": KCleanup, "k-versions": KVersions, "k-library": KLibrary,
 };
