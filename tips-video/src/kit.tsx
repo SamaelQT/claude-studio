@@ -12,7 +12,7 @@ import type { Scene, Script } from "./types";
 import { prog } from "./anim";
 
 type SP = { sc: Scene; script: Script; dur: number };
-type Motif = "badge" | "pinboard" | "swiss";
+type Motif = "badge" | "pinboard" | "swiss" | "blueprint";
 
 export type Look = {
   motif: Motif; bg1: string; bg2: string; dot: string; ink: string; muted: string; acc: string; acc2: string;
@@ -39,6 +39,13 @@ export const LOOKS: Record<Motif, Look> = {
     acc: "#FF6B2C", acc2: "#2D7FF9", card: "#FFFFFF", cardInk: "#111111", line: "#111111", subBg: "rgba(17,17,17,0.92)",
     hi: "#FFC531", head: `"Segoe UI", Arial, sans-serif`, body: `"Segoe UI", Arial, sans-serif`, hand: `"Segoe UI", Arial, sans-serif`,
     blocks: ["#FF6B2C", "#2BB673", "#7B61FF", "#2D7FF9", "#FFC531"],
+  },
+  // #9 "Bản vẽ sơ đồ dữ liệu": nền xanh lam bản vẽ + lưới trắng mờ, khung viền trắng như bảng ERD, nhấn cam + xanh ngọc, chữ Bahnschrift + mono.
+  blueprint: {
+    motif: "blueprint", bg1: "#123A73", bg2: "#0C2B57", dot: "rgba(255,255,255,0.07)", ink: "#F4F8FF", muted: "#9FB6D9",
+    acc: "#FF9F1C", acc2: "#2EC4B6", card: "rgba(255,255,255,0.06)", cardInk: "#F4F8FF", line: "rgba(244,248,255,0.55)", subBg: "rgba(8,26,54,0.93)",
+    hi: "#FF9F1C", head: `"Bahnschrift", "Segoe UI", Arial, sans-serif`, body: `"Segoe UI", Arial, sans-serif`, hand: MONO,
+    blocks: ["rgba(255,255,255,0.06)"],
   },
 };
 export const lookOf = (s: Script): Look => LOOKS[(s.theme as Motif) ?? "swiss"] ?? LOOKS.swiss;
@@ -74,6 +81,17 @@ const Card: React.FC<{ L: Look; i?: number; on?: boolean; color?: string; style?
       </div>
     );
   }
+  if (L.motif === "blueprint") {
+    // khung bản vẽ: viền trắng mảnh, 4 dấu góc cam khi đang được chọn
+    return (
+      <div style={{ position: "relative", background: color ?? L.card, color: L.cardInk, padding: "30px 32px", border: `3px solid ${on ? L.acc : L.line}`, ...style }}>
+        {on ? [[0, 0], [1, 0], [0, 1], [1, 1]].map(([x, y], k) => (
+          <div key={k} style={{ position: "absolute", width: 18, height: 18, background: L.acc, [x ? "right" : "left"]: -10, [y ? "bottom" : "top"]: -10 } as React.CSSProperties} />
+        )) : null}
+        {children}
+      </div>
+    );
+  }
   return (
     <div style={{ position: "relative", background: color ?? L.card, color: L.cardInk, padding: "32px 34px", border: `5px solid ${L.line}`, ...style }}>{children}</div>
   );
@@ -87,6 +105,7 @@ const Title: React.FC<{ L: Look; text: string; at?: number; size?: number }> = (
     if (!hot) return { color: L.ink };
     if (L.motif === "swiss") return { color: L.ink, background: L.hi, padding: "0 10px" };
     if (L.motif === "pinboard") return { color: L.acc, textDecoration: "underline", textDecorationThickness: 8, textUnderlineOffset: 10 };
+    if (L.motif === "blueprint") return { color: L.acc };
     return { color: L.acc, fontStyle: "italic" };
   };
   return (
@@ -147,6 +166,27 @@ export const KCover: React.FC<SP> = ({ sc, script }) => {
         </Card>
       </div>
     );
+  } else if (L.motif === "blueprint") {
+    // hai bảng ERD nối nhau, câu SQL lỗi đóng dấu cam
+    const tb = (name: string, cols: string[], x: number, y: number) => (
+      <div style={{ position: "absolute", left: x, top: y, width: 380 }}>
+        <Card L={L} on={false} style={{ padding: 0 }}>
+          <div style={{ fontFamily: MONO, fontSize: 26, color: L.bg1, background: L.acc2, padding: "10px 18px" }}>{name}</div>
+          {cols.map((c) => <div key={c} style={{ fontFamily: MONO, fontSize: 24, padding: "8px 18px", borderTop: `1px solid ${L.line}` }}>{c}</div>)}
+        </Card>
+      </div>
+    );
+    art = (
+      <div style={{ position: "absolute", left: 80, right: 80, top: 900, height: 700 }}>
+        {tb("DON_HANG", ["ma_don", "ma_kh", "ngay_dat", "trang_thai"], 0, 0)}
+        {tb("KHACH_HANG", ["ma_kh", "ten_kh", "ngay_tao"], 540, 120)}
+        <div style={{ position: "absolute", left: 380, top: 120, width: 160, height: 3, background: L.line }} />
+        <div style={{ position: "absolute", left: 40, right: 0, top: 470, fontFamily: MONO, fontSize: 30, color: L.ink, border: `3px solid ${L.acc}`, padding: "16px 22px",
+          transform: `rotate(-2deg) scale(${0.9 + 0.1 * snap(f, 6, 12)})`, opacity: snap(f, 6, 12), background: "rgba(255,159,28,0.12)" }}>
+          {String(sc.err ?? "")}
+        </div>
+      </div>
+    );
   } else {
     art = (
       <div style={{ position: "absolute", left: 80, right: 80, top: 930 }}>
@@ -155,10 +195,12 @@ export const KCover: React.FC<SP> = ({ sc, script }) => {
       </div>
     );
   }
+  const pattern = L.motif === "swiss" ? { img: `linear-gradient(90deg, rgba(0,0,0,0.06) 2px, transparent 2px)`, size: "90px 100%" }
+    : L.motif === "blueprint" ? { img: `linear-gradient(${L.dot} 2px, transparent 2px), linear-gradient(90deg, ${L.dot} 2px, transparent 2px)`, size: "54px 54px" }
+    : { img: `radial-gradient(${L.dot} 3px, transparent 3px)`, size: "38px 38px" };
   return (
     <div style={bg}>
-      <div style={{ position: "absolute", inset: 0, backgroundImage: L.motif === "swiss"
-        ? `linear-gradient(90deg, rgba(0,0,0,0.06) 2px, transparent 2px)` : `radial-gradient(${L.dot} 3px, transparent 3px)`, backgroundSize: L.motif === "swiss" ? "90px 100%" : "38px 38px" }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: pattern.img, backgroundSize: pattern.size }} />
       {head}{titleBlock}{art}{footer}
     </div>
   );
@@ -248,7 +290,7 @@ export const KPrompt: React.FC<SP> = ({ sc, script, dur }) => {
             used += l.length + 1;
             const isHot = hot.includes(i) && f > dur * 0.6;
             return (
-              <div key={i} style={{ fontFamily: L.motif === "pinboard" ? L.hand : MONO, fontSize: L.motif === "pinboard" ? 34 : 31, lineHeight: 1.45, marginBottom: 6,
+              <div key={i} style={{ fontFamily: L.motif === "pinboard" ? L.hand : MONO, fontSize: L.motif === "pinboard" ? 34 : 31, lineHeight: 1.45, marginBottom: 6, whiteSpace: "pre-wrap",
                 background: isHot ? L.hi : "transparent", padding: isHot ? "2px 10px" : "2px 0", opacity: take ? 1 : 0.15 }}>
                 {l.slice(0, take)}{take > 0 && take < l.length ? <span style={{ color: L.acc }}>▌</span> : null}
               </div>
@@ -519,7 +561,60 @@ export const KLibrary: React.FC<SP> = ({ sc, script, dur }) => {
   );
 };
 
+// ── #9 đặc trưng: chưa có schema → câu SQL dùng cột "ma" (gạch cam, ✗ không tồn tại); schema bay vào → câu đúng gõ ra, cột được dùng sáng xanh ─────
+export const KSchema: React.FC<SP> = ({ sc, script, dur }) => {
+  const L = lookOf(script);
+  const f = useCurrentFrame();
+  const tables = sc.tables as { name: string; cols: string[] }[];
+  const bad = sc.bad as string[];
+  const badCols = (sc.badCols as string[]) ?? [];
+  const good = sc.good as string[];
+  const used = new Set((sc.used as string[]) ?? []);
+  const dropAt = Math.round(dur * 0.4);       // giữ yên ~0,5 s trước khi schema rơi vào (khoảng lặng trước cú lật)
+  const drop = snap(f, dropAt, 12);
+  const goodShown = Math.floor(prog(f, dropAt + 14, dur * 0.85) * good.join("\n").length);
+  const lit = f > dropAt + 20;
+  const markBad = (line: string) => line.split(new RegExp(`(${badCols.join("|")})`)).map((p, k) =>
+    badCols.includes(p) ? <span key={k} style={{ color: L.acc, textDecoration: f > dropAt * 0.55 ? "line-through" : "none", textDecorationThickness: 4 }}>{p}</span> : <span key={k}>{p}</span>);
+  let used2 = 0;
+  return (
+    <div style={{ padding: "0 56px" }}>
+      <Tag L={L} text={drop > 0.5 ? "CÓ SCHEMA" : "CHƯA CÓ SCHEMA"} />
+      <div style={{ display: "flex", gap: 18, height: 330, alignItems: "flex-start" }}>
+        {tables.map((t, i) => (
+          <div key={t.name} style={{ flex: 1, opacity: 0.15 + 0.85 * drop, transform: `translateY(${(1 - drop) * -260}px) rotate(${(1 - drop) * (i - 1) * 8}deg)` }}>
+            <Card L={L} on={false} style={{ padding: 0 }}>
+              <div style={{ fontFamily: MONO, fontSize: 22, color: L.bg1, background: L.acc2, padding: "8px 14px" }}>{t.name}</div>
+              {t.cols.map((c) => {
+                const on = lit && used.has(`${t.name}.${c}`);
+                return <div key={c} style={{ fontFamily: MONO, fontSize: 21, padding: "6px 14px", borderTop: `1px solid ${L.line}`, background: on ? "rgba(46,196,182,0.25)" : "transparent", color: on ? L.ink : L.muted }}>{on ? "✓ " : ""}{c}</div>;
+              })}
+            </Card>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 28 }}>
+        <Card L={L} on={lit} style={{ minHeight: 470, padding: "24px 28px", background: "rgba(0,0,0,0.25)" }}>
+          <div style={{ fontFamily: MONO, fontSize: 22, color: L.muted, marginBottom: 12 }}>AI › câu SQL {lit ? "(có schema)" : "(đoán mò)"}</div>
+          {f < dropAt + 10 ? (
+            <>
+              {bad.map((l, i) => <div key={i} style={{ fontFamily: MONO, fontSize: 28, lineHeight: 1.45, opacity: 1 - drop * 0.8 }}>{markBad(l)}</div>)}
+              <div style={{ marginTop: 18, fontFamily: MONO, fontSize: 26, color: L.acc, opacity: snap(f, dropAt * 0.6) }}>{String(sc.errLine ?? "")}</div>
+            </>
+          ) : good.map((l, i) => {
+            const take = Math.max(0, Math.min(l.length, goodShown - used2));
+            used2 += l.length + 1;
+            return <div key={i} style={{ fontFamily: MONO, fontSize: 28, lineHeight: 1.45, whiteSpace: "pre" }}>{l.slice(0, take)}</div>;
+          })}
+          {f > dur * 0.86 ? <div style={{ marginTop: 16, fontFamily: MONO, fontSize: 26, color: L.acc2 }}>{String(sc.okLine ?? "")}</div> : null}
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 export const KIT_SCENES: Record<string, React.FC<SP>> = {
+  "k-schema": KSchema,
   "k-cover": KCover, "k-hook": KHook, "k-steps": KSteps, "k-prompt": KPrompt, "k-compare": KCompare, "k-signs": KSigns, "k-outro": KOutro,
   "k-split": KSplit, "k-cleanup": KCleanup, "k-versions": KVersions, "k-library": KLibrary,
 };

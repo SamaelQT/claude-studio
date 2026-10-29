@@ -13,9 +13,9 @@ const ALL = { ...SCENES, ...PAPER_SCENES, ...MAIL_SCENES, ...CHAT_SCENES, ...DAR
 const isCover = (t?: string) => /(^|-)cover$/.test(t ?? "");
 /** Màu khung chung (nền, header, phụ đề) theo `script.theme`: mỗi video một tone (Quang 20/10). */
 function theme(name?: string) {
-  if (name === "badge" || name === "pinboard" || name === "swiss") {
+  if (name === "badge" || name === "pinboard" || name === "swiss" || name === "blueprint") {
     const L = LOOKS[name];
-    const dark = name === "badge";
+    const dark = name === "badge" || name === "blueprint";
     return { bg1: L.bg1, bg2: L.bg2, dot: L.dot, bar: name === "swiss" ? L.ink : L.acc, pillFg: dark ? L.bg1 : "#fff", pillBg: name === "swiss" ? L.ink : L.acc,
       title: L.ink, subBg: L.subBg, hi: L.hi };
   }

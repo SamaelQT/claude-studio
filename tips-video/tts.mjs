@@ -124,14 +124,18 @@ const docTiengAnh = (vo) => Object.entries(PHAT_AM).reduce((t, [w, doc]) => t.re
 // Giọng VieNeu-TTS chạy local — mặc định cho kịch bản mới từ 28/10 (Quang chọn "Mai Anh", nói nhanh hơn chút; đọc đúng từ
 // tiếng Anh nên không cần `phatAm`). Kịch bản cũ có `voice` Edge thì giữ Edge để render lại không đổi giọng.
 // Thẻ cảm xúc VieNeu [cười] [thở dài] [hắng giọng] viết thẳng trong `vo`: chỉ VieNeu đọc, phụ đề và Edge bỏ đi.
+// 29/10: chuyển sang VieNeu bản mới (pip 3.8.3, model v4, CPU fp32) ở venv riêng `D:\cache\venv-vieneu4`; Quang nghe thấy "Ngọc Huyền"
+// và "Hải Đăng" ổn hơn — mặc định Ngọc Huyền. Không có venv đó thì rơi về `py -3.12` (VieNeu 3.3.0 của FRIDAY).
 const engine = kb.engine ?? (kb.voice ? "edge" : "vieneu");
-const vnVoice = kb.vieneuVoice || "Mai Anh";
+const VN_VENV = process.env.VIENEU_PY || "D:/cache/venv-vieneu4/Scripts/python.exe";
+const vnPy = fs.existsSync(VN_VENV) ? [VN_VENV, ["-I", "-S"]] : ["py", ["-3.12", "-I", "-S"]];
+const vnVoice = kb.vieneuVoice || (fs.existsSync(VN_VENV) ? "Ngọc Huyền" : "Mai Anh");
 const vnTemp = kb.temperature ?? 0.6;
 const vnTempo = kb.tempo ?? 1.08;
 const boThe = (s) => s.replace(/\s*\[[^\]]+\]/g, "").replace(/\s{2,}/g, " ").trim();
 const loiDoc = (vo) => (engine === "vieneu" ? vo : docTiengAnh(boThe(vo)));
 const keyCanh = (noi) => crypto.createHash("sha1")
-  .update(engine === "vieneu" ? `vieneu|${vnVoice}|${vnTemp}|${vnTempo}|${noi}` : `${voice}|${rate}|${pitch}|${noi}`)
+  .update(engine === "vieneu" ? `vieneu|${vnPy[0]}|${vnVoice}|${vnTemp}|${vnTempo}|${noi}` : `${voice}|${rate}|${pitch}|${noi}`)
   .digest("hex").slice(0, 16);
 const duoi = engine === "vieneu" ? "wav" : "mp3";
 if (engine === "vieneu") {
@@ -144,7 +148,7 @@ if (engine === "vieneu") {
     const jobF = path.join(cacheDir, "vieneu-job.json");
     fs.writeFileSync(jobF, JSON.stringify({ voice: vnVoice, temperature: vnTemp, tempo: vnTempo, gap: 0.18, items }));
     console.log(`VieNeu "${vnVoice}" ×${vnTempo}: đọc ${items.length} cảnh (lần đầu nạp model ~15–70 s)…`);
-    execFileSync("py", ["-3.12", "-I", "-S", path.join(HERE, "vieneu_tts.py"), jobF],
+    execFileSync(vnPy[0], [...vnPy[1], path.join(HERE, "vieneu_tts.py"), jobF],
       { stdio: "inherit", env: { ...process.env, HF_HUB_DISABLE_SYMLINKS_WARNING: "1" } });
     fs.rmSync(jobF, { force: true });
   }

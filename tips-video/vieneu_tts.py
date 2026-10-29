@@ -11,7 +11,7 @@ Chạy bằng -S: bỏ .pth của pip-system-certs (nó tiêm truststore của p
 → đệ quy SSL khi tải model). Tự thêm site-packages và tiêm truststore MỘT lần — vẫn dùng kho chứng chỉ Windows.
 """
 import json, os, re, subprocess, sys, wave
-sys.path.append(os.path.join(os.path.dirname(sys.executable), "Lib", "site-packages"))
+sys.path.append(os.path.join(sys.prefix, "Lib", "site-packages"))   # sys.prefix: thư mục venv hoặc bản Python cài sẵn
 import truststore
 truststore.inject_into_ssl()
 import numpy as np

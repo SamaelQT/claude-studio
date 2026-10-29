@@ -7,6 +7,7 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 "mẹo dùng AI" cho cuộc thi AI Tips (SAP Jam), kế hoạch 6 tuần ở `D:\Web\AI workspace\ai-sharing-tips\KE-HOACH-MEO-AI.md`.
 
 ## Nhật ký
+- 2026-10-29 · acc 2 · Clip #9 (Weekly Challenge #2 — thử tip "đưa schema" của anh Hoàng Mạnh Hùng), phong cách "bản vẽ sơ đồ dữ liệu" (look blueprint + cảnh k-schema). Giọng chuyển sang VieNeu bản mới 3.8.3 (model v4, fp32) ở venv `D:cheenv-vieneu4`, mặc định "Ngọc Huyền" (Quang chọn Ngọc Huyền / Hải Đăng). #6–#8 vẫn giọng Mai Anh cũ.
 - 2026-10-28 · acc 2 · Dựng 3 clip tuần 2: #6 cài hồ sơ (phong cách "thẻ nhân viên"), #7 dọn bộ nhớ AI ("bảng ghim giấy nhớ"),
   #8 5 câu lệnh lõi ("khối màu Thuỵ Sĩ") — Quang muốn mỗi clip một phong cách. Bộ cảnh mới `src/kit.tsx` (k-*, 3 look + 3 cảnh đặc trưng:
   k-split, k-cleanup, k-versions, k-library). Mỗi clip 64–67 s, ~−15,4 LUFS. Kịch bản/treatment: `tips-video/treatments/tuan2-clip-6-7-8.md`;
