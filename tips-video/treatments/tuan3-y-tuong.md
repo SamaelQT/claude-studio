@@ -23,3 +23,9 @@ Bài học từ #9: **ảnh chụp thật** ăn điểm bằng chứng → mỗi
 - Ảnh có dữ liệu công ty: cắt tên kết nối / tên khách / số tiền trước khi gửi; không chụp màn hình production.
 - RESULT ghi "ước lượng trên việc thực tế của mình" như các bài trước.
 - Giọng: VieNeu v4 Ngọc Huyền (mặc định của tips-video).
+
+## Chốt 04/11/2026 (BTC đăng Weekly Challenge #3: Workflow & Automation)
+Quang: bài thử thách = quy trình của team IT (đề theo phòng ban); 3 bài kia phải là việc văn phòng chung, bớt riêng IT.
+→ Bỏ #10 cũ (biên bản → user story), #11 cũ (issue log), #12 cũ (test case) vì riêng IT. Bộ mới, lịch ở `output/ai-tips/LICH-DANG-TUAN-3.md`:
+#10 WC3 1 trang CR → đủ bộ tài liệu dự án theo mẫu công ty · #11 mô tả bằng lời → công thức Excel · #12 bắt AI tự rà (= #13 cũ) ·
+#13 tài liệu dài → 5 ý + chỗ cần chú ý.
