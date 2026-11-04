@@ -12,7 +12,7 @@ import type { Scene, Script } from "./types";
 import { prog } from "./anim";
 
 type SP = { sc: Scene; script: Script; dur: number };
-type Motif = "badge" | "pinboard" | "swiss" | "blueprint";
+type Motif = "badge" | "pinboard" | "swiss" | "blueprint" | "dossier";
 
 export type Look = {
   motif: Motif; bg1: string; bg2: string; dot: string; ink: string; muted: string; acc: string; acc2: string;
@@ -46,6 +46,13 @@ export const LOOKS: Record<Motif, Look> = {
     acc: "#FF9F1C", acc2: "#2EC4B6", card: "rgba(255,255,255,0.06)", cardInk: "#F4F8FF", line: "rgba(244,248,255,0.55)", subBg: "rgba(8,26,54,0.93)",
     hi: "#FF9F1C", head: `"Bahnschrift", "Segoe UI", Arial, sans-serif`, body: `"Segoe UI", Arial, sans-serif`, hand: MONO,
     blocks: ["rgba(255,255,255,0.06)"],
+  },
+  // #10 "Hồ sơ dự án" (tuần 3, WC3): nền xanh than + chấm mờ, thẻ = bìa hồ sơ manila có tai giấy, dấu mộc đỏ, nhấn vàng; chữ Segoe UI Black.
+  dossier: {
+    motif: "dossier", bg1: "#1E2A38", bg2: "#141C26", dot: "rgba(255,255,255,0.05)", ink: "#F6F1E7", muted: "#9AA8B8",
+    acc: "#F6C445", acc2: "#D64545", card: "#F2E3BC", cardInk: "#2A2318", line: "rgba(42,35,24,0.18)", subBg: "rgba(14,20,28,0.94)",
+    hi: "#F6C445", head: `"Segoe UI Black", "Segoe UI", Arial, sans-serif`, body: `"Segoe UI", Arial, sans-serif`, hand: MONO,
+    blocks: ["#F2E3BC", "#E9EEF5", "#DCEFE2", "#F2E3BC", "#F7DADA", "#E9EEF5"],
   },
 };
 export const lookOf = (s: Script): Look => LOOKS[(s.theme as Motif) ?? "swiss"] ?? LOOKS.swiss;
@@ -92,6 +99,20 @@ const Card: React.FC<{ L: Look; i?: number; on?: boolean; color?: string; style?
       </div>
     );
   }
+  if (L.motif === "dossier") {
+    // bìa hồ sơ: giấy manila, tai giấy phía trên bên trái, viền vàng khi đang được chọn
+    const bgc = color ?? L.blocks[i % L.blocks.length];
+    return (
+      <div style={{ position: "relative", marginTop: 26 }}>
+        <div style={{ position: "absolute", top: -26, left: 28, width: 170, height: 30, borderRadius: "10px 10px 0 0", background: bgc,
+          boxShadow: on ? `0 0 0 5px ${L.acc}` : "none" }} />
+        <div style={{ position: "relative", background: bgc, color: L.cardInk, borderRadius: "0 12px 12px 12px", padding: "30px 32px",
+          boxShadow: on ? `0 0 0 5px ${L.acc}, 0 16px 34px rgba(0,0,0,0.4)` : "0 10px 24px rgba(0,0,0,0.3)", ...style }}>
+          {children}
+        </div>
+      </div>
+    );
+  }
   return (
     <div style={{ position: "relative", background: color ?? L.card, color: L.cardInk, padding: "32px 34px", border: `5px solid ${L.line}`, ...style }}>{children}</div>
   );
@@ -106,6 +127,7 @@ const Title: React.FC<{ L: Look; text: string; at?: number; size?: number }> = (
     if (L.motif === "swiss") return { color: L.ink, background: L.hi, padding: "0 10px" };
     if (L.motif === "pinboard") return { color: L.acc, textDecoration: "underline", textDecorationThickness: 8, textUnderlineOffset: 10 };
     if (L.motif === "blueprint") return { color: L.acc };
+    if (L.motif === "dossier") return { color: L.acc, borderBottom: `8px solid ${L.acc2}` };
     return { color: L.acc, fontStyle: "italic" };
   };
   return (
@@ -184,6 +206,29 @@ export const KCover: React.FC<SP> = ({ sc, script }) => {
         <div style={{ position: "absolute", left: 40, right: 0, top: 470, fontFamily: MONO, fontSize: 30, color: L.ink, border: `3px solid ${L.acc}`, padding: "16px 22px",
           transform: `rotate(-2deg) scale(${0.9 + 0.1 * snap(f, 6, 12)})`, opacity: snap(f, 6, 12), background: "rgba(255,159,28,0.12)" }}>
           {String(sc.err ?? "")}
+        </div>
+      </div>
+    );
+  } else if (L.motif === "dossier") {
+    // chồng bìa hồ sơ xoè dần (mỗi file một bìa), cuối cùng đóng dấu mộc đỏ
+    const files = (sc.files as string[]) ?? [];
+    art = (
+      <div style={{ position: "absolute", left: 110, right: 110, top: 900, height: 820 }}>
+        {files.map((t, i) => {
+          const p = snap(f, 4 + i * 3, 10);
+          return (
+            <div key={i} style={{ position: "absolute", left: i * 18, right: (files.length - 1 - i) * 18, top: i * 92, opacity: p, transform: `translateY(${(1 - p) * 60}px)` }}>
+              <Card L={L} i={i} on={false} style={{ padding: "22px 30px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontFamily: L.body, fontWeight: 800, fontSize: 36 }}>
+                  <span>{t}</span><span style={{ fontFamily: MONO, fontSize: 26, color: "rgba(42,35,24,0.55)" }}>{String(i + 1).padStart(2, "0")}</span>
+                </div>
+              </Card>
+            </div>
+          );
+        })}
+        <div style={{ position: "absolute", right: -20, bottom: 40, fontFamily: L.head, fontSize: 64, color: L.acc2, border: `8px solid ${L.acc2}`, borderRadius: 18,
+          padding: "8px 28px", transform: `rotate(-12deg) scale(${2 - snap(f, 4 + files.length * 3 + 4, 8)})`, opacity: snap(f, 4 + files.length * 3 + 4, 8), background: "rgba(246,241,231,0.9)" }}>
+          {String(sc.stamp ?? "")}
         </div>
       </div>
     );
@@ -625,6 +670,10 @@ export const KShot: React.FC<SP> = ({ sc, script, dur }) => {
   const z = interpolate(f, [dur * 0.25, dur * 0.7], [1, Math.min(2.2, 100 / Math.max(fw, fh * 0.7))], { extrapolateLeft: "clamp", extrapolateRight: "clamp",
     easing: (x) => 1 - Math.pow(1 - x, 3) });
   const cx = fx + fw / 2, cy = fy + fh / 2;
+  // Phóng to quanh góc trên-trái rồi dịch để tâm vùng focus về giữa khung, KẸP trong [100−100z, 0] → không lộ mép,
+  // không cắt vùng focus sát mép ảnh (bản cũ lấy transformOrigin = tâm focus nên focus sát mép phải bị cắt — sửa 04/11 cho clip #10).
+  const clampT = (c: number) => Math.min(0, Math.max(100 - 100 * z, 50 - c * z));
+  const tx = clampT(cx), ty = clampT(cy);
   const hl = snap(f, dur * 0.72, 10);
   return (
     <div style={{ padding: "0 50px" }}>
@@ -637,7 +686,7 @@ export const KShot: React.FC<SP> = ({ sc, script, dur }) => {
         </div>
         {/* khung cao theo đúng tỉ lệ ảnh (`ar` = rộng/cao) để % của focus/blur trùng % trên ảnh */}
         <div style={{ position: "relative", height: Math.min(900, Math.round(974 / Number(sc.ar ?? 1.5))), overflow: "hidden" }}>
-          <div style={{ position: "absolute", inset: 0, transform: `scale(${z})`, transformOrigin: `${cx}% ${cy}%` }}>
+          <div style={{ position: "absolute", inset: 0, transform: `translate(${tx}%, ${ty}%) scale(${z})`, transformOrigin: "0 0" }}>
             <Img src={staticFile(`${script.id}/${String(sc.src)}`)} style={{ width: "100%", height: "100%", objectFit: "fill" }} />
             {blur.map(([x, y, w, h], i) => (
               <div key={i} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, width: `${w}%`, height: `${h}%`, backdropFilter: "blur(14px)", background: "rgba(128,128,128,0.25)" }} />

@@ -1,0 +1,183 @@
+{
+  "id": "10-wc3-bo-tai-lieu-du-an",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "1 trang CR → đủ bộ tài liệu dự án",
+  "author": "Quang · IT Application",
+  "nop": "10690930_WC3 Quy trình 1 trang CR ra đủ bộ tài liệu dự án",
+  "theme": "dossier",
+  "music": "pad",
+  "scenes": [
+    {
+      "type": "k-cover",
+      "tag": "WEEKLY CHALLENGE #3",
+      "line1": "Mỗi dự án mới",
+      "line2": "7 file tài liệu?",
+      "hook": "1 trang CR → AI điền đủ",
+      "files": [
+        "Check List",
+        "User Story",
+        "Test Case",
+        "Checklist DevOps",
+        "Timeline",
+        "Benefit",
+        "System Flow"
+      ],
+      "stamp": "AI ĐÃ ĐIỀN",
+      "dur": 1.8,
+      "vo": ""
+    },
+    {
+      "type": "k-hook",
+      "big": "Làm tay: [[7 bước]] mỗi dự án",
+      "rep": "Đọc CR → gõ lại từng dòng vào mẫu",
+      "count": 7,
+      "wrong": "Đưa mẫu + CR đây, mình điền hết cho.",
+      "sub": "≈ 2–3 ngày / dự án · file hay lệch nhau",
+      "vo": "Mỗi dự án mới, team IT Application lại làm cùng một bộ tài liệu theo mẫu công ty: check list, user story, test case, checklist DevOps, timeline, benefit. Làm tay là bảy bước lặp lại, mất hai đến ba ngày, mà các file còn hay lệch nhau."
+    },
+    {
+      "type": "k-steps",
+      "heading": "Quy trình [[làm 1 lần]]",
+      "steps": [
+        {
+          "t": "Tạo Project, đính kèm file mẫu",
+          "d": "+ luật viết của team · chỉ làm 1 lần"
+        },
+        {
+          "t": "Thả CR + biên bản họp vào",
+          "d": "mỗi dự án mới"
+        },
+        {
+          "t": "Ra lệnh theo thứ tự",
+          "d": "Check List → US + TC → DevOps → Timeline"
+        },
+        {
+          "t": "AI tự rà, người rà lại",
+          "d": "phạm vi · tên module · ngày"
+        }
+      ],
+      "vo": "Quy trình của team mình: tạo một Project trong AI, đính kèm sẵn file mẫu công ty và luật viết, chỉ làm một lần. Mỗi dự án mới chỉ việc thả CR và biên bản họp vào, ra lệnh theo thứ tự, rồi cho AI tự rà chéo trước khi mình rà lại."
+    },
+    {
+      "type": "k-prompt",
+      "heading": "Luật viết [[dán 1 lần]]",
+      "hint": "✻ dán vào phần hướng dẫn của Project",
+      "hot": [
+        1,
+        3
+      ],
+      "lines": [
+        "Bạn là BA team IT Application.",
+        "Làm ĐÚNG file mẫu đính kèm:",
+        "giữ nguyên cột, thứ tự, định dạng.",
+        "Xong bước 1: DỪNG cho tôi duyệt.",
+        "Thiếu thông tin: ghi [CẦN HỎI],",
+        "không tự bịa."
+      ],
+      "note": "Đủ 3 câu lệnh mẫu ở bài viết",
+      "vo": "Đây là phần luật viết, dán một lần vào Project. Quan trọng nhất hai câu: làm đúng file mẫu, giữ nguyên cột, và xong bước một phải dừng cho mình duyệt. Chỗ nào thiếu thông tin thì AI ghi cần hỏi, không tự bịa."
+    },
+    {
+      "type": "k-shot",
+      "tag": "KẾT QUẢ THẬT",
+      "heading": "1 trang CR → [[7 file]]",
+      "window": "Bộ tài liệu MyAsset · Group O",
+      "src": "shots/1-quy-trinh.png",
+      "focus": [
+        62.5,
+        19.6,
+        34.9,
+        58
+      ],
+      "caption": "17 tính năng · 46 user story · 80 test case",
+      "vo": "Áp vào dự án MyAsset cập nhật QR code Group O: từ CR một trang và biên bản họp, ra đủ bảy file theo mẫu. Mười bảy tính năng, bốn mươi sáu user story, tám mươi test case, hai mươi lăm dòng DevOps.",
+      "ar": 2.316
+    },
+    {
+      "type": "k-shot",
+      "tag": "BƯỚC 1 · CHECK LIST",
+      "heading": "Duyệt [[danh sách tính năng]] trước",
+      "window": "Check List",
+      "src": "shots/2-check-list.png",
+      "focus": [
+        42.4,
+        13.1,
+        21.4,
+        80
+      ],
+      "caption": "Sai từ đây là sai cả bộ",
+      "vo": "Bí quyết: bắt AI dừng sau bước check list để duyệt. Năm phút duyệt ở đây đỡ cả buổi sửa, vì sai danh sách tính năng thì mọi file sau sai theo.",
+      "ar": 1.551
+    },
+    {
+      "type": "k-shot",
+      "tag": "BƯỚC 2 · TEST CASE",
+      "heading": "Case [[thường, biên, lỗi]]",
+      "window": "Test Case",
+      "src": "shots/3-test-case.png",
+      "focus": [
+        52.8,
+        13.4,
+        44.6,
+        79
+      ],
+      "caption": "Tính năng nào cũng có test case",
+      "vo": "Sau đó AI viết user story và test case cho từng tính năng, có cả case bình thường, case biên và case lỗi, đúng các cột của mẫu.",
+      "ar": 1.585
+    },
+    {
+      "type": "k-shot",
+      "tag": "BƯỚC 3 · DEVOPS",
+      "heading": "Ngày thật, [[khớp Timeline]]",
+      "window": "Checklist DevOps",
+      "src": "shots/4-devops.png",
+      "focus": [
+        23,
+        18,
+        55,
+        72
+      ],
+      "caption": "Viết cho người không phải dev đọc hiểu",
+      "vo": "Cuối cùng là checklist DevOps và timeline theo ngày thật. Vì file sau dùng kết quả file trước, ngày trong timeline khớp với checklist, không còn lệch như làm tay.",
+      "ar": 2.384
+    },
+    {
+      "type": "k-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "LÀM TAY",
+      "colB": "CÓ AI",
+      "rows": [
+        [
+          "BƯỚC THỦ CÔNG",
+          "7 bước",
+          "2 bước"
+        ],
+        [
+          "MỖI DỰ ÁN",
+          "~2–3 ngày",
+          "~nửa buổi"
+        ],
+        [
+          "FILE LỆCH NHAU",
+          "Hay gặp",
+          "Khớp"
+        ]
+      ],
+      "vo": "Kết quả: bước thủ công từ bảy còn hai, chỉ thả file và rà lại. Thời gian mỗi dự án, ước lượng từ hai ba ngày còn khoảng nửa buổi, tính cả thời gian rà."
+    },
+    {
+      "type": "k-outro",
+      "line": "Mẫu 1 lần, [[dự án nào cũng nhanh.]]",
+      "echo": "7 bước → 2 bước",
+      "echoNote": "phòng ban nào có biểu mẫu lặp lại cũng áp được",
+      "tools": [
+        "Claude",
+        "ChatGPT",
+        "Gemini",
+        "Copilot"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Phòng ban nào có biểu mẫu lặp lại cũng áp được, chỉ cần đổi file mẫu và luật viết. Ba câu lệnh mẫu mình để trong bài viết, bạn thử nha."
+    }
+  ]
+}
