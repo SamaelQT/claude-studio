@@ -1,0 +1,167 @@
+{
+  "id": "12-ai-tu-ra",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Bắt AI tự rà trước khi giao",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Bắt AI tự rà trước khi giao",
+  "theme": "desk",
+  "music": "nhac/mixkit-curiosity.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "scenes": [
+    {
+      "type": "s-cover",
+      "tag": "AI TIP · TỰ RÀ",
+      "line1": "AI trả lời",
+      "line2": "tự tin mà sai?",
+      "hook": "1 đoạn dặn: tự rà trước",
+      "files": [
+        "Email báo cáo.docx",
+        "Form CR.docx",
+        "Video.mp4",
+        "Bảng số liệu.xlsx"
+      ],
+      "dur": 2.2,
+      "vo": ""
+    },
+    {
+      "type": "s-problem",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Lỗi nhỏ lọt [[tới tay sếp]]",
+      "winTitle": "Bản gửi sếp — lỗi lọt qua",
+      "files": [
+        "Sai số liệu",
+        "Sai tên",
+        "Thiếu ý",
+        "Sai định dạng",
+        "Tràn trang",
+        "Lộ thông tin",
+        "Ảnh mờ"
+      ],
+      "clockTo": 30,
+      "clockUnit": "phút sửa",
+      "counter": "lỗi",
+      "sub": "AI viết nhanh nhưng không tự xem lại kết quả",
+      "vo": "AI viết nhanh, giọng rất tự tin, nhưng hay sai chi tiết: số liệu, tên riêng, định dạng. Mình không để ý, gửi đi mới bị người nhận phát hiện, lại mất công sửa."
+    },
+    {
+      "type": "s-prompt",
+      "tag": "AI TIP",
+      "heading": "Đoạn dặn [[tự rà]] cài 1 lần",
+      "app": "Cá nhân hoá · Hướng dẫn chung",
+      "hint": "✻ dán vào phần hướng dẫn chung của AI",
+      "hot": [
+        1,
+        4
+      ],
+      "lines": [
+        "Trước khi đưa bản cuối:",
+        "1. Tự kiểm 3 chỗ dễ sai nhất:",
+        "   số liệu, tên riêng, định dạng.",
+        "2. Đọc lại như người nhận.",
+        "3. Liệt kê đã kiểm gì, sửa gì.",
+        "Không chắc: ghi [CHƯA CHẮC]."
+      ],
+      "reply": "Đã lưu. Từ giờ mỗi câu trả lời tôi sẽ tự kiểm và ghi rõ đã sửa gì.",
+      "vo": "Mẹo là cài một đoạn dặn cố định vào phần hướng dẫn chung của AI: trước khi đưa bản cuối, tự kiểm ba chỗ dễ sai nhất, đọc lại như người nhận, và liệt kê đã kiểm gì, sửa gì. Chỗ nào không chắc thì ghi chưa chắc, không đoán."
+    },
+    {
+      "type": "s-steps",
+      "tag": "VÌ SAO HIỆU QUẢ",
+      "heading": "Bắt AI [[liệt kê đã kiểm gì]]",
+      "app": "Bước tự rà của AI",
+      "steps": [
+        {
+          "t": "Kiểm số liệu, tên, định dạng",
+          "d": "3 chỗ AI hay sai nhất"
+        },
+        {
+          "t": "Đọc lại như người nhận",
+          "d": "chỗ khó hiểu, thiếu ý"
+        },
+        {
+          "t": "Liệt kê đã sửa gì",
+          "d": "nhìn là biết có kiểm thật"
+        },
+        {
+          "t": "Không chắc thì nói",
+          "d": "[CHƯA CHẮC] thay vì đoán"
+        }
+      ],
+      "vo": "Quan trọng nhất là danh sách đã kiểm gì. Nhìn danh sách là biết AI có kiểm thật hay không, mình chỉ cần xem vài dòng thay vì soát cả bài."
+    },
+    {
+      "type": "s-shot",
+      "tag": "KẾT QUẢ THẬT · 04/11",
+      "heading": "AI tự thấy [[video bị cắt số]]",
+      "window": "Tự soát · khung hình video",
+      "icon": "▶",
+      "color": "#DC2626",
+      "src": "shots/1-video-cat-mep.png",
+      "focus": [
+        50,
+        28,
+        47,
+        62
+      ],
+      "caption": "Xem lại từng khung hình → sửa trước khi giao",
+      "vo": "Kết quả thật của mình: cài đoạn dặn này từ cuối tháng mười, riêng hôm nay AI tự bắt bốn lỗi trước khi đưa mình. Ví dụ video phóng to bị cắt mất cột số, AI xem lại từng khung hình, thấy và sửa trước khi giao.",
+      "ar": 1.678
+    },
+    {
+      "type": "s-shot",
+      "tag": "KẾT QUẢ THẬT · 04/11",
+      "heading": "Ảnh [[không đọc nổi]] → dựng lại",
+      "window": "Tự soát · ảnh đính kèm",
+      "icon": "▣",
+      "color": "#2563EB",
+      "src": "shots/2-anh-khong-doc-duoc.png",
+      "focus": [
+        35,
+        18,
+        63,
+        75
+      ],
+      "caption": "Chữ quá nhỏ, lộ 1 email → dựng lại, che email",
+      "vo": "Ảnh xuất thẳng từ Excel chữ quá nhỏ, còn lộ một email nội bộ. AI tự mở ảnh xem, dựng lại cho dễ đọc và che luôn email. Hai lỗi còn lại là form bị tràn sang trang hai, AI cũng tự sửa về một trang.",
+      "ar": 1.772
+    },
+    {
+      "type": "s-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "KHÔNG DẶN",
+      "colB": "CÓ ĐOẠN TỰ RÀ",
+      "rows": [
+        [
+          "LỖI NHỎ",
+          "Lọt ra ngoài",
+          "Bắt từ trước"
+        ],
+        [
+          "MÌNH TỰ SOÁT",
+          "~15 phút",
+          "~3 phút"
+        ],
+        [
+          "CHỖ KHÔNG CHẮC",
+          "Đoán bừa",
+          "Nói rõ"
+        ]
+      ],
+      "vo": "So với trước: lỗi được bắt ngay trước khi giao, thời gian mình tự soát ước lượng từ mười lăm phút còn khoảng ba phút, và chỗ nào AI không chắc thì nó nói rõ chứ không đoán bừa."
+    },
+    {
+      "type": "s-outro",
+      "line": "Dặn 1 lần, [[AI tự kiểm mãi.]]",
+      "echo": "4 lỗi bắt trước khi giao",
+      "echoNote": "chỉ trong 1 buổi làm việc 04/11",
+      "tools": [
+        "ChatGPT",
+        "Copilot",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Đoạn dặn mẫu ở bài viết",
+      "vo": "Đoạn dặn mẫu mình để trong bài viết. Bạn cài một lần, mọi câu trả lời sau đều được tự kiểm nha."
+    }
+  ]
+}

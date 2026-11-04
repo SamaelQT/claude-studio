@@ -394,7 +394,7 @@ export const SShot: React.FC<SP> = ({ sc, script, dur }) => {
   const wx = 30, wy = 40;
   // vùng focus theo toạ độ desktop
   const bx = wx + (fx / 100) * imgW, by = wy + 56 + (fy / 100) * imgH, bw = (fw / 100) * imgW, bh = (fh / 100) * imgH;
-  const zMax = Math.min(2.2, 900 / Math.max(bw, bh * 1.3, 1));
+  const zMax = Math.max(1, Math.min(2.2, 900 / Math.max(bw, bh * 1.3, 1)));
   const deskH = 1150 - DESK_Y;
   const t1 = dur * 0.22, t2 = dur * 0.42;
   const cam = camAt(f, [{ f: 0, cx: W / 2, cy: deskH / 2, z: 1 }, { f: t1, cx: W / 2, cy: deskH / 2, z: 1 }, { f: t2, cx: bx + bw / 2, cy: by + bh / 2, z: zMax }], W, deskH);
