@@ -130,10 +130,19 @@ const engine = kb.engine ?? (kb.voice ? "edge" : "vieneu");
 const VN_VENV = process.env.VIENEU_PY || "D:/cache/venv-vieneu4/Scripts/python.exe";
 const vnPy = fs.existsSync(VN_VENV) ? [VN_VENV, ["-I", "-S"]] : ["py", ["-3.12", "-I", "-S"]];
 const vnVoice = kb.vieneuVoice || (fs.existsSync(VN_VENV) ? "Ngọc Huyền" : "Mai Anh");
-const vnTemp = kb.temperature ?? 0.6;
-const vnTempo = kb.tempo ?? 1.08;
+// 04/11: đo bằng chép lời ngược (skill giong-noi-ai/references/do-do-ro-giong.md) — temperature 0.3 rõ hơn 0.6, tăng tốc atempo làm nhoè
+// → mặc định mới 0.3 và không tăng tốc. Kịch bản cũ muốn giữ giọng cũ thì ghi `temperature` / `tempo` trong kịch bản.
+const vnTemp = kb.temperature ?? 0.3;
+const vnTempo = kb.tempo ?? 1.0;
 const boThe = (s) => s.replace(/\s*\[[^\]]+\]/g, "").replace(/\s{2,}/g, " ").trim();
-const loiDoc = (vo) => (engine === "vieneu" ? vo : docTiengAnh(boThe(vo)));
+// Chữ viết tắt IN HOA (2–5 chữ cái) đọc theo tên chữ cái TIẾNG ANH (Quang 04/11: "CR đọc kiểu Việt quá") — VieNeu tự đánh vần kiểu Việt
+// ("xê rờ") → đổi sẵn thành tên chữ cái Anh viết theo âm Việt. Chỉ đổi chữ gửi đi đọc, phụ đề vẫn là chữ gốc.
+// Chữ VieNeu đã đọc đúng thì để nguyên (CHU_TAT_GIU); muốn đọc khác thì ghi `phatAm` trong kịch bản.
+const CHU_CAI = { A: "ây", B: "bi", C: "xi", D: "đi", E: "i", F: "ép", G: "gi", H: "ết", I: "ai", J: "giây", K: "cây", L: "eo", M: "em",
+  N: "en", O: "âu", P: "pi", Q: "kiu", R: "a", S: "ét", T: "ti", U: "diu", V: "vi", W: "đắp-liu", X: "ích", Y: "quai", Z: "dét" };
+const CHU_TAT_GIU = new Set(["AI", "IT", "SQL", "OK", "PDF", "USB", "OTP", ...(kb.chuTatGiu ?? [])]);
+const docChuTat = (s) => s.replace(/(?<![\p{L}\d])[A-Z]{2,5}(?![\p{L}\d])/gu, (w) => (CHU_TAT_GIU.has(w) ? w : [...w].map((c) => CHU_CAI[c]).join(" ")));
+const loiDoc = (vo) => (engine === "vieneu" ? docChuTat(docTiengAnh(vo)) : docTiengAnh(boThe(vo)));
 const keyCanh = (noi) => crypto.createHash("sha1")
   .update(engine === "vieneu" ? `vieneu|${vnPy[0]}|${vnVoice}|${vnTemp}|${vnTempo}|${noi}` : `${voice}|${rate}|${pitch}|${noi}`)
   .digest("hex").slice(0, 16);
