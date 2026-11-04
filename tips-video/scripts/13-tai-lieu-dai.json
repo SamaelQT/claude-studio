@@ -1,0 +1,159 @@
+{
+  "id": "13-tai-lieu-dai",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Tài liệu dài → 5 ý có số trang",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Tài liệu dài - AI tóm 5 ý có số trang",
+  "theme": "desk",
+  "music": "nhac/mixkit-curiosity.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "scenes": [
+    {
+      "type": "s-cover",
+      "tag": "AI TIP · TÓM TẮT",
+      "line1": "Tài liệu 5 trang",
+      "line2": "đọc mãi không hết?",
+      "hook": "5 ý + số trang để kiểm",
+      "files": [
+        "Thể lệ.docx",
+        "Quy định.pdf",
+        "Thông báo.pdf",
+        "Hợp đồng.pdf"
+      ],
+      "dur": 2.2,
+      "vo": ""
+    },
+    {
+      "type": "s-problem",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Đọc kỹ [[từng trang]] vẫn sót",
+      "winTitle": "Thể lệ cuộc thi.docx — đọc tay",
+      "files": [
+        "Trang 1",
+        "Trang 2",
+        "Trang 3",
+        "Trang 4",
+        "Trang 5",
+        "Con số?",
+        "Hạn nộp?"
+      ],
+      "clockTo": 15,
+      "clockUnit": "phút",
+      "counter": "trang",
+      "sub": "Dễ sót con số, hạn nộp, điều kiện quan trọng",
+      "vo": "Thông báo, quy định, thể lệ, hợp đồng: đọc kỹ từng trang mất cả chục phút mà vẫn dễ sót con số, hạn nộp hay điều kiện quan trọng."
+    },
+    {
+      "type": "s-prompt",
+      "tag": "AI TIP",
+      "heading": "Câu lệnh [[3 yêu cầu]]",
+      "app": "Trợ lý AI",
+      "hint": "✻ đính kèm file rồi dán câu lệnh",
+      "hot": [
+        3,
+        4
+      ],
+      "lines": [
+        "Tóm tắt thành 5 ý chính.",
+        "Liệt kê riêng: ngày, con số,",
+        "điều kiện bắt buộc, điều cấm.",
+        "Mỗi ý ghi SỐ TRANG.",
+        "Chỗ không rõ: mục Cần hỏi lại."
+      ],
+      "reply": "5 ý chính kèm số trang · các con số cần nhớ · 2 chỗ cần hỏi lại",
+      "vo": "Mẹo là câu lệnh có ba yêu cầu: tóm thành năm ý chính, liệt kê riêng ngày tháng, con số và điều kiện, và quan trọng nhất là mỗi ý phải ghi số trang. Chỗ nào tài liệu không rõ thì AI đưa vào mục cần hỏi lại."
+    },
+    {
+      "type": "s-shot",
+      "tag": "VÍ DỤ THẬT",
+      "heading": "Thể lệ cuộc thi: [[5 trang]]",
+      "window": "Thể lệ cuộc thi AI Sharing Tips.docx",
+      "icon": "W",
+      "color": "#2563EB",
+      "src": "shots/1-tai-lieu-goc.png",
+      "focus": [
+        2,
+        22,
+        96,
+        66
+      ],
+      "caption": "883 chữ — đọc kỹ mất ~15 phút",
+      "vo": "Ví dụ thật: chính thể lệ cuộc thi này, năm trang, gần chín trăm chữ.",
+      "ar": 2.595
+    },
+    {
+      "type": "s-shot",
+      "tag": "AI TÓM TẮT",
+      "heading": "5 ý, [[có số trang]]",
+      "window": "Trợ lý AI · bản tóm tắt",
+      "icon": "✦",
+      "color": "#7C5CFF",
+      "src": "shots/2-tom-tat.png",
+      "focus": [
+        3,
+        40,
+        70,
+        36
+      ],
+      "caption": "Mở đúng trang để kiểm, khỏi đọc lại hết",
+      "vo": "AI trả về năm ý chính, mỗi ý có số trang. Mình chỉ mở đúng trang đó để kiểm con số, không phải đọc lại cả tài liệu.",
+      "ar": 1.703
+    },
+    {
+      "type": "s-shot",
+      "tag": "ĐÁNG GIÁ NHẤT",
+      "heading": "AI chỉ ra [[chỗ không rõ]]",
+      "window": "Trợ lý AI · bản tóm tắt",
+      "icon": "✦",
+      "color": "#7C5CFF",
+      "src": "shots/2-tom-tat.png",
+      "focus": [
+        5,
+        77,
+        82,
+        12
+      ],
+      "caption": "Hashtag xác nhận không ghi rõ → hỏi Ban tổ chức",
+      "vo": "Đáng giá nhất là mục cần hỏi lại. AI phát hiện thể lệ cộng hai mươi điểm khi có hashtag xác nhận, nhưng không nói hashtag nào. Mình mang câu đó đi hỏi Ban tổ chức.",
+      "ar": 1.703
+    },
+    {
+      "type": "s-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "ĐỌC TAY",
+      "colB": "AI TÓM TẮT",
+      "rows": [
+        [
+          "ĐỌC 5 TRANG",
+          "~15 phút",
+          "~3 phút"
+        ],
+        [
+          "CON SỐ, HẠN",
+          "Dễ sót",
+          "Có số trang"
+        ],
+        [
+          "CHỖ KHÔNG RÕ",
+          "Bỏ qua",
+          "Có câu hỏi"
+        ]
+      ],
+      "vo": "Kết quả ước lượng: từ mười lăm phút đọc còn khoảng ba phút đọc tóm tắt và mở trang kiểm. Con số có số trang đi kèm, chỗ không rõ thành câu hỏi để hỏi lại."
+    },
+    {
+      "type": "s-outro",
+      "line": "Tóm 5 ý, [[kiểm theo trang.]]",
+      "echo": "Mỗi ý ghi số trang",
+      "echoNote": "Thông báo · quy định · hợp đồng · thể lệ",
+      "tools": [
+        "Copilot",
+        "ChatGPT",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Câu lệnh mẫu mình để trong bài viết. Tài liệu dài nào cũng áp được, bạn thử nha."
+    }
+  ]
+}
