@@ -27,11 +27,11 @@ tempo = float(job.get("tempo", 1.08))
 gap = float(job.get("gap", 0.18))
 
 from vieneu import Vieneu
-from faster_whisper import WhisperModel
 
+# 04/11: KHÔNG nạp VieNeu và whisper cùng lúc (laptop 16 GB hay chỉ còn ~2 GB trống → lỗi bad allocation / mkl_malloc).
+# Lượt 1 đọc hết các cảnh bằng VieNeu, giải phóng model; lượt 2 mới nạp whisper lấy mốc từng chữ.
 tts = Vieneu()
 sr = getattr(tts, "sample_rate", None) or 48000
-asr = WhisperModel(WHISPER, device="cpu", compute_type="int8")
 
 
 def ghi_wav(path, a, rate):
@@ -41,6 +41,7 @@ def ghi_wav(path, a, rate):
         w.writeframes((a * 32767).astype(np.int16).tobytes())
 
 
+xong = []   # (item, moc, số câu) đã đọc xong ở lượt 1
 for it in job["items"]:
     cau = [c.strip() for c in re.findall(r"[^.?!]+[.?!]?", it["text"]) if c.strip()]
     phan, moc, t = [], [], 0.0
@@ -52,13 +53,22 @@ for it in job["items"]:
         t += (len(a) + len(lang)) / sr
     tho = it["wav"] + ".tho.wav"
     ghi_wav(tho, np.concatenate(phan), sr)
-    subprocess.run([FFMPEG, "-y", "-v", "error", "-i", tho, "-af", f"atempo={tempo}", "-ar", "48000", it["wav"]], check=True)
+    af = ["-af", f"atempo={tempo}"] if abs(tempo - 1.0) > 1e-3 else []
+    subprocess.run([FFMPEG, "-y", "-v", "error", "-i", tho, *af, "-ar", "48000", it["wav"]], check=True)
     os.remove(tho)
-    # Mốc từng chữ: whisper nghe lại file đã tăng tốc (đưa mảng số thẳng vào, tránh PyAV lệch phiên bản).
+    xong.append((it, moc, len(cau)))
+    print(f"  VieNeu đọc xong: {len(cau)} câu — {it['text'][:40]}…", flush=True)
+
+del tts
+import gc; gc.collect()
+from faster_whisper import WhisperModel
+asr = WhisperModel(WHISPER, device="cpu", compute_type="int8")
+for it, moc, n in xong:
+    # Mốc từng chữ: whisper nghe lại file (đưa mảng số thẳng vào, tránh PyAV lệch phiên bản).
     pcm = subprocess.run([FFMPEG, "-v", "error", "-i", it["wav"], "-ac", "1", "-ar", "16000", "-f", "s16le", "-"],
                          capture_output=True, check=True).stdout
     audio = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768
     segs, _ = asr.transcribe(audio, language="vi", beam_size=1, word_timestamps=True)
     words = [{"start": w.start, "end": w.end} for s in segs for w in (s.words or [])]
     json.dump({"cau": moc, "words": words}, open(it["meta"], "w", encoding="utf-8"), ensure_ascii=False)
-    print(f"  VieNeu: {len(cau)} câu, {len(words)} chữ — {it['text'][:40]}…", flush=True)
+    print(f"  VieNeu: {n} câu, {len(words)} chữ — {it['text'][:40]}…", flush=True)

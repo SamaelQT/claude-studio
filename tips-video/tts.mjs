@@ -235,6 +235,20 @@ if (kb.music === "pad") {
     + `[pd][v2]sidechaincompress=threshold=0.03:ratio=5:attack=30:release=500[pk];`
     + `[v1][pk]amix=inputs=2:normalize=0:duration=longest,alimiter=limit=0.89[out]`;
 }
+if (typeof kb.music === "string" && /\.(mp3|wav|m4a)$/i.test(kb.music)) {
+  // Nhạc nền từ FILE (04/11, Quang: "nhạc nền cũ rồi đổi đi") — `music`: đường dẫn tính từ public/, VD "nhac/mixkit-curiosity.mp3"
+  // (nguồn + giấy phép trong public/nhac/NGUON.md). Lặp nếu ngắn hơn video, đưa về ~-28 LUFS (dưới giọng -16 khoảng 12 dB),
+  // tự nhỏ xuống khi có lời (sidechain), mở / tắt dần.
+  const f = path.join(HERE, "public", kb.music);
+  if (!fs.existsSync(f)) throw new Error(`Không thấy file nhạc ${f}`);
+  args.push("-stream_loop", "-1", "-t", timeline.total.toFixed(2), "-i", f);
+  const m = n;
+  filter = `${chuan.join(";")};${noi}concat=n=${n}:v=0:a=1,loudnorm=I=-16:TP=-1.5:LRA=11,asplit[v1][v2];`
+    + `[${m}:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,loudnorm=I=-28:TP=-8:LRA=11,`
+    + `afade=t=in:d=1.2,afade=t=out:st=${(timeline.total - 2.5).toFixed(2)}:d=2.5[pd];`
+    + `[pd][v2]sidechaincompress=threshold=0.03:ratio=4:attack=40:release=600[pk];`
+    + `[v1][pk]amix=inputs=2:normalize=0:duration=longest,alimiter=limit=0.89[out]`;
+}
 args.push("-filter_complex", filter, "-map", "[out]", "-ar", "48000", "-c:a", "libmp3lame", "-b:a", "160k", path.join(outDir, "voice.mp3"));
 execFileSync(FFMPEG, args);
 
