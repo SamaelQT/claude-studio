@@ -204,12 +204,16 @@ export const SProblem: React.FC<SP> = ({ sc, dur }) => {
   const cur = Math.min(n - 1, Math.max(0, Math.floor((f - 10) / step)));
   const tabW = 900 / n;
   const keys: Key[] = files.map((_, i) => ({ f: 10 + i * step, x: 50 + tabW * i + tabW / 2, y: 690, click: true }));
-  const hours = Math.round(interpolate(f, [10, 10 + n * step], [0, 20], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  // đồng hồ: mặc định giờ → ngày (bộ tài liệu dự án); `clockTo` + `clockUnit` (VD 15, "phút") cho việc ngắn hơn
+  const clockTo = Number(sc.clockTo ?? 20);
+  const hours = Math.round(interpolate(f, [10, 10 + n * step], [0, clockTo], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const clockText = sc.clockUnit ? `${hours} ${String(sc.clockUnit)}` : hours < 8 ? `${hours} giờ` : `${Math.max(1, Math.round(hours / 8))} ngày`;
+  const counter = String(sc.counter ?? "file");
   return (
     <div style={{ position: "relative", width: W, height: 1150, margin: "0 auto" }}>
-      <Head text={String(sc.heading)} tag="01 · LÀM TAY" />
+      <Head text={String(sc.heading)} tag={String(sc.tag ?? "01 · LÀM TAY")} />
       <Desk>
-        <Win x={30} y={40} w={940} h={700} title={`${files[cur] ?? ""} — làm tay`} icon="X" color="#16A34A" at={0}>
+        <Win x={30} y={40} w={940} h={700} title={sc.winTitle ? String(sc.winTitle) : `${files[cur] ?? ""} — làm tay`} icon="X" color="#16A34A" at={0}>
           <div style={{ position: "absolute", inset: "0 0 64px 0", display: "grid", gridTemplateColumns: "60px repeat(5, 1fr)" }}>
             {Array.from({ length: 6 * 9 }, (_, i) => {
               const r = Math.floor(i / 6), c = i % 6;
@@ -230,9 +234,9 @@ export const SProblem: React.FC<SP> = ({ sc, dur }) => {
         {/* đồng hồ + bộ đếm */}
         <div style={{ position: "absolute", left: 30, top: 770, display: "flex", gap: 20 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: "14px 22px", fontSize: 30, fontWeight: 800, color: D.bad, boxShadow: "0 10px 24px rgba(15,23,42,0.15)" }}>
-            ⏱ {hours < 8 ? `${hours} giờ` : `${Math.max(1, Math.round(hours / 8))} ngày`}
+            ⏱ {clockText}
           </div>
-          <div style={{ background: D.ink, color: D.hi, borderRadius: 16, padding: "14px 22px", fontSize: 30, fontWeight: 900 }}>× {cur + 1} file</div>
+          <div style={{ background: D.ink, color: D.hi, borderRadius: 16, padding: "14px 22px", fontSize: 30, fontWeight: 900 }}>× {cur + 1} {counter}</div>
         </div>
         <div style={{ position: "absolute", left: 30, right: 30, top: 850, fontSize: 28, fontWeight: 700, color: D.ink, opacity: p(f, dur * 0.7, 8) }}>{String(sc.sub ?? "")}</div>
         <Cursor keys={keys} />
@@ -338,7 +342,7 @@ export const SPrompt: React.FC<SP> = ({ sc, dur }) => {
   const sent = f >= typeB + 6;
   let acc = 0;
   const deskH = 1150 - DESK_Y;
-  const cam = camAt(f, [{ f: 0, cx: 500, cy: 380, z: 1 }, { f: 12, cx: 500, cy: 470, z: 1.15 }, { f: typeB, cx: 500, cy: 470, z: 1.15 }, { f: typeB + 14, cx: 500, cy: 380, z: 1 }], W, deskH);
+  const cam = camAt(f, [{ f: 0, cx: 500, cy: 380, z: 1 }, { f: 12, cx: 500, cy: 470, z: 1.06 }, { f: typeB, cx: 500, cy: 470, z: 1.06 }, { f: typeB + 14, cx: 500, cy: 380, z: 1 }], W, deskH);
   const keys: Key[] = [{ f: 0, x: 860, y: 840 }, { f: 12, x: 300, y: 520, click: true }, { f: typeB + 4, x: 900, y: 660, click: true }];
   return (
     <div style={{ position: "relative", width: W, height: 1150, margin: "0 auto" }}>

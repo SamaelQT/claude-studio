@@ -1,0 +1,108 @@
+{
+  "id": "11-cong-thuc-excel",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "Nói bằng lời → công thức Excel",
+  "author": "Quang · IT Application",
+  "nop": "10690930_Mô tả bằng lời - AI viết công thức Excel",
+  "theme": "desk",
+  "music": "nhac/mixkit-curiosity.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "phatAm": { "SUMIFS": "sum ifs", "F4": "ép bốn" },
+  "scenes": [
+    {
+      "type": "s-cover",
+      "tag": "AI TIP · EXCEL",
+      "line1": "Không nhớ",
+      "line2": "công thức Excel?",
+      "hook": "Nói bằng lời → AI viết",
+      "files": ["Benefit.xlsx", "Doanh số.xlsx", "Báo cáo tuần.xlsx"],
+      "dur": 2.2,
+      "vo": ""
+    },
+    {
+      "type": "s-problem",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Mỗi công thức [[tra Google]] 15 phút",
+      "winTitle": "Báo cáo.xlsx — đi tìm công thức",
+      "files": ["SUMIFS", "XLOOKUP", "IF lồng", "COUNTIFS", "Đơn giá", "#NAME?", "#VALUE!"],
+      "clockTo": 15,
+      "clockUnit": "phút",
+      "counter": "lần thử",
+      "sub": "Dán vào còn báo #NAME? vì sai bản Excel, sai dấu ;",
+      "vo": "Cần một công thức Excel mà không nhớ cú pháp, mình hay lên Google tìm, đọc ví dụ của người khác và sửa cho khớp file mình. Mất mười lăm phút, dán vào còn báo lỗi vì sai bản Excel hoặc sai dấu chấm phẩy."
+    },
+    {
+      "type": "s-steps",
+      "tag": "AI TIP",
+      "heading": "Khuôn câu lệnh [[4 phần]]",
+      "app": "Hỏi AI về Excel",
+      "steps": [
+        { "t": "Bản Excel + dấu phân cách", "d": "Excel 365, dấu ;" },
+        { "t": "Dữ liệu ở cột nào", "d": "B = lương, C = % bảo hiểm…" },
+        { "t": "Muốn gì, nói bằng lời", "d": "đơn giá 1 giờ ở cột F" },
+        { "t": "Đòi giải thích + tính tay", "d": "có số để so với Excel" }
+      ],
+      "vo": "Mẹo là hỏi theo khuôn bốn phần: bản Excel và dấu phân cách, dữ liệu nằm ở cột nào, muốn có kết quả gì thì nói bằng lời bình thường, và đòi AI giải thích kèm một ví dụ tính tay."
+    },
+    {
+      "type": "s-prompt",
+      "tag": "VÍ DỤ THẬT",
+      "heading": "Nói bằng lời, [[AI viết]]",
+      "app": "Trợ lý AI",
+      "hint": "✻ khuôn 4 phần",
+      "hot": [0, 4],
+      "lines": [
+        "Excel 365, dấu phân cách ;",
+        "B = lương, C = % bảo hiểm,",
+        "D = số tháng, E = giờ/tháng.",
+        "Muốn: đơn giá 1 giờ ở cột F.",
+        "Giải thích + 1 ví dụ tính tay."
+      ],
+      "reply": "=B4*(1+C4)*D4/12/E4 · Ví dụ: 20 triệu × 1,235 × 13 ÷ 12 ÷ 208 = 128.646 đ/giờ",
+      "vo": "Ví dụ thật của mình: tính đơn giá một giờ công từ lương. Mình chỉ mô tả bằng lời, AI viết ngay công thức, giải thích từng phần, và tính tay dòng đầu được một trăm hai mươi tám nghìn sáu trăm bốn mươi sáu đồng một giờ."
+    },
+    {
+      "type": "s-shot",
+      "tag": "KHỚP EXCEL",
+      "heading": "Tính tay [[khớp ô F4]]",
+      "window": "Benefit.xlsx · Đơn giá lương",
+      "src": "shots/1-don-gia-gio.png",
+      "focus": [52, 40, 48, 45],
+      "caption": "128.646 đ/giờ — khớp ngay lần đầu",
+      "vo": "Đưa vào file Benefit, ô F4 đúng bằng số AI tính tay. Khớp thì mới kéo công thức cho cả cột.",
+      "ar": 3.19
+    },
+    {
+      "type": "s-shot",
+      "tag": "VIỆC VĂN PHÒNG",
+      "heading": "Tổng theo [[tháng + chi nhánh]]",
+      "window": "Doanh số.xlsx",
+      "src": "shots/2-sumifs.png",
+      "focus": [47, 18, 51, 28],
+      "caption": "1 công thức SUMIFS, kéo ra cả bảng",
+      "vo": "Việc văn phòng hay gặp hơn: cộng doanh số theo tháng và chi nhánh. Nói bằng lời là AI viết hàm SUMIFS, kéo sang phải, kéo xuống là xong cả bảng.",
+      "ar": 1.79
+    },
+    {
+      "type": "s-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "TRA GOOGLE",
+      "colB": "HỎI AI ĐÚNG KHUÔN",
+      "rows": [
+        ["MỖI CÔNG THỨC", "~10–15 phút", "~2 phút"],
+        ["LỖI #NAME? / DẤU ;", "Hay gặp", "Gần như không"],
+        ["HIỂU CÔNG THỨC", "Chép mù", "Có giải thích"]
+      ],
+      "vo": "Kết quả ước lượng: mỗi công thức từ mười lăm phút còn khoảng hai phút, gần như hết lỗi sai bản Excel, và mình hiểu công thức chứ không chép mù."
+    },
+    {
+      "type": "s-outro",
+      "line": "Nói bằng lời, [[Excel tự tính.]]",
+      "echo": "Khuôn 4 phần",
+      "echoNote": "Bản Excel · cột dữ liệu · muốn gì · tính tay",
+      "tools": ["Copilot", "ChatGPT", "Gemini", "Claude"],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Câu lệnh mẫu mình để trong bài viết. Lần tới cần công thức, bạn thử khuôn bốn phần này nha."
+    }
+  ]
+}
