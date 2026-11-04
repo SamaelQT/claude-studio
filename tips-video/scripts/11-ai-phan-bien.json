@@ -1,0 +1,159 @@
+{
+  "id": "11-ai-phan-bien",
+  "series": "HỎI IT KHÔNG BẰNG HỎI AI",
+  "title": "AI đóng vai sếp hỏi vặn trước",
+  "author": "Quang · IT Application",
+  "nop": "10690930_AI đóng vai sếp phản biện trước khi trình",
+  "theme": "desk",
+  "music": "nhac/mixkit-curiosity.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "scenes": [
+    {
+      "type": "s-cover",
+      "tag": "AI TIP · PHẢN BIỆN",
+      "line1": "Sợ sếp",
+      "line2": "hỏi vặn khi trình?",
+      "hook": "AI đóng vai sếp, hỏi trước",
+      "files": [
+        "Báo cáo tháng.docx",
+        "Đề xuất.pptx",
+        "Email gửi sếp.docx",
+        "Kế hoạch.xlsx"
+      ],
+      "dur": 2.2,
+      "vo": ""
+    },
+    {
+      "type": "s-problem",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Lên họp mới [[bị hỏi bất ngờ]]",
+      "winTitle": "Đề xuất.pptx — mình thấy ổn",
+      "files": [
+        "Số ở đâu?",
+        "Rủi ro?",
+        "Ai chịu?",
+        "Chi phí?",
+        "Khi nào xong?",
+        "So với cũ?",
+        "Bằng chứng?"
+      ],
+      "clockTo": 10,
+      "clockUnit": "phút lúng túng",
+      "counter": "câu hỏi",
+      "sub": "Mình là người viết nên khó thấy chỗ yếu của chính mình",
+      "vo": "Trình báo cáo hay đề xuất, mình đọc đi đọc lại vẫn thấy ổn vì mình là người viết. Lên họp mới bị hỏi những câu không lường trước, trả lời lúng túng, phải hẹn bổ sung."
+    },
+    {
+      "type": "s-prompt",
+      "tag": "AI TIP",
+      "heading": "Giao vai [[sếp khó tính]]",
+      "app": "Trợ lý AI",
+      "hint": "✻ đính kèm bản nháp rồi dán câu lệnh",
+      "hot": [
+        1,
+        4
+      ],
+      "lines": [
+        "Đóng vai trưởng phòng khó tính.",
+        "1. Hỏi 5 câu khó nhất.",
+        "2. Chỉ 3 chỗ yếu, thiếu bằng chứng.",
+        "3. Mỗi câu: bài trả lời chưa?",
+        "Không khen."
+      ],
+      "reply": "5 câu hỏi khó · 3 chỗ yếu · câu nào cần chuẩn bị thêm",
+      "vo": "Mẹo là đính kèm bản nháp và giao cho AI một vai cụ thể: trưởng phòng khó tính. Đòi ba thứ: năm câu hỏi khó nhất, ba chỗ yếu, và mỗi câu bài đã trả lời chưa. Quan trọng là dặn không khen."
+    },
+    {
+      "type": "s-shot",
+      "tag": "VÍ DỤ THẬT · 04/11",
+      "heading": "AI hỏi vặn [[bài của mình]]",
+      "window": "Trợ lý AI · phản biện",
+      "icon": "✦",
+      "color": "#7C5CFF",
+      "src": "shots/1-cau-hoi-kho.png",
+      "focus": [
+        5,
+        36,
+        80,
+        30
+      ],
+      "caption": "3 câu đã có · 2 câu cần chuẩn bị",
+      "vo": "Mình thử ngay trên bài dự thi tuần này. AI hỏi năm câu khó: ba câu bài đã trả lời sẵn, hai câu chưa có, như test case đã chạy thử chưa, và dựng lần đầu mất bao lâu.",
+      "ar": 1.871
+    },
+    {
+      "type": "s-shot",
+      "tag": "CHỖ YẾU",
+      "heading": "Tiêu đề [[thiếu con số]]",
+      "window": "Trợ lý AI · phản biện",
+      "icon": "✦",
+      "color": "#7C5CFF",
+      "src": "shots/1-cau-hoi-kho.png",
+      "focus": [
+        5,
+        66,
+        80,
+        18
+      ],
+      "caption": "Sửa ngay trước khi đăng",
+      "vo": "AI còn nói tiêu đề dài mà không có con số, người lướt không thấy lợi ích. Mình sửa ngay.",
+      "ar": 1.871
+    },
+    {
+      "type": "s-shot",
+      "tag": "SỬA TRƯỚC KHI ĐĂNG",
+      "heading": "Đưa [[7 bước còn 2]] lên đầu",
+      "window": "Bài đăng SAP Jam",
+      "icon": "J",
+      "color": "#2563EB",
+      "src": "shots/2-ket-qua.png",
+      "focus": [
+        50,
+        28,
+        47,
+        26
+      ],
+      "caption": "5 câu khó → 3 đã có · 1 sửa · 2 chuẩn bị",
+      "vo": "Tiêu đề mới đưa bảy bước tay còn hai lên đầu. Hai câu chưa có thì mình chuẩn bị câu trả lời trước, không còn bị hỏi bất ngờ.",
+      "ar": 2.615
+    },
+    {
+      "type": "s-compare",
+      "heading": "Trước & [[sau]]",
+      "colA": "TỰ ĐỌC",
+      "colB": "AI HỎI VẶN TRƯỚC",
+      "rows": [
+        [
+          "CÂU HỎI KHÓ",
+          "Bất ngờ",
+          "Biết trước"
+        ],
+        [
+          "CHỖ YẾU",
+          "Không thấy",
+          "Có danh sách"
+        ],
+        [
+          "THỜI GIAN",
+          "Họp lại lần 2",
+          "~12 phút"
+        ]
+      ],
+      "vo": "So với tự đọc: câu hỏi khó biết trước, chỗ yếu có danh sách để sửa, chỉ mất khoảng mười hai phút thay vì phải họp lại lần hai."
+    },
+    {
+      "type": "s-outro",
+      "line": "Để AI hỏi vặn [[trước khi sếp hỏi.]]",
+      "echo": "5 câu khó có sẵn câu trả lời",
+      "echoNote": "Báo cáo · đề xuất · email · bài đăng",
+      "tools": [
+        "Copilot",
+        "ChatGPT",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Câu lệnh mẫu mình để trong bài viết. Lần tới trước khi trình sếp, bạn thử cho AI hỏi vặn trước nha."
+    }
+  ]
+}
