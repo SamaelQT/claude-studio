@@ -1,0 +1,155 @@
+{
+  "series": "AI TIPS TUẦN 4",
+  "author": "Quang · IT Application",
+  "theme": "board",
+  "music": "nhac/mixkit-digital-clouds.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "15-quy-gio-ra-tien",
+  "title": "Đừng nói “nhanh hơn”, hãy nói “bao nhiêu tiền”",
+  "nop": "10690930_AI quy giờ tiết kiệm ra tiền, ghi rõ số đo thật",
+  "scenes": [
+    {
+      "type": "b-title",
+      "tag": "AI TIP · CHỨNG MINH BẰNG CON SỐ",
+      "line1": "Sếp hỏi:",
+      "line2": "“Tiết kiệm bao nhiêu tiền?”",
+      "hook": "Kể việc trước / sau, [[AI quy ra tiền]]",
+      "hookCue": "quy ra tiền",
+      "vo": "Làm cải tiến xong, sếp hỏi: tiết kiệm được bao nhiêu tiền? Phần lớn chúng ta chỉ nói được: nhanh hơn nhiều. Mẹo hôm nay là để AI quy ra tiền giúp."
+    },
+    {
+      "type": "b-list",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Nói “nhanh hơn” thì [[khó thuyết phục]]",
+      "items": [
+        {
+          "t": "Không nhớ trước đây mất bao lâu",
+          "cue": "không nhớ"
+        },
+        {
+          "t": "Không biết quy giờ ra tiền",
+          "cue": "không biết quy"
+        },
+        {
+          "t": "Số tự đoán, hỏi lại là lúng túng",
+          "cue": "tự đoán"
+        }
+      ],
+      "stamp": {
+        "big": "?? triệu",
+        "small": "câu sếp hỏi",
+        "cue": "lúng túng"
+      },
+      "vo": "Vấn đề là mình không nhớ trước đây mất bao lâu, không biết quy giờ ra tiền thế nào, nên đành tự đoán một con số. Sếp hỏi lại là lúng túng."
+    },
+    {
+      "type": "b-note",
+      "tag": "02 · CÂU LỆNH MẪU",
+      "heading": "Dán câu này cho AI",
+      "cue": "dán câu lệnh",
+      "lines": [
+        "Việc: [tên việc], làm [mấy lần] mỗi tháng.",
+        "Trước: mất [bao lâu] mỗi lần.",
+        "Có AI: mất [bao lâu] mỗi lần.",
+        "1) Tính giờ tiết kiệm mỗi tháng, quy ra tiền",
+        "    theo lương 1 giờ [số tiền].",
+        "2) Trừ tiền công cụ AI.",
+        "3) Ghi rõ số nào đo thật, số nào ước tính.",
+        "4) Chỉ ra con số nào sếp sẽ khó tin."
+      ],
+      "hot": [
+        6,
+        7
+      ],
+      "cues": [
+        "kể tên việc",
+        "trước đây mất",
+        "giờ mất",
+        "tính giờ",
+        "lương một giờ",
+        "trừ tiền",
+        "đo thật",
+        "khó tin"
+      ],
+      "note": "2 dòng cuối là bí quyết",
+      "noteCue": "bí quyết",
+      "vo": "Mẹo là dán câu lệnh này. Kể tên việc, làm mấy lần một tháng, trước đây mất bao lâu, giờ mất bao lâu. Bảo AI tính giờ tiết kiệm, quy ra tiền theo lương một giờ, trừ tiền công cụ. Bí quyết nằm ở hai dòng cuối: bắt AI ghi rõ số nào đo thật, số nào ước tính, và chỉ ra con số nào sếp sẽ khó tin."
+    },
+    {
+      "type": "b-photo",
+      "tag": "VÍ DỤ THẬT",
+      "heading": "Bảng quy đổi [[có nhãn rõ]]",
+      "src": "shots/1-bang-quy-doi.png",
+      "ar": 1.233,
+      "focus": [
+        73,
+        12,
+        26,
+        80
+      ],
+      "cue": "ghi chú",
+      "label": "Số nào chắc, số nào đoán",
+      "labelCue": "nhìn vào",
+      "vo": "Mình dùng đúng câu này cho bài thi tuần này. AI ra bảng quy đổi, mỗi con số có ghi chú đo thật hay ước tính, nhìn vào là biết số nào chắc."
+    },
+    {
+      "type": "b-photo",
+      "tag": "VÍ DỤ THẬT",
+      "heading": "AI chỉ ra [[số khó tin]]",
+      "src": "shots/2-so-kho-tin.png",
+      "ar": 2.214,
+      "focus": [
+        2,
+        22,
+        96,
+        42
+      ],
+      "cue": "bốn trăm bảy mươi",
+      "label": "Bỏ trước khi sếp hỏi",
+      "labelCue": "mình bỏ",
+      "vo": "Quan trọng hơn, AI chỉ ra một con số khó tin: bốn trăm bảy mươi triệu một năm, vì mới có mười người dùng thật. Mình bỏ con số đó, chỉ giữ số đo được."
+    },
+    {
+      "type": "b-compare",
+      "tag": "03 · TRƯỚC & SAU",
+      "heading": "Câu trả lời [[có số]]",
+      "colA": "TỰ ĐOÁN",
+      "colB": "NHỜ AI",
+      "rows": [
+        {
+          "k": "Trả lời sếp",
+          "a": "“nhanh hơn nhiều”",
+          "b": "3,8 triệu / 40 cuộc họp",
+          "cue": "ba phẩy tám"
+        },
+        {
+          "k": "Nguồn số",
+          "a": "nhớ mang máng",
+          "b": "6 số có nhãn đo / đoán",
+          "cue": "có nhãn"
+        },
+        {
+          "k": "Số khó tin",
+          "a": "không ai soi",
+          "b": "1 số bị bỏ",
+          "cue": "bị bỏ"
+        }
+      ],
+      "vo": "So lại: câu trả lời từ nhanh hơn nhiều thành ba phẩy tám triệu trên bốn mươi cuộc họp. Sáu con số đều có nhãn đo thật hay ước tính. Một con số khó tin bị bỏ trước khi sếp hỏi."
+    },
+    {
+      "type": "b-outro",
+      "line": "Đừng nói “nhanh hơn”.",
+      "echo": "Hãy nói “tiết kiệm bao nhiêu tiền”.",
+      "echoCue": "hãy nói",
+      "tools": [
+        "Copilot",
+        "ChatGPT",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Lần tới đừng nói nhanh hơn, hãy nói tiết kiệm bao nhiêu tiền. Câu lệnh mẫu mình để trong bài viết, phòng ban nào cũng dùng được."
+    }
+  ]
+}

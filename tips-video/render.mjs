@@ -34,14 +34,18 @@ const composition = await selectComposition({ serveUrl, id: "AiTip", inputProps,
 // Ảnh bìa (bia.png) — luôn xuất kèm, dùng làm ảnh đại diện khi đăng. Lấy giữa cảnh bìa nếu có, không thì khung đầu.
 {
   const s0 = timeline.scenes[0];
-  const frame = /cover$/.test(script.scenes[0]?.type ?? "") ? Math.round(((s0.start + s0.end) / 2) * timeline.fps) : 0;
+  // bìa: cảnh "cover" lấy khung giữa; cảnh "b-title" (bảng trắng, chữ vẽ dần) lấy khung gần cuối khi chữ đã viết xong
+  const t0 = script.scenes[0]?.type ?? "";
+  const frame = /cover$/.test(t0) ? Math.round(((s0.start + s0.end) / 2) * timeline.fps) : t0 === "b-title" ? Math.round((s0.end - 0.3) * timeline.fps) : 0;
   await renderStill({ serveUrl, composition, inputProps, frame, output: path.join(outDir, "bia.png"), port: PORT });
   console.log("  bia.png");
 }
 
 if (stillOnly) {
   for (const [i, s] of timeline.scenes.entries()) {
-    const frame = Math.min(composition.durationInFrames - 1, Math.round(((s.start + s.end) / 2) * timeline.fps));
+    // bảng trắng: lấy khung gần cuối cảnh (nét đã vẽ đủ) thay vì giữa cảnh
+    const at = script.theme === "board" ? s.end - 0.4 : (s.start + s.end) / 2;
+    const frame = Math.min(composition.durationInFrames - 1, Math.round(at * timeline.fps));
     const out = path.join(outDir, `khung-${String(i + 1).padStart(2, "0")}-${script.scenes[i].type}.png`);
     await renderStill({ serveUrl, composition, inputProps, frame, output: out, port: PORT });
     console.log(`  ${path.basename(out)}`);

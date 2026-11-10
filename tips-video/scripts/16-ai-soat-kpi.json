@@ -1,0 +1,164 @@
+{
+  "series": "AI TIPS TUẦN 4",
+  "author": "Quang · IT Application",
+  "theme": "board",
+  "music": "nhac/mixkit-digital-clouds.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "16-ai-soat-kpi",
+  "title": "Tự chấm KPI? Cho AI soát theo thang điểm",
+  "nop": "10690930_AI soát bảng tự chấm KPI theo thang điểm",
+  "scenes": [
+    {
+      "type": "b-title",
+      "tag": "AI TIP · KPI CUỐI THÁNG",
+      "line1": "Tự chấm KPI,",
+      "line2": "chấm lệch mà không biết?",
+      "hook": "Đưa [[thang điểm]] cho AI soát lại",
+      "hookCue": "soát lại",
+      "vo": "Cuối tháng tự chấm KPI, chấm lệch mà không biết, tới lúc trình mới bị hỏi. Mẹo hôm nay: đưa thang điểm cho AI soát lại."
+    },
+    {
+      "type": "b-list",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Chấm tay [[dễ lệch]]",
+      "items": [
+        {
+          "t": "Thang điểm dài, mỗi dòng một kiểu",
+          "cue": "thang điểm riêng"
+        },
+        {
+          "t": "Nhìn số rồi đoán điểm",
+          "cue": "đoán điểm"
+        },
+        {
+          "t": "Chép từ tháng trước, quên đổi",
+          "cue": "chép từ tháng trước"
+        }
+      ],
+      "stamp": {
+        "big": "15 chỉ tiêu",
+        "small": "mỗi người, mỗi tháng",
+        "cue": "mười lăm chỉ tiêu"
+      },
+      "vo": "Bảng KPI của team mình có mười lăm chỉ tiêu, mỗi chỉ tiêu một thang điểm riêng. Chấm tay thì hay nhìn số rồi đoán điểm, hoặc chép từ tháng trước rồi quên đổi."
+    },
+    {
+      "type": "b-note",
+      "tag": "02 · CÂU LỆNH MẪU",
+      "heading": "Dán 2 bảng cho AI",
+      "cue": "đưa cho AI",
+      "lines": [
+        "Đây là thang điểm KPI: [dán bảng].",
+        "Đây là bảng tự chấm tháng này: [dán bảng].",
+        "1) Tính lại điểm từng dòng đúng theo thang.",
+        "2) Dòng nào lệch: ô ghi bao nhiêu,",
+        "    đúng thang là bao nhiêu, vì sao.",
+        "3) Không tự sửa số thực tế, chỉ chỉ ra."
+      ],
+      "hot": [
+        3,
+        4
+      ],
+      "cues": [
+        "thang điểm và",
+        "bảng tự chấm",
+        "tính lại",
+        "dòng nào lệch",
+        "đúng phải bao nhiêu",
+        "không tự sửa"
+      ],
+      "note": "Dòng số 2 là chỗ đáng tiền",
+      "noteCue": "dặn",
+      "vo": "Mẹo là đưa cho AI hai thứ: thang điểm và bảng tự chấm. Bảo nó tính lại điểm từng dòng đúng theo thang, liệt kê dòng nào lệch, ô ghi bao nhiêu, đúng phải bao nhiêu, vì sao. Và dặn không tự sửa số thực tế."
+    },
+    {
+      "type": "b-photo",
+      "tag": "VÍ DỤ THẬT",
+      "heading": "KPI tháng 9 [[của chính mình]]",
+      "src": "shots/1-o-lech-thang.png",
+      "ar": 2.058,
+      "focus": [
+        2,
+        25,
+        96,
+        62
+      ],
+      "cue": "hai ô",
+      "label": "2 ô chấm lệch thang",
+      "labelCue": "kèm lý do",
+      "vo": "Mình thử với bảng KPI tháng chín của chính mình. AI tìm ra hai ô chấm lệch thang: một ô chấm thấp hơn quy định, một ô chấm cao hơn, kèm lý do từng ô."
+    },
+    {
+      "type": "b-numbers",
+      "tag": "03 · KẾT QUẢ",
+      "heading": "Soát xong [[trước khi nộp]]",
+      "nums": [
+        {
+          "v": 15,
+          "label": "chỉ tiêu tính lại",
+          "cue": "mười lăm chỉ tiêu"
+        },
+        {
+          "v": 2,
+          "label": "ô chấm lệch thang",
+          "cue": "hai ô lệch",
+          "star": true
+        },
+        {
+          "v": 3,
+          "label": "chỗ chép nhầm giữa các file",
+          "cue": "ba chỗ"
+        },
+        {
+          "v": 0,
+          "label": "số thực tế bị AI tự sửa",
+          "cue": "không số"
+        }
+      ],
+      "source": "Nguồn: bảng KPI tháng 9/2026 của Quang, soát ngày 09/11/2026. Team chốt chấm đúng theo thang điểm mẫu.",
+      "vo": "Kết quả: mười lăm chỉ tiêu được tính lại, hai ô lệch được sửa trước khi nộp, thêm ba chỗ chép nhầm giữa các file. Không số thực tế nào bị AI tự ý sửa."
+    },
+    {
+      "type": "b-compare",
+      "tag": "04 · TRƯỚC & SAU",
+      "heading": "Nộp KPI [[yên tâm]]",
+      "colA": "CHẤM TAY",
+      "colB": "AI SOÁT",
+      "rows": [
+        {
+          "k": "Cách chấm",
+          "a": "nhìn số đoán điểm",
+          "b": "tính lại từng dòng",
+          "cue": "tính lại từng dòng"
+        },
+        {
+          "k": "Ô lệch",
+          "a": "không biết",
+          "b": "2 ô, có lý do",
+          "cue": "có lý do"
+        },
+        {
+          "k": "Lúc trình",
+          "a": "bị hỏi mới sửa",
+          "b": "sửa trước khi nộp",
+          "cue": "trước khi nộp"
+        }
+      ],
+      "vo": "So lại: từ nhìn số đoán điểm thành tính lại từng dòng, ô lệch có lý do rõ ràng, và sửa trước khi nộp chứ không đợi bị hỏi."
+    },
+    {
+      "type": "b-outro",
+      "line": "Soát trước khi nộp.",
+      "echo": "Thang điểm + bảng tự chấm → AI tính lại",
+      "echoCue": "thang điểm",
+      "tools": [
+        "Copilot",
+        "ChatGPT",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Cuối tháng này, trước khi nộp KPI, đưa thang điểm và bảng tự chấm cho AI soát một lượt. Câu lệnh mẫu mình để trong bài viết."
+    }
+  ]
+}

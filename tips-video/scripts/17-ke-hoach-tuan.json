@@ -1,0 +1,151 @@
+{
+  "series": "AI TIPS TUẦN 4",
+  "author": "Quang · IT Application",
+  "theme": "board",
+  "music": "nhac/mixkit-digital-clouds.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "17-ke-hoach-tuan",
+  "title": "Mỗi ngày một việc chính: AI xếp lịch tuần",
+  "nop": "10690930_AI xếp kế hoạch tuần mỗi ngày một việc chính",
+  "scenes": [
+    {
+      "type": "b-title",
+      "tag": "AI TIP · KẾ HOẠCH TUẦN",
+      "line1": "Việc nào cũng",
+      "line2": "“đang làm” cả tuần?",
+      "hook": "AI xếp [[mỗi ngày 1 việc chính]]",
+      "hookCue": "mỗi ngày một việc",
+      "vo": "Tuần nào cũng năm, bảy việc, việc nào cũng kéo từ thứ Hai tới thứ Sáu. Cuối tuần nhìn lại, việc nào cũng dở dang. Mẹo hôm nay: nhờ AI xếp mỗi ngày một việc chính."
+    },
+    {
+      "type": "b-list",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Làm song song [[cả tuần]]",
+      "items": [
+        {
+          "t": "Việc nào cũng kéo dài cả tuần",
+          "cue": "kéo dài"
+        },
+        {
+          "t": "Sáng ra không biết làm gì trước",
+          "cue": "không biết làm gì"
+        },
+        {
+          "t": "Việc chờ người khác lẫn vào việc mình",
+          "cue": "chờ người khác"
+        }
+      ],
+      "stamp": {
+        "big": "15 việc",
+        "small": "kéo dài, chồng nhau",
+        "cue": "mười lăm việc"
+      },
+      "vo": "Việc nào cũng kéo dài, sáng ra không biết làm gì trước, việc phải chờ người khác thì lẫn vào việc của mình. Lịch dự án của mình từng có mười lăm việc kéo dài, chồng lên nhau."
+    },
+    {
+      "type": "b-note",
+      "tag": "02 · CÂU LỆNH MẪU",
+      "heading": "Đưa danh sách việc cho AI",
+      "cue": "đưa cho AI",
+      "lines": [
+        "Việc tuần này của tôi: [liệt kê, kèm hạn].",
+        "1) Xếp mỗi ngày 1 việc chính, tối đa 2 việc nhỏ.",
+        "2) Việc chờ người khác: tách riêng, ghi ngày nhắc.",
+        "3) Việc nào quá 3 ngày thì chia nhỏ.",
+        "4) Chỉ ra ngày nào bị quá tải."
+      ],
+      "hot": [
+        1,
+        2
+      ],
+      "cues": [
+        "danh sách việc",
+        "mỗi ngày một việc chính",
+        "chờ người khác",
+        "chia nhỏ",
+        "quá tải"
+      ],
+      "note": "Sáng ra nhìn 1 dòng là biết làm gì",
+      "noteCue": "sáng ra",
+      "vo": "Đưa cho AI danh sách việc kèm hạn. Bảo nó xếp mỗi ngày một việc chính, tối đa hai việc nhỏ. Việc chờ người khác thì tách riêng, ghi ngày nhắc. Việc nào quá ba ngày thì chia nhỏ, và chỉ ra ngày nào bị quá tải. Sáng ra chỉ cần nhìn một dòng là biết làm gì."
+    },
+    {
+      "type": "b-photo",
+      "tag": "VÍ DỤ THẬT · TRƯỚC",
+      "heading": "Lịch cũ: [[chồng chéo]]",
+      "src": "shots/1-lich-truoc.png",
+      "ar": 1.288,
+      "focus": [
+        10,
+        33,
+        50,
+        40
+      ],
+      "cue": "chồng lên nhau",
+      "label": "Nhiều việc kéo cả tháng",
+      "labelCue": "cả tháng",
+      "vo": "Đây là lịch thật một dự án của mình trước khi xếp lại. Nhiều thanh dài chồng lên nhau, có việc kéo cả tháng."
+    },
+    {
+      "type": "b-photo",
+      "tag": "VÍ DỤ THẬT · SAU",
+      "heading": "Lịch mới: [[từng bậc]]",
+      "src": "shots/2-lich-sau.png",
+      "ar": 1.076,
+      "focus": [
+        3,
+        12,
+        94,
+        82
+      ],
+      "cue": "từng bậc",
+      "label": "Mỗi ngày một việc chính",
+      "labelCue": "mỗi ngày",
+      "vo": "Sau khi nhờ AI xếp lại, lịch đi xuống từng bậc: mỗi ngày một việc chính. Thanh dài duy nhất là việc chờ team khác, được tách riêng."
+    },
+    {
+      "type": "b-numbers",
+      "tag": "03 · KẾT QUẢ",
+      "heading": "Đếm lại [[sau khi xếp]]",
+      "nums": [
+        {
+          "v": 15,
+          "label": "việc kéo dài hơn 3 ngày (trước)",
+          "cue": "mười lăm"
+        },
+        {
+          "v": 0,
+          "label": "việc kéo dài, chồng ngày (sau)",
+          "cue": "không còn",
+          "star": true
+        },
+        {
+          "v": 51,
+          "label": "việc nhỏ, mỗi việc 1–3 ngày",
+          "cue": "năm mươi mốt"
+        },
+        {
+          "v": 1,
+          "label": "việc chờ team khác tách riêng",
+          "cue": "một việc chờ"
+        }
+      ],
+      "source": "Nguồn: lịch công việc dự án Learning Mentor, trước / sau khi xếp lại ngày 06/11/2026.",
+      "vo": "Đếm lại: trước có mười lăm việc kéo dài, giờ không còn việc nào. Năm mươi mốt việc nhỏ, mỗi việc một tới ba ngày, và một việc chờ team khác được tách riêng."
+    },
+    {
+      "type": "b-outro",
+      "line": "Mỗi ngày một việc chính.",
+      "echo": "Việc chờ người khác: tách riêng",
+      "echoCue": "tách riêng",
+      "tools": [
+        "Copilot",
+        "ChatGPT",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Sáng thứ Hai này, đưa danh sách việc cho AI xếp: mỗi ngày một việc chính, việc chờ người khác tách riêng. Câu lệnh mẫu mình để trong bài viết."
+    }
+  ]
+}

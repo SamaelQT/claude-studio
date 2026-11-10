@@ -1,0 +1,234 @@
+{
+  "id": "14-wc4-insight-analyst",
+  "series": "WEEKLY CHALLENGE #4",
+  "title": "Insight Analyst: họp xong là có biên bản",
+  "author": "Quang · IT Application",
+  "nop": "10690930_WC4 Insight Analyst - AI viết biên bản họp, tiết kiệm gần 4 triệu trên 40 cuộc họp",
+  "theme": "board",
+  "music": "nhac/mixkit-motivating-mornings.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "scenes": [
+    {
+      "type": "b-title",
+      "tag": "WEEKLY CHALLENGE #4 · TEAM IT APPLICATION",
+      "line1": "Họp 1 tiếng,",
+      "line2": "gõ biên bản thêm 1 tiếng?",
+      "hook": "Bấm ghi âm, [[app tự viết biên bản]]",
+      "hookCue": "tự viết biên bản",
+      "chips": [
+        "40 cuộc họp thật",
+        "số đo từ app"
+      ],
+      "vo": "Họp một tiếng, về ngồi gõ biên bản thêm một tiếng nữa. Team IT Application đã bỏ được phần đó nhờ một app AI tự viết biên bản."
+    },
+    {
+      "type": "b-list",
+      "tag": "01 · TRƯỚC ĐÂY",
+      "heading": "Sau mỗi cuộc họp: [[5 việc làm tay]]",
+      "items": [
+        {
+          "t": "Vừa họp vừa ghi, dễ sót ý",
+          "cue": "vừa họp vừa ghi"
+        },
+        {
+          "t": "Nghe lại ghi âm gần 1 tiếng",
+          "cue": "nghe lại ghi âm"
+        },
+        {
+          "t": "Gõ biên bản, gửi trễ 1–2 ngày",
+          "cue": "gõ biên bản"
+        },
+        {
+          "t": "Nhắn từng người việc phải làm",
+          "cue": "nhắn từng người"
+        },
+        {
+          "t": "Sửa lại kế hoạch công việc",
+          "cue": "sửa lại kế hoạch"
+        }
+      ],
+      "stamp": {
+        "big": "≈ 1 giờ",
+        "small": "thêm mỗi cuộc họp",
+        "cue": "tốn thêm khoảng"
+      },
+      "vo": "Trước đây, sau mỗi cuộc họp là năm việc làm tay. Vừa họp vừa ghi nên hay sót ý. Về nghe lại ghi âm gần một tiếng. Gõ biên bản, gửi trễ một hai ngày. Rồi nhắn từng người việc phải làm, sửa lại kế hoạch công việc. Tính ra mỗi cuộc họp tốn thêm khoảng một giờ."
+    },
+    {
+      "type": "b-flow",
+      "tag": "02 · INSIGHT ANALYST",
+      "heading": "5 việc tay còn [[2 bước]]",
+      "steps": [
+        {
+          "t": "Bấm ghi âm",
+          "d": "mở app trên trình duyệt",
+          "cue": "bấm ghi âm"
+        },
+        {
+          "t": "Gõ lời nói thành chữ",
+          "d": "họp với người nước ngoài: dịch luôn",
+          "ai": true,
+          "cue": "tự gõ lại"
+        },
+        {
+          "t": "Viết biên bản",
+          "d": "đã chốt · chưa chốt · ai làm gì",
+          "ai": true,
+          "cue": "viết biên bản"
+        },
+        {
+          "t": "Cập nhật danh sách việc",
+          "d": "người làm · hạn chót",
+          "ai": true,
+          "cue": "danh sách việc"
+        },
+        {
+          "t": "Đọc lại, bấm gửi",
+          "d": "khoảng 10 phút",
+          "cue": "đọc lại"
+        }
+      ],
+      "vo": "Bây giờ người họp chỉ cần bấm ghi âm. App tự gõ lại lời nói thành chữ, họp với đối tác nước ngoài thì dịch luôn. Rồi nó viết biên bản: việc đã chốt, việc chưa chốt, ai làm gì, và tự cập nhật danh sách việc kèm hạn chót. Người họp chỉ cần đọc lại và bấm gửi."
+    },
+    {
+      "type": "b-photo",
+      "tag": "VÍ DỤ THẬT",
+      "heading": "Biên bản có ngay [[sau họp]]",
+      "src": "shots/1-quyet-dinh-con-treo.png",
+      "ar": 0.94,
+      "focus": [
+        0,
+        51,
+        100,
+        49
+      ],
+      "cue": "việc chưa chốt được",
+      "label": "Việc chưa chốt không bị quên",
+      "labelCue": "không bị quên",
+      "note": "Biên bản thật, cuộc họp ngày 12/10/2026",
+      "vo": "Đây là biên bản thật của một buổi họp. Việc đã chốt và việc chưa chốt được tách sẵn, nên việc chưa chốt không bị quên."
+    },
+    {
+      "type": "b-photo",
+      "tag": "VÍ DỤ THẬT",
+      "heading": "Bấm là [[nghe đúng đoạn]]",
+      "src": "shots/2-da-chot-moc-thoi-gian.png",
+      "ar": 1.797,
+      "focus": [
+        83,
+        3,
+        16,
+        94
+      ],
+      "cue": "phút thứ mấy",
+      "label": "Ghi sẵn phút thứ mấy",
+      "labelCue": "bấm vào",
+      "vo": "Mỗi việc đã chốt đều ghi sẵn phút thứ mấy trong file ghi âm. Cần kiểm lại thì bấm vào là nghe đúng đoạn đó, không phải nghe lại từ đầu."
+    },
+    {
+      "type": "b-numbers",
+      "tag": "03 · SỐ ĐO THẬT TỪ APP",
+      "heading": "[[40 cuộc họp]] đã chạy thật",
+      "nums": [
+        {
+          "v": 40,
+          "label": "cuộc họp, 10 người dùng",
+          "cue": "bốn mươi cuộc họp"
+        },
+        {
+          "v": 42.2,
+          "dec": 1,
+          "suf": " giờ",
+          "label": "lời nói gõ thành chữ",
+          "cue": "bốn mươi hai giờ"
+        },
+        {
+          "v": 218,
+          "label": "việc cần làm có người nhận",
+          "cue": "hai trăm mười tám"
+        },
+        {
+          "v": 12,
+          "suf": " nghìn",
+          "label": "tiền AI / 1 cuộc họp",
+          "cue": "mười hai nghìn",
+          "star": true
+        }
+      ],
+      "source": "Nguồn: số liệu trong app 19/08 – 10/11/2026. Tiền AI là số hãng AI tính thật: khoảng 465 nghìn đồng cho 40 cuộc họp.",
+      "vo": "Từ tháng tám tới nay, app đã chạy bốn mươi cuộc họp thật của mười người. Bốn mươi hai giờ nói chuyện được gõ thành chữ. Hai trăm mười tám việc cần làm được liệt kê, có người nhận. Tiền AI cho mỗi cuộc họp chỉ khoảng mười hai nghìn đồng."
+    },
+    {
+      "type": "b-compare",
+      "tag": "04 · TRƯỚC & SAU",
+      "heading": "Mỗi cuộc họp [[nhẹ hẳn]]",
+      "colA": "TRƯỚC",
+      "colB": "DÙNG APP",
+      "rows": [
+        {
+          "k": "Viết biên bản",
+          "a": "~60 phút",
+          "b": "~10 phút đọc lại",
+          "cue": "viết biên bản"
+        },
+        {
+          "k": "Gửi biên bản",
+          "a": "1–2 ngày",
+          "b": "ngay sau họp",
+          "cue": "gửi ngay"
+        },
+        {
+          "k": "Việc làm tay",
+          "a": "5 việc",
+          "b": "2 bước",
+          "cue": "năm việc"
+        },
+        {
+          "k": "Công cụ ghi biên bản",
+          "a": "600 nghìn / người / tháng",
+          "b": "không cần mua",
+          "cue": "không cần mua"
+        }
+      ],
+      "vo": "So lại từng cuộc họp. Viết biên bản từ khoảng sáu mươi phút còn mười phút đọc lại. Biên bản gửi ngay sau họp thay vì một hai ngày. Năm việc làm tay còn hai bước. Và không cần mua công cụ ghi biên bản bên ngoài, loại đó khoảng sáu trăm nghìn một người một tháng."
+    },
+    {
+      "type": "b-math",
+      "tag": "05 · QUY RA TIỀN",
+      "heading": "Quy ra [[giờ làm việc]]",
+      "lines": [
+        {
+          "t": "40 cuộc họp × 50 phút ≈ 33 giờ",
+          "cue": "bốn mươi cuộc là"
+        },
+        {
+          "t": "33 giờ quy ra lương ≈ 4,3 triệu",
+          "note": "tính theo lương 1 giờ của nhân viên IT (ước tính)",
+          "cue": "quy ra lương"
+        },
+        {
+          "t": "trừ tiền AI ≈ 0,46 triệu",
+          "cue": "trừ tiền AI"
+        },
+        {
+          "t": "≈ 3,8 triệu đồng",
+          "total": true,
+          "cue": "còn khoảng"
+        }
+      ],
+      "vo": "Mỗi cuộc họp đỡ khoảng năm mươi phút gõ biên bản. Bốn mươi cuộc là khoảng ba mươi ba giờ làm việc. Quy ra lương theo giờ, khoảng bốn phẩy ba triệu đồng. Trừ tiền AI bốn trăm sáu mươi nghìn, còn khoảng ba phẩy tám triệu đồng, chỉ sau bốn mươi cuộc họp đầu tiên."
+    },
+    {
+      "type": "b-outro",
+      "line": "Họp xong là có biên bản.",
+      "echo": "5 việc tay → 2 bước · ~3,8 triệu / 40 cuộc họp",
+      "echoCue": "việc ai nấy rõ",
+      "tools": [
+        "Mở trên trình duyệt",
+        "Tài khoản công ty"
+      ],
+      "cta": "Phòng ban muốn dùng thử: nhắn team IT Application",
+      "vo": "Họp xong là có biên bản, việc ai nấy rõ. App mở trên trình duyệt, đăng nhập bằng tài khoản công ty. Phòng ban nào muốn dùng thử, nhắn team IT Application nhé."
+    }
+  ]
+}
