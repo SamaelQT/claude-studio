@@ -9,7 +9,7 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 ## Nhật ký
 - 2026-11-18 · acc 2 · Tuần 5: 3 clip AI Tips #18 chụp phiếu viết tay → bảng, #19 so 2 bản quy định, #20 che thông tin bằng mã
   (dùng lại bộ cảnh `board` tuần 4, giọng Quỳnh Anh, 81–87 s). Số RESULT từ thử mù trên tài liệu mẫu tự làm (`output/ai-tips/_tuan5-thu`),
-  mỗi clip có `kiem-so-lieu.md` + `bai-dang-sap-jam.md` + `dinh-kem/`. Chưa đăng — chờ Quang xem.
+  mỗi clip có `kiem-so-lieu.md` + `bai-dang-sap-jam.md` + `dinh-kem/`. Quang trả về (18/11): làm lại theo 3 cửa duyệt, chờ Quang chọn ý tưởng.
 - 2026-10-29 · acc 2 · Clip #9 (Weekly Challenge #2 — thử tip "đưa schema" của anh Hoàng Mạnh Hùng), phong cách "bản vẽ sơ đồ dữ liệu" (look blueprint + cảnh k-schema). Giọng chuyển sang VieNeu bản mới 3.8.3 (model v4, fp32) ở venv `D:\cache\venv-vieneu4`, mặc định "Ngọc Huyền" (Quang chọn Ngọc Huyền / Hải Đăng). #6–#8 vẫn giọng Mai Anh cũ.
 - 2026-10-28 · acc 2 · Dựng 3 clip tuần 2: #6 cài hồ sơ (phong cách "thẻ nhân viên"), #7 dọn bộ nhớ AI ("bảng ghim giấy nhớ"),
   #8 5 câu lệnh lõi ("khối màu Thuỵ Sĩ") — Quang muốn mỗi clip một phong cách. Bộ cảnh mới `src/kit.tsx` (k-*, 3 look + 3 cảnh đặc trưng:
@@ -32,6 +32,8 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 ## Quyết định đã chốt
 - Giọng: VieNeu "Mai Anh" ×1.08, temperature 0.6 (28/10). Kịch bản cũ (01–05) giữ `voice` Edge để render lại không đổi giọng.
 - Mỗi tuần một bộ hình, mỗi video một hiệu ứng chính; ý tưởng chốt trước khi dựng; không cảnh "dùng AI an toàn" cuối video.
+- 18/11: 3 cửa duyệt bắt buộc trước khi dựng — chốt ý tưởng (tip ít người biết) → chốt style mới → chốt ảnh bìa (là khung đầu video).
+  Tuần 5 (#18–#20) bị trả về vì dùng lại `board`, chưa duyệt ý tưởng, không có bìa, tip quá phổ thông.
 
 ## Kiến thức riêng
 - Chạy: `cd tips-video` → `node tts.mjs scripts/<id>.json` → `node render.mjs scripts/<id>.json` → `output/ai-tips/<id>/`.
