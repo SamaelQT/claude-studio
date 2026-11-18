@@ -1,0 +1,154 @@
+{
+  "series": "AI TIPS TUẦN 5",
+  "author": "Quang · IT Application",
+  "theme": "board",
+  "music": "nhac/mixkit-curiosity.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "18-anh-phieu-ra-bang",
+  "title": "Chụp phiếu viết tay, AI chép thành bảng",
+  "nop": "10690930_Chụp phiếu viết tay AI chép thành bảng Excel",
+  "scenes": [
+    {
+      "type": "b-title",
+      "tag": "AI TIP · CHÉP BẢNG TỪ ẢNH",
+      "line1": "Ngồi gõ lại",
+      "line2": "phiếu viết tay?",
+      "hook": "Chụp ảnh, [[AI chép thành bảng]]",
+      "hookCue": "chép thành bảng",
+      "vo": "Phiếu kiểm kho, sổ chấm công, biên bản viết tay, cuối ngày lại ngồi gõ vào Excel từng ô. Mẹo hôm nay: chụp ảnh phiếu, nhờ AI chép thành bảng, kèm luôn phần soát lỗi."
+    },
+    {
+      "type": "b-list",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Gõ lại [[từng ô]]",
+      "items": [
+        {
+          "t": "Gõ tay mất cả buổi",
+          "cue": "mất cả buổi"
+        },
+        {
+          "t": "Ô nhoè mực thì đoán đại",
+          "cue": "đoán đại"
+        },
+        {
+          "t": "Phiếu cộng sai, không ai thấy",
+          "cue": "cộng sai"
+        }
+      ],
+      "stamp": {
+        "big": "70 ô",
+        "small": "10 dòng × 7 cột",
+        "cue": "bảy mươi ô"
+      },
+      "vo": "Gõ tay mất cả buổi. Ô nào nhoè mực thì đoán đại. Còn nếu người viết phiếu cộng sai, gõ lại y nguyên thì cũng không ai thấy. Một phiếu mười dòng đã là bảy mươi ô phải gõ."
+    },
+    {
+      "type": "b-note",
+      "tag": "02 · CÂU LỆNH MẪU",
+      "heading": "Gửi ảnh kèm câu lệnh",
+      "cue": "gửi ảnh",
+      "lines": [
+        "Chép phiếu trong ảnh thành bảng, đúng thứ tự cột.",
+        "1) Ô nào đọc không chắc: ghi [?] và nói lý do.",
+        "2) Kiểm: Tồn cuối = Tồn đầu + Nhập − Xuất.",
+        "3) Dòng nào lệch: ghi số đúng, lệch bao nhiêu.",
+        "Không tự bịa số cho đẹp."
+      ],
+      "hot": [
+        1,
+        2
+      ],
+      "cues": [
+        "đúng thứ tự cột",
+        "dấu hỏi",
+        "tồn cuối",
+        "lệch bao nhiêu",
+        "không được bịa"
+      ],
+      "note": "Ô có [?] thì xem lại phiếu gốc",
+      "noteCue": "xem lại phiếu gốc",
+      "vo": "Gửi ảnh cho AI, bảo nó chép thành bảng đúng thứ tự cột. Ô nào đọc không chắc thì ghi dấu hỏi và nói lý do. Kiểm luôn: tồn cuối bằng tồn đầu cộng nhập trừ xuất. Dòng nào lệch thì ghi số đúng, lệch bao nhiêu. Và không được bịa số cho đẹp. Ô có dấu hỏi thì mình chỉ cần xem lại phiếu gốc."
+    },
+    {
+      "type": "b-photo",
+      "tag": "THỬ THẬT · ẢNH PHIẾU",
+      "heading": "Phiếu viết tay, [[có ô nhoè]]",
+      "src": "shots/1-phieu.png",
+      "ar": 1.364,
+      "focus": [
+        66,
+        44,
+        18,
+        36
+      ],
+      "cue": "hai ô bị nhoè",
+      "label": "2 ô bị nhoè mực",
+      "labelCue": "cố ý viết sai",
+      "vo": "Mình thử với một phiếu kiểm kho mẫu, mười dòng. Có hai ô bị nhoè mực, và một dòng mình cố ý viết sai tồn cuối."
+    },
+    {
+      "type": "b-photo",
+      "tag": "THỬ THẬT · AI CHÉP",
+      "heading": "Bảng AI trả về",
+      "src": "shots/2-bang-ai.png",
+      "ar": 1.333,
+      "focus": [
+        3,
+        58,
+        94,
+        8
+      ],
+      "cue": "đánh dấu hỏi",
+      "label": "Bắt được dòng cộng sai",
+      "labelCue": "dòng băng keo",
+      "vo": "AI trả về bảng, hai ô nhoè được đánh dấu hỏi chứ không đoán. Và nó chỉ ra dòng băng keo: phiếu ghi mười sáu, đúng phải là mười tám."
+    },
+    {
+      "type": "b-numbers",
+      "tag": "03 · KẾT QUẢ",
+      "heading": "Soát lại [[từng ô]]",
+      "nums": [
+        {
+          "v": 70,
+          "suf": "/70",
+          "label": "ô chép đúng",
+          "cue": "bảy mươi trên bảy mươi"
+        },
+        {
+          "v": 2,
+          "suf": "/2",
+          "label": "ô nhoè được đánh [?]",
+          "cue": "cả hai ô"
+        },
+        {
+          "v": 1,
+          "suf": "/1",
+          "label": "dòng cộng sai bị bắt",
+          "cue": "dòng cộng sai",
+          "star": true
+        },
+        {
+          "v": 0,
+          "label": "số tự bịa",
+          "cue": "không có số nào"
+        }
+      ],
+      "source": "Thử trên 1 phiếu mẫu tự làm, 18/11/2026. Excel “lấy bảng từ ảnh” chưa đọc được tiếng Việt (support.microsoft.com).",
+      "vo": "Soát lại: bảy mươi trên bảy mươi ô chép đúng. Cả hai ô nhoè đều được đánh dấu hỏi. Dòng cộng sai bị bắt. Không có số nào tự bịa. Đây là một phiếu mẫu, chữ càng xấu thì càng phải soát kỹ. Excel hiện chưa đọc được chữ tiếng Việt từ ảnh, nên dùng AI chat là tiện nhất."
+    },
+    {
+      "type": "b-outro",
+      "line": "Chụp ảnh, AI chép, mình soát.",
+      "echo": "Ô có [?]: xem lại phiếu gốc",
+      "echoCue": "ô có dấu hỏi",
+      "tools": [
+        "Copilot",
+        "ChatGPT",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Lần tới gặp phiếu viết tay, đừng gõ lại. Chụp ảnh, AI chép, mình soát, ô có dấu hỏi thì nhìn lại phiếu gốc. Câu lệnh mẫu mình để trong bài viết."
+    }
+  ]
+}

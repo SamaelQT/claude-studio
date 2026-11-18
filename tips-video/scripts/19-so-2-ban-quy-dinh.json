@@ -1,0 +1,135 @@
+{
+  "series": "AI TIPS TUẦN 5",
+  "author": "Quang · IT Application",
+  "theme": "board",
+  "music": "nhac/mixkit-hazy-after-hours.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "19-so-2-ban-quy-dinh",
+  "title": "Quy định mới ra: AI liệt kê từng chỗ đổi",
+  "nop": "10690930_AI so 2 bản quy định chỉ đúng chỗ thay đổi",
+  "scenes": [
+    {
+      "type": "b-title",
+      "tag": "AI TIP · SO 2 BẢN",
+      "line1": "Quy định mới ra,",
+      "line2": "đổi chỗ nào?",
+      "hook": "AI liệt kê [[từng chỗ đổi]]",
+      "hookCue": "từng chỗ đổi",
+      "vo": "Phòng nhân sự gửi quy định mới, bảo có vài điểm thay đổi. Đọc hết hai bản để dò thì mỏi mắt. Mẹo hôm nay: đưa cả hai bản cho AI, bảo nó liệt kê từng chỗ đổi."
+    },
+    {
+      "type": "b-list",
+      "tag": "01 · VẤN ĐỀ",
+      "heading": "Đọc lướt [[dễ sót]]",
+      "items": [
+        {
+          "t": "Con số đổi nằm giữa câu",
+          "cue": "giữa câu"
+        },
+        {
+          "t": "Điều bị bỏ thì không thấy",
+          "cue": "bị bỏ"
+        },
+        {
+          "t": "Đánh số lại, tưởng đổi hết",
+          "cue": "đánh số lại"
+        }
+      ],
+      "stamp": {
+        "big": "1 con số",
+        "small": "sót là thiệt quyền lợi",
+        "cue": "một con số"
+      },
+      "vo": "Con số đổi thường nằm giữa câu. Điều bị bỏ thì đọc bản mới không thấy đâu. Còn khi đánh số lại, tưởng điều nào cũng đổi. Chỉ sót một con số là có thể thiệt quyền lợi."
+    },
+    {
+      "type": "b-note",
+      "tag": "02 · CÂU LỆNH MẪU",
+      "heading": "Dán bản cũ và bản mới",
+      "cue": "dán bản cũ",
+      "lines": [
+        "Đây là bản CŨ và bản MỚI của cùng một quy định.",
+        "1) Lập bảng: Mục | Bản cũ | Bản mới | Ảnh hưởng.",
+        "2) Ghi rõ điều nào BỎ, điều nào THÊM.",
+        "3) Không tính chỗ chỉ đổi số thứ tự.",
+        "4) Chép đúng con số, không làm tròn."
+      ],
+      "hot": [
+        1,
+        2
+      ],
+      "cues": [
+        "cùng một quy định",
+        "lập bảng",
+        "điều nào thêm",
+        "số thứ tự",
+        "không làm tròn"
+      ],
+      "note": "Word: Xem lại → So sánh",
+      "noteCue": "so sánh của Word",
+      "vo": "Dán bản cũ và bản mới, nói rõ đây là hai bản của cùng một quy định. Bảo AI lập bảng: mục, bản cũ, bản mới, và ảnh hưởng tới mình. Ghi rõ điều nào bỏ, điều nào thêm. Không tính chỗ chỉ đổi số thứ tự. Và chép đúng con số, không làm tròn. Muốn chắc hơn, đối chiếu lại bằng chức năng so sánh của Word."
+    },
+    {
+      "type": "b-photo",
+      "tag": "THỬ THẬT · BẢNG THAY ĐỔI",
+      "heading": "AI trả về [[6 chỗ đổi]]",
+      "src": "shots/1-bang-thay-doi.png",
+      "ar": 1.818,
+      "focus": [
+        65,
+        33,
+        32,
+        57
+      ],
+      "cue": "sáu chỗ đổi",
+      "label": "Đúng từng con số",
+      "labelCue": "số tiền mới",
+      "vo": "Mình thử với hai bản quy định công tác phí mẫu. AI trả về đúng sáu chỗ đổi, có cả số tiền mới, điều bị bỏ là tiền giặt ủi, và hạn nộp chứng từ rút từ mười xuống năm ngày."
+    },
+    {
+      "type": "b-numbers",
+      "tag": "03 · KẾT QUẢ",
+      "heading": "Soát lại [[với đáp án]]",
+      "nums": [
+        {
+          "v": 6,
+          "suf": "/6",
+          "label": "chỗ đổi tìm ra",
+          "cue": "sáu trên sáu",
+          "star": true
+        },
+        {
+          "v": 0,
+          "label": "chỗ báo nhầm",
+          "cue": "không báo nhầm"
+        },
+        {
+          "v": 3,
+          "label": "điều chỉ đánh số lại, bỏ qua đúng",
+          "cue": "ba điều"
+        },
+        {
+          "v": 6,
+          "label": "dòng có ghi ảnh hưởng",
+          "cue": "mỗi dòng"
+        }
+      ],
+      "source": "Thử trên 2 bản quy định mẫu tự làm, so với đáp án, 18/11/2026.",
+      "vo": "So với đáp án: sáu trên sáu chỗ đổi được tìm ra. Không báo nhầm chỗ nào. Ba điều chỉ bị đánh số lại thì bỏ qua đúng. Và mỗi dòng đều ghi ảnh hưởng: tăng, thêm, bỏ hay rút hạn. Đây là hai bản ngắn, tài liệu dài thì càng nên so lại."
+    },
+    {
+      "type": "b-outro",
+      "line": "Hai bản vào, một bảng ra.",
+      "echo": "Muốn chắc: so lại bằng Word",
+      "echoCue": "so lại bằng Word",
+      "tools": [
+        "Copilot",
+        "ChatGPT",
+        "Gemini",
+        "Claude"
+      ],
+      "cta": "Câu lệnh mẫu ở bài viết",
+      "vo": "Lần tới có quy định, hợp đồng hay biểu mẫu mới, đừng dò bằng mắt. Hai bản vào, một bảng ra. Việc quan trọng thì so lại bằng Word cho chắc. Câu lệnh mẫu mình để trong bài viết."
+    }
+  ]
+}

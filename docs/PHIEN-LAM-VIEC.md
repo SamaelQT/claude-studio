@@ -7,6 +7,9 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 "mẹo dùng AI" cho cuộc thi AI Tips (SAP Jam), kế hoạch 6 tuần ở `D:\Web\AI workspace\ai-sharing-tips\KE-HOACH-MEO-AI.md`.
 
 ## Nhật ký
+- 2026-11-18 · acc 2 · Tuần 5: 3 clip AI Tips #18 chụp phiếu viết tay → bảng, #19 so 2 bản quy định, #20 che thông tin bằng mã
+  (dùng lại bộ cảnh `board` tuần 4, giọng Quỳnh Anh, 81–87 s). Số RESULT từ thử mù trên tài liệu mẫu tự làm (`output/ai-tips/_tuan5-thu`),
+  mỗi clip có `kiem-so-lieu.md` + `bai-dang-sap-jam.md` + `dinh-kem/`. Chưa đăng — chờ Quang xem.
 - 2026-10-29 · acc 2 · Clip #9 (Weekly Challenge #2 — thử tip "đưa schema" của anh Hoàng Mạnh Hùng), phong cách "bản vẽ sơ đồ dữ liệu" (look blueprint + cảnh k-schema). Giọng chuyển sang VieNeu bản mới 3.8.3 (model v4, fp32) ở venv `D:\cache\venv-vieneu4`, mặc định "Ngọc Huyền" (Quang chọn Ngọc Huyền / Hải Đăng). #6–#8 vẫn giọng Mai Anh cũ.
 - 2026-10-28 · acc 2 · Dựng 3 clip tuần 2: #6 cài hồ sơ (phong cách "thẻ nhân viên"), #7 dọn bộ nhớ AI ("bảng ghim giấy nhớ"),
   #8 5 câu lệnh lõi ("khối màu Thuỵ Sĩ") — Quang muốn mỗi clip một phong cách. Bộ cảnh mới `src/kit.tsx` (k-*, 3 look + 3 cảnh đặc trưng:
@@ -20,6 +23,10 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 ## Đang dở / việc kế tiếp
 - Clip #6–#8 đã dựng (28/10), chờ Quang xem + thay số đo thật rồi đăng. Tuần 3 (3–9/11, chống AI bịa) cần 4 clip, mỗi clip một phong cách mới.
 - Kiểm trước khi giao: mỗi clip ≥ 60 s (thể lệ 1–3 phút); phông có dấu tiếng Việt (Georgia vỡ dấu → dùng Cambria); Cascadia Mono không có số khoanh tròn ②.
+- **Backlog từ mục Đã lưu FB (Quang chốt 12/11/2026, chi tiết `D:\Claude-chung\du-lieu-chung\fb-da-luu\kiem-tung-muc.md` mục 0, 3):**
+  lệnh `hoc-phong-cach <3–5 link>` gộp với `nghien-cuu-viral <từ khoá>`: yt-dlp tìm / tải clip YouTube + TikTok (lọc lượt xem, thời lượng) →
+  cắt khung + chép lời (faster-whisper) → Claude bóc cấu trúc (móc 3 s đầu, nhịp, CTA, bảng màu, chữ) → ghi `STYLE.md` + kịch bản nháp; storyboard
+  duyệt trước khi render. Chỉ học cách dựng, không chép hình / nhạc / lời. Kèm 3 look mới (skill `lam-video-bang-code/references/mau-tham-chieu.md`).
 - Quang muốn: lời viết kiểu văn nói, có thể chèn `[cười]`; nhạc nền dùng `"music": "pad"` (tự tổng hợp, không bản quyền).
 
 ## Quyết định đã chốt
