@@ -32,7 +32,7 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
   (+ `DO-THAT.md`). Bìa số trước→sau (6 câu→17 ô · 2/7→7/7 · 0/8→8/8), cảnh `n-shot` ảnh thật có khoanh + che tên, kết `n-end` "Lần tới…".
   20/11: Quang cần ngay → giọng làm luôn trên laptop (VieNeu Quỳnh Anh, cấu hình A: t=0.3, đọc từng câu, `HF_HUB_OFFLINE=1`, chạy riêng không song song render)
   → render cả bài: #18 70,2 s · #19 93,5 s · #20 82,0 s, −15,4…−15,6 LUFS, peak ≤ −0,8 dBFS. Đã gửi Quang 3 MP4, **chờ Quang xem / đăng**.
-  Bản #18–#20 cũ + render 18/11 vẫn giữ, chờ Quang quyết xoá.
+  20/11: Quang duyệt xoá bản #18–#20 cũ (anh-phieu-ra-bang, so-2-ban-quy-dinh, che-thong-tin) → output + public vào Thùng rác, kịch bản git rm (còn trong lịch sử git 5152230).
 - Clip #6–#8 đã dựng (28/10), chờ Quang xem + thay số đo thật rồi đăng. Tuần 3 (3–9/11, chống AI bịa) cần 4 clip, mỗi clip một phong cách mới.
 - Kiểm trước khi giao: mỗi clip ≥ 60 s (thể lệ 1–3 phút); phông có dấu tiếng Việt (Georgia vỡ dấu → dùng Cambria); Cascadia Mono không có số khoanh tròn ②.
 - **Backlog từ mục Đã lưu FB (Quang chốt 12/11/2026, chi tiết `D:\Claude-chung\du-lieu-chung\fb-da-luu\kiem-tung-muc.md` mục 0, 3):**
