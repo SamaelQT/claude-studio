@@ -1,0 +1,243 @@
+{
+  "series": "AI TIPS TUẦN 5",
+  "author": "Quang · IT Application",
+  "theme": "bantin",
+  "music": "nhac/mixkit-hazy-after-hours.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "18-doan-van-ra-luu-do",
+  "title": "Viết 1 đoạn văn, AI vẽ lưu đồ",
+  "nop": "10690930_Viết 1 đoạn văn, AI vẽ lưu đồ quy trình",
+  "num": "#18",
+  "scenes": [
+    {
+      "type": "n-cover",
+      "variant": "num",
+      "chip": "AI TIP · TUẦN 5",
+      "title": "Sếp bảo\n[[vẽ lưu đồ]]?",
+      "titleSize": 116,
+      "nums": {
+        "before": "6 câu",
+        "after": "17 ô",
+        "unit": "không kéo\n[[một ô nào]]"
+      },
+      "vo": "Một đoạn văn sáu câu. Không kéo một ô nào, ra lưu đồ mười bảy ô, đủ bốn chỗ rẽ nhánh."
+    },
+    {
+      "type": "n-shot",
+      "tag": "01 · GÕ 1 ĐOẠN VĂN",
+      "heading": "Kể quy trình\n[[như nói chuyện]]",
+      "keys": [
+        "sáu câu",
+        "mermaid",
+        "nếu thì"
+      ],
+      "src": "01-go-cau-lenh.jpg",
+      "crop": {
+        "x": 20,
+        "y": 445,
+        "w": 500,
+        "h": 400
+      },
+      "label": "Câu lệnh gõ thật",
+      "labelColor": "blue",
+      "marks": [
+        {
+          "x": 32,
+          "y": 484,
+          "w": 478,
+          "h": 268,
+          "label": "6 câu quy trình",
+          "color": "blue",
+          "cue": "sáu câu"
+        },
+        {
+          "x": 32,
+          "y": 760,
+          "w": 478,
+          "h": 80,
+          "label": "Câu lệnh vẽ",
+          "color": "green",
+          "cue": "mermaid"
+        }
+      ],
+      "note": {
+        "t": "Mỗi chỗ “nếu… thì…” = [[1 ô quyết định]]",
+        "cue": "nếu thì",
+        "color": "orange"
+      },
+      "vo": "Đây là câu lệnh mình gõ thật. Kể quy trình xử lý đơn hàng như đang nói chuyện, đúng sáu câu. Rồi thêm: vẽ thành lưu đồ bằng mã Mermaid. Mỗi chỗ nếu thì là một ô quyết định có hoặc không. Giữ đúng thứ tự, không tự thêm bước."
+    },
+    {
+      "type": "n-shot",
+      "tag": "02 · AI VẼ RA",
+      "heading": "Đủ chỗ\n[[rẽ nhánh]]",
+      "keys": [
+        "nợ quá hạn",
+        "kế toán có duyệt",
+        "đủ hàng"
+      ],
+      "src": "03-luu-do-tren.jpg",
+      "crop": {
+        "x": 20,
+        "y": 60,
+        "w": 500,
+        "h": 560
+      },
+      "label": "Lưu đồ AI vẽ",
+      "labelColor": "green",
+      "marks": [
+        {
+          "x": 180,
+          "y": 178,
+          "w": 120,
+          "h": 112,
+          "label": "Nợ quá hạn?",
+          "color": "orange",
+          "cue": "nợ quá hạn",
+          "right": true
+        },
+        {
+          "x": 86,
+          "y": 383,
+          "w": 84,
+          "h": 82,
+          "label": "Kế toán duyệt?",
+          "color": "orange",
+          "cue": "kế toán có duyệt",
+          "right": true
+        },
+        {
+          "x": 303,
+          "y": 540,
+          "w": 74,
+          "h": 70,
+          "label": "Đủ hàng?",
+          "color": "orange",
+          "cue": "đủ hàng",
+          "right": true
+        }
+      ],
+      "vo": "Đây là lưu đồ AI vẽ ra, chạy thật. Chỗ khách còn nợ quá hạn, một ô quyết định. Kế toán có duyệt không, thêm một ô. Rồi tới đủ hàng hay thiếu hàng."
+    },
+    {
+      "type": "n-shot",
+      "tag": "02 · AI VẼ RA",
+      "heading": "Tự vẽ vòng lặp,\n[[đúng chỗ 50 triệu]]",
+      "keys": [
+        "chờ hàng về",
+        "năm mươi triệu",
+        "mười bảy ô"
+      ],
+      "src": "04-luu-do-duoi.jpg",
+      "crop": {
+        "x": 20,
+        "y": 58,
+        "w": 500,
+        "h": 450
+      },
+      "label": "Lưu đồ AI vẽ",
+      "labelColor": "green",
+      "marks": [
+        {
+          "x": 180,
+          "y": 62,
+          "w": 95,
+          "h": 232,
+          "label": "Vòng lặp",
+          "color": "blue",
+          "cue": "chờ hàng về",
+          "below": true
+        },
+        {
+          "x": 355,
+          "y": 134,
+          "w": 98,
+          "h": 97,
+          "label": "Đơn > 50 triệu?",
+          "color": "orange",
+          "cue": "năm mươi triệu"
+        },
+        {
+          "x": 396,
+          "y": 264,
+          "w": 90,
+          "h": 29,
+          "color": "green",
+          "cue": "trưởng phòng ký"
+        }
+      ],
+      "note": {
+        "t": "[[17 ô]] · 4 rẽ nhánh · 1 vòng lặp",
+        "cue": "mười bảy ô",
+        "color": "green"
+      },
+      "vo": "Thiếu hàng thì báo phòng Mua, chờ hàng về, rồi AI tự vẽ vòng quay lại kiểm kho. Câu đơn trên năm mươi triệu nằm cuối đoạn văn, nhưng ô trưởng phòng ký vẫn đặt đúng trước khi xuất kho. Tổng cộng mười bảy ô, bốn chỗ rẽ nhánh, không ô nào sai."
+    },
+    {
+      "type": "n-shot",
+      "tag": "03 · AI HỎI LẠI",
+      "heading": "Chỉ ra\n[[nhánh còn thiếu]]",
+      "keys": [
+        "trưởng phòng không ký",
+        "không tự thêm",
+        "lỗ hổng"
+      ],
+      "src": "05-ai-hoi-lai.jpg",
+      "crop": {
+        "x": 20,
+        "y": 270,
+        "w": 500,
+        "h": 230
+      },
+      "label": "AI trả lời thật",
+      "labelColor": "blue",
+      "blur": [
+        {
+          "x": 268,
+          "y": 469,
+          "w": 34,
+          "h": 25
+        }
+      ],
+      "marks": [
+        {
+          "x": 80,
+          "y": 386,
+          "w": 422,
+          "h": 110,
+          "label": "Nhánh còn thiếu",
+          "color": "orange",
+          "cue": "trưởng phòng không ký"
+        }
+      ],
+      "note": {
+        "t": "Lộ [[lỗ hổng]] trước khi trình sếp",
+        "cue": "lỗ hổng",
+        "color": "orange"
+      },
+      "vo": "Hay nhất là đoạn cuối. Quy trình không nói trưởng phòng không ký thì sao, nên AI không tự thêm nhánh đó mà hỏi lại mình. Lỗ hổng trong quy trình lộ ra ngay, trước khi trình sếp."
+    },
+    {
+      "type": "n-end",
+      "tag": "04 · LÀM NGAY",
+      "heading": "Bản nháp lưu đồ\n[[để AI vẽ]]",
+      "keys": [
+        "sáu câu",
+        "lần tới",
+        "viết một đoạn văn"
+      ],
+      "big": {
+        "label": "Đoạn văn → lưu đồ",
+        "before": "6 câu",
+        "after": "17 ô",
+        "cue": "sáu câu"
+      },
+      "next": {
+        "h": "Lần tới sếp bảo vẽ lưu đồ",
+        "t": "Viết [[1 đoạn văn]] trước,\nđừng kéo ô từ đầu.",
+        "cue": "lần tới"
+      },
+      "vo": "Sáu câu văn thành lưu đồ mười bảy ô, kèm luôn một câu hỏi về nhánh còn thiếu. Lần tới sếp bảo vẽ lưu đồ, đừng mở phần mềm kéo ô vội. Viết một đoạn văn trước, để AI vẽ bản nháp."
+    }
+  ]
+}

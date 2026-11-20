@@ -16,8 +16,9 @@ export type Script = {
   theme?: string;
   music?: string;
   nop?: string;
+  num?: string;
   tips?: { t: string; d: string }[];
   scenes: Scene[];
 };
 
-export type Props = { script: Script; timeline: Timeline };
+export type Props = { script: Script; timeline: Timeline; silent?: boolean }; // silent: xem trước khi chưa có giọng (render.mjs --uoc)

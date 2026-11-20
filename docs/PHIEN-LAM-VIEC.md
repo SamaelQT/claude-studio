@@ -7,6 +7,13 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 "mẹo dùng AI" cho cuộc thi AI Tips (SAP Jam), kế hoạch 6 tuần ở `D:\Web\AI workspace\ai-sharing-tips\KE-HOACH-MEO-AI.md`.
 
 ## Nhật ký
+- 2026-11-19 · main acc 2 · **QUANG CHỐT cách lấy minh chứng tuần 5: "Claude tự chạy, chụp"** — chạy lại câu lệnh trên claude.ai trong trình duyệt của app, CHỈ dữ liệu mẫu, chụp / quay màn hình; chỉ làm khi Quang ngồi máy, không chạy nền; chưa đăng nhập thì nhờ Quang. Xong gửi Quang bìa + 5 s đầu + 5 s cuối từng clip duyệt trước khi render. Skill: `lam-video-bang-code/references/mo-bai-ket-bai-minh-chung.md` (đã có).
+- 2026-11-18 · acc 1 (phiên con) · Tuần 5 LÀM LẠI qua 3 cửa duyệt (Quang chọn tip B/C/D, style 1 "Bản tin sơ đồ", duyệt bìa):
+  #18 `18-doan-van-ra-luu-do` (đoạn văn → lưu đồ Mermaid), #19 `19-gop-5-luot-thanh-1-lenh`, #20 `20-ban-mau-giong-cong-ty`.
+  Theme mới `bantin` (`tips-video/src/bantin.tsx`, cảnh `n-*`), giọng Quỳnh Anh, ~76–80 s. Nguồn số: thử mù Sonnet 5.5 ở
+  `output/ai-tips/_tuan5b-thu`. Mỗi clip có `kiem-so-lieu.md` (có bảng Đo bản nộp) + `bai-dang-sap-jam.md` + `dinh-kem/`.
+  Bản #18–#20 cũ (`18-anh-phieu-ra-bang`, `19-so-2-ban-quy-dinh`, `20-che-thong-tin`) vẫn giữ, chờ Quang quyết.
+  Bẫy: `tts.mjs` (whisper) chạy song song render / Edge headless → `mkl_malloc` hết RAM; chạy một mình + `HF_HUB_OFFLINE=1`.
 - 2026-11-18 · acc 2 · Tuần 5: 3 clip AI Tips #18 chụp phiếu viết tay → bảng, #19 so 2 bản quy định, #20 che thông tin bằng mã
   (dùng lại bộ cảnh `board` tuần 4, giọng Quỳnh Anh, 81–87 s). Số RESULT từ thử mù trên tài liệu mẫu tự làm (`output/ai-tips/_tuan5-thu`),
   mỗi clip có `kiem-so-lieu.md` + `bai-dang-sap-jam.md` + `dinh-kem/`. Quang trả về (18/11): làm lại theo 3 cửa duyệt, chờ Quang chọn ý tưởng.
@@ -21,6 +28,11 @@ Studio làm video bằng code của Quang (repo cá nhân `SamaelQT/claude-studi
 - 2026-10-26 · acc 2 · Video #5 "Bản bàn giao + chat mới" (đen + cam, phụ đề tô từng chữ qua Edge WordBoundary, msedge-tts 2.1.1).
 
 ## Đang dở / việc kế tiếp
+- 19/11 (tối): ĐÃ LÀM LẠI 3 kịch bản #18–#20 theo 4 điểm, minh chứng thật chụp từ claude.ai (dữ liệu mẫu) ở `output/ai-tips/<id>/minh-chung/`
+  (+ `DO-THAT.md`). Bìa số trước→sau (6 câu→17 ô · 2/7→7/7 · 0/8→8/8), cảnh `n-shot` ảnh thật có khoanh + che tên, kết `n-end` "Lần tới…".
+  20/11: Quang cần ngay → giọng làm luôn trên laptop (VieNeu Quỳnh Anh, cấu hình A: t=0.3, đọc từng câu, `HF_HUB_OFFLINE=1`, chạy riêng không song song render)
+  → render cả bài: #18 70,2 s · #19 93,5 s · #20 82,0 s, −15,4…−15,6 LUFS, peak ≤ −0,8 dBFS. Đã gửi Quang 3 MP4, **chờ Quang xem / đăng**.
+  Bản #18–#20 cũ + render 18/11 vẫn giữ, chờ Quang quyết xoá.
 - Clip #6–#8 đã dựng (28/10), chờ Quang xem + thay số đo thật rồi đăng. Tuần 3 (3–9/11, chống AI bịa) cần 4 clip, mỗi clip một phong cách mới.
 - Kiểm trước khi giao: mỗi clip ≥ 60 s (thể lệ 1–3 phút); phông có dấu tiếng Việt (Georgia vỡ dấu → dùng Cambria); Cascadia Mono không có số khoanh tròn ②.
 - **Backlog từ mục Đã lưu FB (Quang chốt 12/11/2026, chi tiết `D:\Claude-chung\du-lieu-chung\fb-da-luu\kiem-tung-muc.md` mục 0, 3):**

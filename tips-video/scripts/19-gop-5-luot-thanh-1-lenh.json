@@ -1,0 +1,370 @@
+{
+  "series": "AI TIPS TUẦN 5",
+  "author": "Quang · IT Application",
+  "theme": "bantin",
+  "music": "nhac/mixkit-hazy-after-hours.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "19-gop-5-luot-thanh-1-lenh",
+  "title": "Chat 5 lượt mới ra? Xin lại câu lệnh",
+  "nop": "10690930_Chat 5 lượt mới ra, bảo AI gộp thành 1 câu lệnh dùng lại",
+  "num": "#19",
+  "scenes": [
+    {
+      "type": "n-cover",
+      "variant": "num",
+      "chip": "AI TIP · TUẦN 5",
+      "title": "Chat 5 lượt\n[[mới ra email ưng ý]]?",
+      "titleSize": 116,
+      "nums": {
+        "before": "2/7",
+        "after": "7/7",
+        "unit": "chỉ nhờ\n[[xin lại câu lệnh]]"
+      },
+      "vo": "Cùng một email báo cáo tuần. Chat mới, gõ lại yêu cầu: đạt hai trên bảy ý. Dán câu lệnh AI gộp sẵn: bảy trên bảy, ngay lượt đầu."
+    },
+    {
+      "type": "n-shot",
+      "tag": "01 · CHAT 5 LƯỢT",
+      "heading": "Lượt 1:\n[[văn mẫu, đánh số]]",
+      "keys": [
+        "lượt đầu",
+        "kính gửi",
+        "đánh số"
+      ],
+      "src": "01-luot-1.jpg",
+      "crop": {
+        "x": 20,
+        "y": 100,
+        "w": 500,
+        "h": 560
+      },
+      "label": "Chat thật",
+      "labelColor": "blue",
+      "marks": [
+        {
+          "x": 108,
+          "y": 105,
+          "w": 397,
+          "h": 135,
+          "label": "Lượt 1",
+          "color": "blue",
+          "cue": "lượt đầu",
+          "below": true
+        },
+        {
+          "x": 48,
+          "y": 478,
+          "w": 258,
+          "h": 32,
+          "label": "Văn mẫu",
+          "color": "red",
+          "cue": "kính gửi",
+          "right": true
+        },
+        {
+          "x": 48,
+          "y": 618,
+          "w": 185,
+          "h": 30,
+          "label": "Đánh số",
+          "color": "orange",
+          "cue": "đánh số",
+          "right": true
+        }
+      ],
+      "vo": "Đây là cuộc chat thật. Lượt đầu, mình gõ: viết email báo cáo tuần gửi sếp. AI trả về kính gửi anh chị, em xin báo cáo, rồi đánh số từng mục. Mình phải sửa thêm bốn lượt nữa."
+    },
+    {
+      "type": "n-shot",
+      "tag": "01 · CHAT 5 LƯỢT",
+      "heading": "Lượt 5\n[[mới ra bản chốt]]",
+      "keys": [
+        "lượt thứ năm",
+        "gọi anh",
+        "bảy yêu cầu"
+      ],
+      "src": "03-luot-5.jpg",
+      "crop": {
+        "x": 20,
+        "y": 85,
+        "w": 500,
+        "h": 490
+      },
+      "label": "Chat thật",
+      "labelColor": "blue",
+      "marks": [
+        {
+          "x": 126,
+          "y": 92,
+          "w": 378,
+          "h": 80,
+          "label": "Lượt 5",
+          "color": "blue",
+          "cue": "lượt thứ năm",
+          "below": true
+        },
+        {
+          "x": 130,
+          "y": 362,
+          "w": 280,
+          "h": 30,
+          "color": "green",
+          "cue": "tiêu đề"
+        },
+        {
+          "x": 48,
+          "y": 415,
+          "w": 140,
+          "h": 30,
+          "label": "Gọi anh",
+          "color": "green",
+          "cue": "gọi anh",
+          "right": true
+        },
+        {
+          "x": 48,
+          "y": 525,
+          "w": 95,
+          "h": 28,
+          "label": "3 mục",
+          "color": "green",
+          "cue": "ba mục",
+          "right": true
+        }
+      ],
+      "note": {
+        "t": "[[7 yêu cầu]] rải trong 5 lượt chat",
+        "cue": "bảy yêu cầu",
+        "color": "orange"
+      },
+      "vo": "Tới lượt thứ năm mới chốt được tiêu đề. Rồi gọi anh, chia đúng ba mục. Bảy yêu cầu rải trong năm lượt chat. Tuần sau mở chat mới là mất hết."
+    },
+    {
+      "type": "n-shot",
+      "tag": "02 · CÁCH LÀM",
+      "heading": "Cuối chat, gõ\n[[thêm 1 câu]]",
+      "keys": [
+        "đóng tab",
+        "một câu lệnh",
+        "ngoặc vuông"
+      ],
+      "src": "04-xin-cau-lenh.jpg",
+      "crop": {
+        "x": 90,
+        "y": 85,
+        "w": 430,
+        "h": 150
+      },
+      "label": "Câu lệnh gõ thật",
+      "labelColor": "blue",
+      "marks": [],
+      "note": {
+        "t": "Chỗ đổi mỗi tuần → [ngoặc vuông]",
+        "cue": "ngoặc vuông",
+        "color": "orange"
+      },
+      "vo": "Cách làm: trước khi đóng tab, gõ thêm một câu. Viết lại toàn bộ yêu cầu của tôi trong cuộc chat này thành một câu lệnh để lần sau dùng lại. Chỗ thay đổi mỗi lần thì để trong ngoặc vuông."
+    },
+    {
+      "type": "n-shot",
+      "tag": "02 · CÁCH LÀM",
+      "heading": "AI gộp đủ\n[[7 yêu cầu]]",
+      "keys": [
+        "dưới một trăm hai mươi chữ",
+        "tiêu đề",
+        "ba mục cố định"
+      ],
+      "src": "04-xin-cau-lenh.jpg",
+      "crop": {
+        "x": 20,
+        "y": 318,
+        "w": 500,
+        "h": 425
+      },
+      "label": "AI trả về",
+      "labelColor": "green",
+      "blur": [
+        {
+          "x": 192,
+          "y": 419,
+          "w": 118,
+          "h": 30
+        }
+      ],
+      "marks": [
+        {
+          "x": 46,
+          "y": 338,
+          "w": 452,
+          "h": 104,
+          "color": "orange",
+          "cue": "dưới một trăm hai mươi chữ"
+        },
+        {
+          "x": 46,
+          "y": 452,
+          "w": 452,
+          "h": 50,
+          "label": "Tiêu đề",
+          "color": "blue",
+          "cue": "tiêu đề"
+        },
+        {
+          "x": 46,
+          "y": 509,
+          "w": 452,
+          "h": 164,
+          "label": "3 mục",
+          "color": "green",
+          "cue": "ba mục cố định"
+        }
+      ],
+      "note": {
+        "t": "Gộp đủ [[7/7]] yêu cầu · copy lưu lại",
+        "cue": "đủ bảy yêu cầu",
+        "color": "green"
+      },
+      "vo": "AI trả về đúng một câu lệnh. Dưới một trăm hai mươi chữ, không mở bài sáo, xưng em gọi anh. Tiêu đề đúng mẫu. Đúng ba mục cố định, mục đang vướng ghi rõ cần ai hỗ trợ. Đủ bảy yêu cầu, copy lưu lại."
+    },
+    {
+      "type": "n-shot",
+      "tag": "03 · TUẦN SAU",
+      "heading": "Chat mới, gõ lại:\n[[văn mẫu quay lại]]",
+      "keys": [
+        "gõ lại",
+        "sai mẫu",
+        "kính gửi"
+      ],
+      "src": "05-A-chat-moi-go-lai.jpg",
+      "crop": {
+        "x": 20,
+        "y": 100,
+        "w": 500,
+        "h": 540
+      },
+      "label": "✗ Không câu lệnh · 2/7",
+      "labelColor": "red",
+      "marks": [
+        {
+          "x": 108,
+          "y": 105,
+          "w": 397,
+          "h": 185,
+          "label": "Dữ liệu tuần 47",
+          "color": "blue",
+          "cue": "gõ lại",
+          "below": true
+        },
+        {
+          "x": 130,
+          "y": 482,
+          "w": 355,
+          "h": 28,
+          "label": "Sai mẫu",
+          "color": "red",
+          "cue": "sai mẫu",
+          "below": true
+        },
+        {
+          "x": 48,
+          "y": 533,
+          "w": 255,
+          "h": 30,
+          "label": "Văn mẫu",
+          "color": "red",
+          "cue": "kính gửi",
+          "right": true
+        },
+        {
+          "x": 48,
+          "y": 672,
+          "w": 182,
+          "h": 28,
+          "label": "Đánh số",
+          "color": "orange",
+          "cue": "đánh số",
+          "right": true
+        }
+      ],
+      "vo": "Tuần sau, mở chat mới, gõ lại yêu cầu như thường. Tiêu đề sai mẫu. Lại kính gửi anh chị, em xin báo cáo. Lại đánh số từng mục, dài một trăm hai mươi sáu chữ. Chỉ đạt hai trên bảy."
+    },
+    {
+      "type": "n-shot",
+      "tag": "03 · TUẦN SAU",
+      "heading": "Dán câu lệnh:\n[[đúng ngay lượt đầu]]",
+      "keys": [
+        "tiêu đề",
+        "chào anh",
+        "bảy trên bảy"
+      ],
+      "src": "10-B-ket-qua.jpg",
+      "crop": {
+        "x": 20,
+        "y": 103,
+        "w": 500,
+        "h": 435
+      },
+      "label": "✓ Dán câu lệnh",
+      "labelColor": "green",
+      "marks": [
+        {
+          "x": 130,
+          "y": 114,
+          "w": 255,
+          "h": 30,
+          "label": "Tiêu đề đúng",
+          "color": "green",
+          "cue": "tiêu đề",
+          "right": true
+        },
+        {
+          "x": 48,
+          "y": 166,
+          "w": 105,
+          "h": 30,
+          "label": "Gọi anh",
+          "color": "green",
+          "cue": "chào anh",
+          "right": true
+        },
+        {
+          "x": 46,
+          "y": 224,
+          "w": 425,
+          "h": 300,
+          "label": "3 mục, ghi cần ai",
+          "color": "blue",
+          "cue": "ba mục"
+        }
+      ],
+      "note": {
+        "t": "Đạt [[7/7]] · 126 → 46 chữ · gửi được luôn",
+        "cue": "bảy trên bảy",
+        "color": "green"
+      },
+      "vo": "Còn đây là dán câu lệnh, chỉ thay phần trong ngoặc vuông. Tiêu đề đúng mẫu ngay. Chào anh, rồi đúng ba mục, mục đang vướng ghi rõ cần dev, cần phòng Mua. Đạt bảy trên bảy, còn bốn mươi sáu chữ."
+    },
+    {
+      "type": "n-end",
+      "tag": "04 · LÀM NGAY",
+      "heading": "Chat xong,\n[[đừng đóng tab vội]]",
+      "keys": [
+        "hai trên bảy",
+        "đừng đóng tab",
+        "xin lại câu lệnh"
+      ],
+      "big": {
+        "label": "Yêu cầu đạt",
+        "before": "2/7",
+        "after": "7/7",
+        "cue": "hai trên bảy"
+      },
+      "next": {
+        "h": "Lần tới chat mãi mới ưng",
+        "t": "Gõ thêm 1 câu [[xin lại câu lệnh]],\nrồi mới đóng tab.",
+        "cue": "lần tới"
+      },
+      "vo": "Hai trên bảy thành bảy trên bảy, nhờ đúng một câu cuối chat. Lần tới chat mãi mới ra bản ưng ý, đừng đóng tab vội. Xin lại câu lệnh trước, tuần sau chỉ việc dán."
+    }
+  ]
+}

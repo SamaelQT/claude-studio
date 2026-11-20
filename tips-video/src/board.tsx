@@ -37,7 +37,7 @@ const lerp = (f: number, a: number, b: number, from = 0, to = 1, ease = EASE) =>
 // ── Hẹn giờ theo lời: cue là một cụm chữ trong lời đọc của cảnh → khung (tính từ đầu cảnh) ──
 const norm = (s: string) => s.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
 export type Clock = { at: (cue?: string, k?: number) => number; fps: number; dur: number };
-function makeClock(tm: SceneTiming | undefined, fps: number, dur: number): Clock {
+export function makeClock(tm: SceneTiming | undefined, fps: number, dur: number): Clock {
   const t0 = tm?.start ?? 0;
   const caus = tm?.caus ?? [];
   const at = (cue?: string, k = 0): number => {

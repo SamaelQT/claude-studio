@@ -3,7 +3,9 @@
  *
  *   node render.mjs scripts/01-zalo-don-hang.json            → output/ai-tips/<id>.mp4
  *   node render.mjs scripts/01-zalo-don-hang.json --still     → chỉ chụp 1 khung giữa mỗi cảnh (xem nhanh bố cục)
- * Chạy tts.mjs trước (cần public/<id>/voice.mp3 + timeline.json).
+ *   node render.mjs scripts/<id>.json --uoc --xem → XEM TRƯỚC khi chưa có giọng: timeline ước tính từ lời (3,7 chữ/s), không tiếng;
+ *                                                  xuất bia.png + xem-dau.mp4 (bìa + 3 s cảnh 2) + xem-cuoi.mp4 (5 s cuối) + khung từng cảnh
+ * Chạy tts.mjs trước (cần public/<id>/voice.mp3 + timeline.json) — trừ khi --uoc.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -14,15 +16,32 @@ import { execFileSync } from "node:child_process";
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1");
 const scriptPath = path.resolve(process.argv[2] ?? "");
 const stillOnly = process.argv.includes("--still");
+const uoc = process.argv.includes("--uoc"); // timeline ước tính + im lặng (xem trước bố cục / nhịp khi giọng chưa làm)
+const xem = process.argv.includes("--xem");
 // Cổng riêng: 3000 hay bị app Next.js của studio chiếm → Remotion mở nhầm trang (ERR_EMPTY_RESPONSE).
 const PORT = Number(process.env.REMOTION_PORT || 3456);
 if (!fs.existsSync(scriptPath)) { console.error("Cách dùng: node render.mjs scripts/<file>.json [--still]"); process.exit(1); }
 
 const script = JSON.parse(fs.readFileSync(scriptPath, "utf8"));
 const tlPath = path.join(HERE, "public", script.id, "timeline.json");
-if (!fs.existsSync(tlPath)) { console.error(`Chưa có giọng đọc: chạy  node tts.mjs ${process.argv[2]}  trước`); process.exit(1); }
-const timeline = JSON.parse(fs.readFileSync(tlPath, "utf8"));
-const inputProps = { script, timeline };
+if (!uoc && !fs.existsSync(tlPath)) { console.error(`Chưa có giọng đọc: chạy  node tts.mjs ${process.argv[2]}  trước`); process.exit(1); }
+/** Timeline ước tính: đọc ~3,7 chữ/giây (đo từ giọng Quỳnh Anh tuần 5), nghỉ 0,25 s giữa câu, 0,5 s giữa cảnh. */
+function uocTimeline() {
+  let t = 0.3;
+  const scenes = script.scenes.map((sc, index) => {
+    const start = index === 0 ? 0 : t;
+    const caus = sc.vo.split(/(?<=[.!?])\s+/).filter(Boolean).map((text) => {
+      const n = text.split(/\s+/).length, d = n / 3.7, a = t;
+      t += d + 0.25;
+      return { text, start: a, end: a + d, words: text.split(/\s+/).map((_, k) => ({ start: a + (k * d) / n, end: a + ((k + 1) * d) / n })) };
+    });
+    t += 0.5;
+    return { index, start, end: t, caus };
+  });
+  return { fps: 30, scenes, total: t + 0.4 };
+}
+const timeline = uoc ? uocTimeline() : JSON.parse(fs.readFileSync(tlPath, "utf8"));
+const inputProps = { script, timeline, silent: uoc };
 
 const outDir = path.join(HERE, "..", "output", "ai-tips", script.id);
 fs.mkdirSync(outDir, { recursive: true });
@@ -41,15 +60,26 @@ const composition = await selectComposition({ serveUrl, id: "AiTip", inputProps,
   console.log("  bia.png");
 }
 
-if (stillOnly) {
+if (xem) {
+  // bản xem trước gửi Quang duyệt: đầu (bìa + 3 s cảnh kế) và 5 s cuối
+  const fps = timeline.fps, last = composition.durationInFrames - 1;
+  const dauTo = Math.min(last, Math.round(((timeline.scenes[1]?.start ?? 5) + 3) * fps));
+  for (const [ten, range] of [["xem-dau", [0, dauTo]], ["xem-cuoi", [Math.max(0, last - 5 * fps), last]]]) {
+    await renderMedia({ serveUrl, composition, inputProps, port: PORT, codec: "h264", crf: 22, frameRange: range, outputLocation: path.join(outDir, `${ten}.mp4`), muted: uoc });
+    console.log(`  ${ten}.mp4`);
+  }
+}
+if (stillOnly || xem) {
   for (const [i, s] of timeline.scenes.entries()) {
     // bảng trắng: lấy khung gần cuối cảnh (nét đã vẽ đủ) thay vì giữa cảnh
-    const at = script.theme === "board" ? s.end - 0.4 : (s.start + s.end) / 2;
+    const at = script.theme === "board" || script.theme === "bantin" ? s.end - 0.4 : (s.start + s.end) / 2;
     const frame = Math.min(composition.durationInFrames - 1, Math.round(at * timeline.fps));
     const out = path.join(outDir, `khung-${String(i + 1).padStart(2, "0")}-${script.scenes[i].type}.png`);
     await renderStill({ serveUrl, composition, inputProps, frame, output: out, port: PORT });
     console.log(`  ${path.basename(out)}`);
   }
+} else if (uoc) {
+  console.log("--uoc chỉ để xem trước (không có giọng) — không xuất bản nộp.");
 } else {
   const out = path.join(outDir, `${script.id}.mp4`);
   let last = -1;

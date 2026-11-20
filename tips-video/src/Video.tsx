@@ -10,6 +10,7 @@ import { D, DARK_SCENES } from "./dark";
 import { KIT_SCENES, LOOKS } from "./kit";
 import { DESK_SCENES, D as DK } from "./desk";
 import { BoardVideo } from "./board";
+import { BantinVideo } from "./bantin";
 
 const ALL = { ...SCENES, ...PAPER_SCENES, ...MAIL_SCENES, ...CHAT_SCENES, ...DARK_SCENES, ...KIT_SCENES, ...DESK_SCENES };
 const isCover = (t?: string) => /(^|-)cover$/.test(t ?? "");
@@ -81,6 +82,8 @@ export const AiTipVideo: React.FC<Props> = (props) => {
   const { fps, durationInFrames } = useVideoConfig();
   // tuần 4 "Bảng trắng viết tay": cả video là một tấm bảng, máy quay đi qua từng vùng (src/board.tsx)
   if (script.theme === "board") return <BoardVideo {...props} />;
+  // tuần 5 "Bản tin sơ đồ" (src/bantin.tsx)
+  if (script.theme === "bantin") return <BantinVideo {...props} />;
   const T = theme(script.theme);
   const starts = timeline.scenes.map((s, i) => (i === 0 ? 0 : Math.round(s.start * fps)));
   return (

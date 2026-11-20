@@ -1,0 +1,295 @@
+{
+  "series": "AI TIPS TUẦN 5",
+  "author": "Quang · IT Application",
+  "theme": "bantin",
+  "music": "nhac/mixkit-hazy-after-hours.mp3",
+  "vieneuVoice": "Quỳnh Anh",
+  "id": "20-ban-mau-giong-cong-ty",
+  "title": "Đưa 1 bản mẫu, AI viết đúng giọng công ty",
+  "nop": "10690930_Đưa 1 bản mẫu, AI viết đúng giọng công ty",
+  "num": "#20",
+  "scenes": [
+    {
+      "type": "n-cover",
+      "variant": "num",
+      "chip": "AI TIP · TUẦN 5",
+      "title": "AI viết thông báo\n[[lạc giọng công ty]]?",
+      "nums": {
+        "before": "0/8",
+        "after": "8/8",
+        "unit": "chỉ nhờ dán\n[[1 thông báo cũ]]"
+      },
+      "vo": "Cùng một thông báo. Chỉ gõ yêu cầu, AI đạt không trên tám điểm giọng của phòng mình. Dán thêm một thông báo cũ, tám trên tám.",
+      "titleSize": 116
+    },
+    {
+      "type": "n-shot",
+      "tag": "01 · CHỈ GÕ YÊU CẦU",
+      "heading": "AI tự chế\n[[kiểu trình bày]]",
+      "keys": [
+        "thông báo nội bộ",
+        "kính gửi",
+        "cái bảng"
+      ],
+      "src": "02-khong-mau-tren.jpg",
+      "crop": {
+        "x": 20,
+        "y": 362,
+        "w": 500,
+        "h": 368
+      },
+      "label": "✗ Không bản mẫu",
+      "labelColor": "red",
+      "marks": [
+        {
+          "x": 38,
+          "y": 395,
+          "w": 430,
+          "h": 50,
+          "label": "Tiêu đề lạ",
+          "color": "red",
+          "cue": "thông báo nội bộ",
+          "below": true
+        },
+        {
+          "x": 38,
+          "y": 460,
+          "w": 185,
+          "h": 28,
+          "label": "Xưng hô lạ",
+          "color": "orange",
+          "cue": "kính gửi",
+          "right": true
+        },
+        {
+          "x": 38,
+          "y": 545,
+          "w": 470,
+          "h": 178,
+          "label": "Kẻ bảng",
+          "color": "red",
+          "below": true,
+          "cue": "cái bảng"
+        }
+      ],
+      "note": {
+        "t": "Phòng mình [[chưa bao giờ]] viết kiểu này",
+        "cue": "chưa bao giờ",
+        "color": "red"
+      },
+      "vo": "Đây là bản Claude viết khi mình chỉ gõ yêu cầu, chạy thật hôm nay. Tiêu đề thông báo nội bộ, vê trên vê. Kính gửi các anh chị. Rồi kẻ hẳn một cái bảng. Phòng mình chưa bao giờ viết kiểu này."
+    },
+    {
+      "type": "n-shot",
+      "tag": "01 · CHỈ GÕ YÊU CẦU",
+      "heading": "Kết bài\n[[văn mẫu]]",
+      "keys": [
+        "nếu cần hỗ trợ",
+        "trân trọng",
+        "không trên tám"
+      ],
+      "src": "03-khong-mau-duoi.jpg",
+      "crop": {
+        "x": 20,
+        "y": 140,
+        "w": 500,
+        "h": 250
+      },
+      "label": "✗ Không bản mẫu",
+      "labelColor": "red",
+      "marks": [
+        {
+          "x": 38,
+          "y": 263,
+          "w": 440,
+          "h": 48,
+          "label": "Văn mẫu",
+          "color": "orange",
+          "cue": "nếu cần hỗ trợ",
+          "below": true
+        },
+        {
+          "x": 38,
+          "y": 330,
+          "w": 140,
+          "h": 48,
+          "label": "Bỏ trống tên",
+          "color": "red",
+          "cue": "trân trọng",
+          "right": true
+        }
+      ],
+      "note": {
+        "t": "So với thông báo cũ của phòng: đạt [[0/8]] điểm",
+        "cue": "không trên tám",
+        "color": "red"
+      },
+      "vo": "Cuối bài thêm câu nếu cần hỗ trợ, vui lòng liên hệ. Rồi trân trọng, kèm chỗ trống chờ điền tên. Đem so với thông báo cũ của phòng, bản này đạt không trên tám điểm. Gửi đi là phải sửa lại từng dòng."
+    },
+    {
+      "type": "n-shot",
+      "tag": "02 · CÁCH LÀM",
+      "heading": "Dán bản cũ\n[[trước yêu cầu]]",
+      "keys": [
+        "đã gửi",
+        "đúng giọng",
+        "che tên"
+      ],
+      "src": "04-co-mau-go-yeu-cau.jpg",
+      "crop": {
+        "x": 20,
+        "y": 400,
+        "w": 500,
+        "h": 455
+      },
+      "label": "Câu lệnh gõ thật",
+      "labelColor": "blue",
+      "marks": [
+        {
+          "x": 32,
+          "y": 440,
+          "w": 476,
+          "h": 215,
+          "label": "Thông báo cũ đã duyệt",
+          "color": "blue",
+          "cue": "đã gửi"
+        },
+        {
+          "x": 32,
+          "y": 688,
+          "w": 476,
+          "h": 160,
+          "label": "Yêu cầu mới",
+          "color": "green",
+          "below": true,
+          "cue": "đúng giọng"
+        }
+      ],
+      "note": {
+        "t": "Che tên, số điện thoại thật trước khi dán",
+        "cue": "che tên",
+        "color": "orange"
+      },
+      "vo": "Cách sửa rất đơn giản. Mở hộp thư đã gửi, chép một thông báo cũ đã được duyệt, dán lên trước. Bên dưới gõ: viết thông báo mới đúng giọng và cấu trúc bản trên, kèm số liệu tuần bốn mươi tám. Nhớ che tên, số điện thoại thật trước khi dán."
+    },
+    {
+      "type": "n-shot",
+      "tag": "03 · CÓ BẢN MẪU",
+      "heading": "Cùng số liệu,\n[[đúng giọng phòng]]",
+      "keys": [
+        "tiêu đề",
+        "phòng kinh doanh thông báo",
+        "đánh số"
+      ],
+      "src": "05-co-mau-tren.jpg",
+      "crop": {
+        "x": 20,
+        "y": 500,
+        "w": 500,
+        "h": 350
+      },
+      "label": "✓ Có bản mẫu",
+      "labelColor": "green",
+      "marks": [
+        {
+          "x": 38,
+          "y": 522,
+          "w": 355,
+          "h": 32,
+          "label": "Tiêu đề",
+          "color": "green",
+          "cue": "tiêu đề",
+          "right": true
+        },
+        {
+          "x": 38,
+          "y": 565,
+          "w": 462,
+          "h": 96,
+          "color": "green",
+          "cue": "phòng kinh doanh thông báo"
+        },
+        {
+          "x": 46,
+          "y": 672,
+          "w": 395,
+          "h": 88,
+          "label": "Đánh số",
+          "color": "blue",
+          "cue": "đánh số",
+          "below": true
+        }
+      ],
+      "vo": "Cùng bộ số liệu, lần này Claude giữ đúng tiêu đề có mã phòng. Đúng câu kính gửi anh chị, phòng kinh doanh thông báo. Đánh số từng ngày giao, đúng như bản cũ."
+    },
+    {
+      "type": "n-shot",
+      "tag": "03 · CÓ BẢN MẪU",
+      "heading": "Ký đúng tên phòng,\n[[gửi được ngay]]",
+      "keys": [
+        "thắc mắc liên hệ",
+        "phòng kinh doanh",
+        "tám trên tám"
+      ],
+      "src": "06-co-mau-duoi.jpg",
+      "crop": {
+        "x": 20,
+        "y": 180,
+        "w": 500,
+        "h": 278
+      },
+      "label": "✓ Có bản mẫu",
+      "labelColor": "green",
+      "marks": [
+        {
+          "x": 38,
+          "y": 372,
+          "w": 345,
+          "h": 30,
+          "label": "Liên hệ",
+          "color": "green",
+          "cue": "thắc mắc liên hệ",
+          "right": true
+        },
+        {
+          "x": 38,
+          "y": 412,
+          "w": 168,
+          "h": 30,
+          "label": "Ký tên phòng",
+          "color": "green",
+          "cue": "ký đúng",
+          "right": true
+        }
+      ],
+      "note": {
+        "t": "Đạt [[8/8]] · 103 → 80 chữ · không phải sửa",
+        "cue": "tám trên tám",
+        "color": "green"
+      },
+      "vo": "Cuối bài vẫn câu thắc mắc liên hệ quen thuộc, và ký đúng phòng kinh doanh. Đạt tám trên tám điểm, ngắn hơn hai mươi chữ, gửi được luôn. Văn bản có nhiều kiểu thì dán hai, ba bản mẫu."
+    },
+    {
+      "type": "n-end",
+      "tag": "04 · LÀM NGAY",
+      "heading": "Bản cũ là\n[[câu lệnh tốt nhất]]",
+      "keys": [
+        "một bản mẫu",
+        "đã gửi",
+        "câu lệnh tốt nhất"
+      ],
+      "big": {
+        "label": "Đúng giọng phòng",
+        "before": "0/8",
+        "after": "8/8",
+        "cue": "một bản mẫu"
+      },
+      "next": {
+        "h": "Lần tới viết thông báo",
+        "t": "Mở hộp thư [[Đã gửi]] trước,\nđừng gõ từ đầu.",
+        "cue": "lần tới"
+      },
+      "vo": "Không trên tám thành tám trên tám, chỉ nhờ một bản mẫu. Lần tới cần viết thông báo, đừng gõ từ đầu. Mở hộp thư đã gửi trước, thông báo cũ chính là câu lệnh tốt nhất."
+    }
+  ]
+}
